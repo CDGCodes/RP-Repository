@@ -6,14 +6,6 @@ function s.initial_effect(c)
 	c:EnableReviveLimit()
 	Synchro.AddDarkSynchroProcedure(c,aux.FilterSummonCode(44508094),aux.FilterBoolFunctionEx(Card.IsType,TYPE_SYNCHRO),0)
 	c:SetStatus(STATUS_NO_LEVEL,true)
-	--immune
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetCode(EFFECT_IMMUNE_EFFECT)
-	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-	e1:SetRange(LOCATION_MZONE)
-	e1:SetValue(s.efilter)
-	c:RegisterEffect(e1)
 	--indes
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_FIELD)
@@ -34,11 +26,8 @@ function s.initial_effect(c)
 	e3:SetOperation(s.mtop)
 	c:RegisterEffect(e3)
 end
-function s.efilter(e,te)
-	return te:GetOwner()~=e:GetOwner()
-end
 function s.indct(e,re,r,rp)
-	if (r&REASON_BATTLE+REASON_EFFECT)~=0 then
+	if (r)~=0 then
 		return 1
 	else return 0 end
 end
