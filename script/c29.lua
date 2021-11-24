@@ -3,12 +3,13 @@ local s,id=GetID()
 function s.initial_effect(c)
 	local e1=Fusion.CreateSummonEff(c,aux.FilterBoolFunction(aux.IsMaterialListSetCard,0x1093),Fusion.OnFieldMat(Card.IsAbleToDeck),s.fextra,Fusion.ShuffleMaterial,nil,s.stage2)
 	e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)
-	e1:SetCondition(s.condition)
+	e1:SetCost(s.cost)
 	c:RegisterEffect(e1)
 end
-function s.condition(e,tp,eg,ep,ev,re,r,rp)
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local tc=Duel.GetFieldCard(tp,LOCATION_SZONE,5)
-	return tc and tc:GetCounter(0x91)>3
+	if chk==0 then return tc and tc:IsCanRemoveCounter(tp,0x91,3,REASON_COST) end	 
+	tc:RemoveCounter(tp,0x91,3,REASON_COST)
 end
 function s.fcheck(tp,sg,fc)
 	return sg:IsExists(aux.FilterBoolFunction(Card.IsSetCard,0x1093,fc,SUMMON_TYPE_FUSION,tp),1,nil)

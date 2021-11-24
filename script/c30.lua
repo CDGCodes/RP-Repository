@@ -13,7 +13,7 @@ function s.initial_effect(c)
 end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local tc=Duel.GetFieldCard(tp,LOCATION_SZONE,5)
-	if chk==0 then return tc and tc:IsCanRemoveCounter(tp,0x91,5,REASON_COST) end	 
+	if chk==0 then return tc and tc:IsCanRemoveCounter(tp,0x91,5,REASON_COST) end
 	tc:RemoveCounter(tp,0x91,5,REASON_COST)
 	Duel.PayLPCost(tp,math.floor(Duel.GetLP(tp)/2))
 end

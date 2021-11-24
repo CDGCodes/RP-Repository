@@ -7,15 +7,16 @@ function s.initial_effect(c)
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetCondition(s.condition)
+	e1:SetCost(s.cost)
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
 end
 s.listed_names={CARD_CYBER_DRAGON}
-function s.condition(e,tp,eg,ep,ev,re,r,rp)
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local tc=Duel.GetFieldCard(tp,LOCATION_SZONE,5)
-	return tc and tc:GetCounter(0x91)>4
+	if chk==0 then return tc and tc:IsCanRemoveCounter(tp,0x91,4,REASON_COST) end	 
+	tc:RemoveCounter(tp,0x91,4,REASON_COST)
 end
 function s.filter(c,e,tp)
 	return c:IsCode(CARD_CYBER_DRAGON) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
