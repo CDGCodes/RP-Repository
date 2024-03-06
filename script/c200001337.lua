@@ -4,7 +4,7 @@ local s,id=GetID()
 function s.initial_effect(c)
 	--dark synchro summon
 	c:EnableReviveLimit()
-	Synchro.AddDarkSynchroProcedure(c,aux.FilterSummonCode(44508094),aux.FilterBoolFunctionEx(Card.IsType,TYPE_SYNCHRO),0)
+	Synchro.AddDarkSynchroProcedure(c,aux.FilterSummonCode(CARD_STARDUST_DRAGON),aux.FilterBoolFunctionEx(Card.IsType,TYPE_SYNCHRO),0)
 	c:SetStatus(STATUS_NO_LEVEL,true)
 	--indes
 	local e2=Effect.CreateEffect(c)
