@@ -37,7 +37,7 @@ function s.splimit(e,se,sp,st)
 end
 
 function s.val(e, c)
-	return Duel.GetMatchingGroupCount(Card.IsMonster,e:GetHandlerPlayer(),LOCATION_GRAVE,0,nil)*200
+	return Duel.GetMatchingGroupCount(Card.IsMonster,e:GetHandlerPlayer(),LOCATION_MZONE,LOCATION_MZONE,nil, 0x20a2)*200
 end
 
 function s.cfilter(c, tp)
