@@ -35,7 +35,7 @@ end
 function s.descon(e, tp, eg, ep, ev, re, r, rp)
 	return eg:IsExists(s.cfilter,1,nil)
 end
-function s.decop(e, tp, eg, ep, ev, re, r, rp)
+function s.desop(e, tp, eg, ep, ev, re, r, rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 	local tc=Duel.SelectMatchingCard(tp,nil,tp,0,LOCATION_MZONE,1,1,nil):GetFirst()
 	Duel.Destroy(tc,REASON_EFFECT)
