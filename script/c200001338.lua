@@ -11,7 +11,7 @@ function s.initial_effect(c)
 	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
 	e1:SetCode(EFFECT_UPDATE_ATTACK)
 	e1:SetRange(LOCATION_MZONE)
-	e1.SetValue(s.val)
+	e1:SetValue(s.val)
 	c:RegisterEffect(e1)
 	--destroy monster
 	local e2=Effect.CreateEffect(c)
