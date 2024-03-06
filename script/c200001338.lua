@@ -6,6 +6,12 @@ function s.initial_effect(c)
 	Fusion.AddProcMix(c,true,true,38033121,73580471)
 	Fusion.AddContactProc(c,s.contactfil,s.contactop,s.splimit,nil,nil,nil,false)
 	--gain atk
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+	e1:SetCode(EFFECT_UPDATE_ATTACK)
+	e1:SetRange(LOCATION_MZONE)
+	e1.SetValue(s.val)
 	--destroy monster
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,0))
@@ -27,6 +33,10 @@ function s.contactop(g)
 end
 function s.splimit(e,se,sp,st)
 	return e:GetHandler():GetLocation()~=LOCATION_EXTRA
+end
+
+function s.val(e, c)
+	return Duel.GetMatchingGroupCount(Card.IsCode, c:GetControler(), LOCATION_MZONE, LOCATION_MZONE, nil, 0x20a2)*200
 end
 
 function s.cfilter(c, tp)
