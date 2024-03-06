@@ -26,6 +26,8 @@ function s.initial_effect(c)
 	e3:SetOperation(s.mtop)
 	c:RegisterEffect(e3)
 end
+s.material={CARD_STARDUST_DRAGON}
+s.listed_names={CARD_STARDUST_DRAGON}
 function s.indct(e,re,r,rp)
 	if (r)~=0 then
 		return 1
