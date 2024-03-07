@@ -7,7 +7,7 @@ function s.initial_effect(c)
 	--send card from opponent's hand to GY
 	local e1=Effect.CreateEffect(c)
 	e1:SetCategory(CATEGORY_HANDES+CATEGORY_DAMAGE)
-	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetCountLimit(1)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCost(aux.dxmcostgen(1,1,nil))
