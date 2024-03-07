@@ -36,14 +36,10 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
 	local tc = hg:GetFirst()
 	if tc:IsMonster() then
 		Duel.Hint(HINT_SELECTMSG, tp, aux.Stringid(id, 0))
-		local dtab={}
-		table.insert(dtab, aux.Stringid(id, 1))
-		table.insert(dtab, aux.Stringid(id, 2))
-		table.insert(dtab, aux.Stringid(id, 3))
-		local opt=Duel.SelectOption(tp, table.unpack(dtab)+1)
-		if opt==1 then -- Opponent takes damage
+		local opt=Duel.SelectOption(tp, aux.Stringid(id, 1), aux.Stringid(id, 2), aux.Stringid(id, 3))
+		if opt==0 then -- Opponent takes damage
 			
-		elseif opt==2 then -- This card gains ATK
+		elseif opt==1 then -- This card gains ATK
 			
 		end
 	end
