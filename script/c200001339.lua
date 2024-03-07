@@ -31,9 +31,10 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
 	if #g<1 then return end
 	Duel.ShuffleHand(1-tp)
 	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_TOGRAVE)
-	local tc=g:RandomSelect(tp, 1, 1, nil)
+	local hg=g:RandomSelect(tp, 1, 1, nil)
 	Duel.BreakEffect()
-	Duel.SendtoGrave(tc, REASON_EFFECT)
+	Duel.SendtoGrave(hg, REASON_EFFECT)
+	local tc = hg:GetFirst()
 	if tc:IsMonster() then
 		local dtab={aux.Stringid(id, 1), aux.Stringid(id, 2), aux.Stringid(id, 3)}
 		local opt=Duel.SelectOption(tp, table.unpack(dtab)+1)
