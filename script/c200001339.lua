@@ -40,6 +40,7 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
 		if opt==0 then -- Opponent takes damage
 			Duel.Damage(1-tp, tc:GetAttack(), REASON_EFFECT)
 		elseif opt==1 then -- This card gains ATK
+			local c=e:GetHandler()
 			local e2=Effect.CreateEffect(c)
 			e2:SetType(EFFECT_TYPE_SINGLE)
 			e2:SetCode(EFFECT_UPDATE_ATTACK)
