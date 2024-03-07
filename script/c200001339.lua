@@ -15,22 +15,12 @@ function s.initial_effect(c)
 	--e1:SetTarget(s.target)
 	--e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
-	--multi destroy
-	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(id,0))
-	e3:SetType(EFFECT_TYPE_IGNITION)
-	e3:SetCategory(CATEGORY_DESTROY)
-	e3:SetCountLimit(1)
-	e3:SetRange(LOCATION_MZONE)
-	e3:SetCondition(s.mtcon)
-	e3:SetOperation(s.mtop)
-	c:RegisterEffect(e3)
 end
 
 s.xyz_number=108
 
 function s.condition(e, tp, eg, ep, ev, re, r, rp)
-	return true
+	return Duel.GetFieldGroupCount(tp, 0, LOCATION_HAND) > 0 end
 end
 function s.target(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return false end
