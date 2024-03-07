@@ -18,7 +18,8 @@ function s.initial_effect(c)
 end
 s.xyz_number=108
 function s.condition(e, tp, eg, ep, ev, re, r, rp)
-	return (Duel.GetFieldGroupCount(tp, 0, LOCATION_HAND) > 0)
+	if Duel.GetFieldGroupCount(tp, 0, LOCATION_HAND) > 0 then return false end
+	return true
 end
 function s.target(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return false end
