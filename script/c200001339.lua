@@ -34,4 +34,14 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
 	local tc=g:RandomSelect(tp, 1, 1, nil)
 	Duel.BreakEffect()
 	Duel.SendtoGrave(tc, REASON_EFFECT)
+	if tc:IsMonster() then
+		local dtab={aux.Stringid(id, 1), aux.Stringid(id, 2), aux.Stringid(id, 3)}
+		local opt=Duel.SelectOption(tp, table.unpack(dtab)+1)
+		if opt==1 then -- Opponent takes damage
+			
+		end
+		elseif opt==2 then -- This card gains ATK
+			
+		end
+	end
 end
