@@ -23,7 +23,7 @@ function s.condition(e, tp, eg, ep, ev, re, r, rp)
 	return Duel.GetFieldGroupCount(tp, 0, LOCATION_HAND) > 0
 end
 function s.target(e, tp, eg, ep, ev, re, r, rp, chk)
-	if chk==0 then return false end
+	if chk==0 then return true end
 	Duel.SetOperationInfo(0, CATEGORY_HANDES, nil, 0, 1-tp, 1)
 end
 function s.activate(e, tp, eg, ep, ev, re, r, rp)
@@ -34,32 +34,4 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
 	local tc=g:RandomSelect(tp, 1, 1, nil)
 	Duel.BreakEffect()
 	Duel.SendtoGrave(tc, REASON_EFFECT)
-end
-
-function s.mtcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)>=5
-end
-function s.mtop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	Duel.ConfirmDecktop(tp,5)
-	local g=Duel.GetDecktopGroup(tp,5)
-	local tt=g:FilterCount(Card.IsType,nil,TYPE_TUNER)
-	local gt=g:FilterCount(Card.IsType,nil,TYPE_MONSTER)
-	local ct=gt-tt
-	Duel.ShuffleDeck(tp)
-	if ct>0 then
-		Duel.BreakEffect()
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-		local f=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil)
-		local sg=f:Select(tp,ct,math.min(ct,#g),nil)
-		local dmg = Duel.Destroy(sg,REASON_EFFECT)
-		if dmg>0 then
-			local e1=Effect.CreateEffect(c)
-			e1:SetType(EFFECT_TYPE_SINGLE)
-			e1:SetCode(EFFECT_UPDATE_ATTACK)
-			e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE+RESET_PHASE+PHASE_END)
-			e1:SetValue(dmg*500)
-			c:RegisterEffect(e1)
-		end
-	end
 end
