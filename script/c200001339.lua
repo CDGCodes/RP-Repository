@@ -15,6 +15,16 @@ function s.initial_effect(c)
 	--e1:SetTarget(s.target)
 	--e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
+	--multi destroy
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,0))
+	e3:SetType(EFFECT_TYPE_IGNITION)
+	e3:SetCategory(CATEGORY_DESTROY)
+	e3:SetCountLimit(1)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetCondition(s.mtcon)
+	--e3:SetOperation(s.mtop)
+	c:RegisterEffect(e3)
 end
 
 s.xyz_number=108
