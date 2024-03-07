@@ -39,9 +39,9 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
 		local opt=Duel.SelectOption(tp, table.unpack(dtab)+1)
 		if opt==1 then -- Opponent takes damage
 			
-		end
 		elseif opt==2 then -- This card gains ATK
 			
 		end
 	end
 end
+
