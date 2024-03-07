@@ -30,12 +30,12 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
 	local g=Duel.GetFieldGroup(tp, 0, LOCATION_HAND)
 	if #g<1 then return end
 	Duel.ShuffleHand(1-tp)
-	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_TOGRAVE)
 	local hg=g:RandomSelect(tp, 1, 1, nil)
 	Duel.BreakEffect()
 	Duel.SendtoGrave(hg, REASON_EFFECT)
 	local tc = hg:GetFirst()
 	if tc:IsMonster() then
+		Duel.Hint(HINT_SELECTMSG, tp, aux.Stringid(id, 0))
 		local dtab={aux.Stringid(id, 1), aux.Stringid(id, 2), aux.Stringid(id, 3)}
 		local opt=Duel.SelectOption(tp, table.unpack(dtab)+1)
 		if opt==1 then -- Opponent takes damage
