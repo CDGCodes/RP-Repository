@@ -21,7 +21,7 @@ function s.condition(e, tp, eg, ep, ev, re, r, rp)
 	return true
 end
 function s.target(e, tp, eg, ep, ev, re, r, rp, chk)
-	if chk==0 then return false end
+	--if chk==0 then return false end
 	Duel.SetOperationInfo(0, CATEGORY_HANDES, nil, 0, 1-tp, 1)
 end
 function s.activate(e, tp, eg, ep, ev, re, r, rp)
