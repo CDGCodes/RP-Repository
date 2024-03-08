@@ -54,13 +54,12 @@ function s.initial_effect(c)
 	e7:SetDescription(aux.Stringid(id, 3))
 	e7:SetType(EFFECT_TYPE_IGNITION)
 	e7:SetCategory(CATEGORY_ATKCHANGE)
-	e7:SetCode(EFFECT_UPDATE_ATTACK)
-	e7:SetRange(LOCATION_MZONE)
-	e7:SetTargetRange(LOCATION_MZONE, 0)
+	e7:SetCode(EVENT_FREE_CHAIN)
 	e7:SetCountLimit(1, 0, EFFECT_COUNT_CODE_SINGLE)
 	e7:SetCondition(s.con)
 	e7:SetCost(s.cost)
-	e7:SetValue(500)
+	e7:SetTarget(s.atktg)
+	e7:SetOperation(s.atkop)
 	c:RegisterEffect(e7, false, REGISTER_FLAG_DETACH_XMAT)
 end
 
@@ -109,17 +108,17 @@ function s.setop(e, tp, eg, ep, ev, re, r, rp)
 end
 
 function s.atkfilter(c)
-	return c:IsFaceup() and c:IsControler(tp)
+	return c:IsFaceup()
 end
 function s.atktg(e, tp, eg, ep, ev, re, r, rp, chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.atkfilter, tp, LOCATION_MZONE, LOCATION_MZONE, 1, nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.atkfilter, tp, LOCATION_MZONE, 0, 1, nil) end
 end
 function s.atkop(e, tp, eg, ep, ev, re, r, rp)
-	local g=Duel.GetMatchingGroup(s.atkfilter, tp, LOCATION_MZONE, LOCATION_MZONE, nil)
+	local g=Duel.GetMatchingGroup(s.atkfilter, tp, LOCATION_MZONE, 0, nil)
 	if #g==0 then return end
-	local c=e:GetHandler()
-	for sc in g:Iter() do
-		local e1=Effect.CreateEffect(c)
+	local c=g:GetFirst()
+	for c in aux.Next(g) do
+		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_UPDATE_ATTACK)
 		e1:SetValue(500)
