@@ -112,8 +112,7 @@ function s.atkfilter(c)
 	return c:IsFaceup()
 end
 function s.atktg(e, tp, eg, ep, ev, re, r, rp, chk)
-	return true
-	--if chk==0 then return Duel.IsExistingMatchingCard(s.atkfilter, tp, LOCATION_MZONE, 0, 1, nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.atkfilter, tp, LOCATION_MZONE, 0, 1, nil) end
 end
 function s.atkop(e, tp, eg, ep, ev, re, r, rp)
 	local g=Duel.GetMatchingGroup(s.atkfilter, tp, LOCATION_MZONE, 0, nil)
