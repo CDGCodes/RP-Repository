@@ -94,5 +94,5 @@ function s.settarget(e, tp, eg, ep, ev, re, r, rp, chk)
 end
 function s.setop(e, tp, eg, ep, ev, re, r, rp)
 	local g=Duel.GetMatchingGroup(s.filter, tp, LOCATION_ONFIELD, LOCATION_ONFIELD, nil)
-	Duel.Destroy(sg, REASON_EFFECT)
+	Duel.Destroy(g, REASON_EFFECT)
 end
