@@ -35,7 +35,7 @@ function s.initial_effect(c)
 	e5:SetCost(s.cost)
 	e5:SetTarget(s.bptg)
 	e5:SetOperation(s.bpop)
-	--c:RegisterEffect(e5, false, REGISTER_FLAG_DETACH_XMAT)
+	c:RegisterEffect(e5, false, REGISTER_FLAG_DETACH_XMAT)
 	--Set card nuke
 	local e6=Effect.CreateEffect(c)
 	e6:SetDescription(aux.Stringid(id, 2))
@@ -48,7 +48,7 @@ function s.initial_effect(c)
 	e6:SetCost(s.cost)
 	e6:SetTarget(s.settarget)
 	e6:SetOperation(s.setop)
-	--c:RegisterEffect(e6, false, REGISTER_FLAG_DETACH_XMAT)
+	c:RegisterEffect(e6, false, REGISTER_FLAG_DETACH_XMAT)
 	--ATK increase
 	local e7=Effect.CreateEffect(c)
 	e7:SetDescription(aux.Stringid(id, 3))
@@ -111,7 +111,8 @@ function s.atkfilter(c)
 	return c:IsFaceup()
 end
 function s.atktg(e, tp, eg, ep, ev, re, r, rp, chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.atkfilter, tp, LOCATION_MZONE, 0, 1, nil) end
+	return true
+	--if chk==0 then return Duel.IsExistingMatchingCard(s.atkfilter, tp, LOCATION_MZONE, 0, 1, nil) end
 end
 function s.atkop(e, tp, eg, ep, ev, re, r, rp)
 	local g=Duel.GetMatchingGroup(s.atkfilter, tp, LOCATION_MZONE, 0, nil)
