@@ -58,7 +58,7 @@ function s.initial_effect(c)
 	e7:SetCountLimit(1, 0, EFFECT_COUNT_CODE_SINGLE)
 	e7:SetCondition(s.con)
 	e7:SetCost(s.cost)
-	e7:SetTarget(s.atktg)
+	--e7:SetTarget(s.atktg)
 	e7:SetOperation(s.atkop)
 	c:RegisterEffect(e7, false, REGISTER_FLAG_DETACH_XMAT)
 end
