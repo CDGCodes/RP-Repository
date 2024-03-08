@@ -88,7 +88,7 @@ function s.setfilter(c)
 end
 function s.settarget(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.setfilter, tp, LOCATION_ONFIELD, LOCATION_ONFIELD, 1, nil) end
-	local g=Duel.GetMatchingGroup(s.filter, tp, LOCATION_ONFIELD, LOCATION_ONFIELD, nil)
+	local g=Duel.GetMatchingGroup(s.setfilter, tp, LOCATION_ONFIELD, LOCATION_ONFIELD, nil)
 	Duel.SetOperationInfo(0, CATEGORY_DESTROY, g, #g, 0, 0)
 
 end
