@@ -54,7 +54,10 @@ function s.tdfilter(c)
 	return (c:IsCode(CARD_DESTINY_BOARD) or c:IsSetCard(0x1c)) and c:IsAbleToDeck()
 end
 function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return aux.bfgcost(e,tp,eg,ep,ev,re,r,rp,0) end
+	local tc=Duel.GetFieldCard(tp,LOCATION_SZONE,5)
+	if chk==0 then return aux.bfgcost(e,tp,eg,ep,ev,re,r,rp,0) and Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,e:GetHandler()) and tc and tc:IsCanRemoveCounter(tp,0x91,1,REASON_COST) end
+	Duel.Remove(e:GetHandler())
+	tc:RemoveCounter(tp,0x91,1,REASON_COST)
 end
 function s.tdrtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g=Duel.GetMatchingGroup(s.tdfilter,tp,LOCATION_HAND+LOCATION_GRAVE,0,nil)
