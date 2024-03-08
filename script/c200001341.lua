@@ -28,6 +28,7 @@ function s.initial_effect(c)
 	e2:SetDescription(aux.Stringid(id, 1))
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e2:SetType(EFFECT_TYPE_IGNITION)
+	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCountLimit(1, 0, EFFECT_COUNT_CODE_SINGLE)
 	e2:SetCondition(s.con)
@@ -36,7 +37,17 @@ function s.initial_effect(c)
 	e2:SetOperation(s.bpop)
 	c:RegisterEffect(e2, false, REGISTER_FLAG_DETACH_XMAT)
 	--Set card nuke
-	
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id, 2))
+	e3:SetCategory(CATEGORY_DESTROY)
+	e3:SetCode(EVENT_FREE_CHAIN)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetCountLimit(1, 0, EFFECT_COUNT_CODE_SINGLE)
+	e3:SetCondition(s.con)
+	e3:SetCost(s.cost)
+	e3:SetTarget(s.settarget)
+	e3:SetOperation(s.setop)
+	c:RegisterEffect(e3, false, REGISTER_FLAG_DETACH_XMAT)
 	--ATK increase
 	
 end
