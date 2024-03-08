@@ -50,7 +50,17 @@ function s.initial_effect(c)
 	e6:SetOperation(s.setop)
 	c:RegisterEffect(e6, false, REGISTER_FLAG_DETACH_XMAT)
 	--ATK increase
-	
+	local e7=Effect.CreateEffect(c)
+	e7:SetDescription(aux.Stringid(id, 3))
+	e7:SetType(EFFECT_TYPE_IGNITION)
+	e7:SetCategory(CATEGORY_ATKCHANGE)
+	e7:SetCode(EVENT_FREE_CHAIN)
+	e7:SetCountLimit(1, 0, EFFECT_COUNT_CODE_SINGLE)
+	e7:SetCondition(s.con)
+	e7:SetCost(s.cost)
+	e7:SetTarget(s.atktg)
+	e7:SetOperation(s.atkop)
+	c:RegisterEffect(e7, false, REGISTER_FLAG_DETACH_XMAT)
 end
 
 s.xyz_number=87
