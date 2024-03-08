@@ -17,7 +17,7 @@ function s.initial_effect(c)
 	--Negate
 end
 
-function s.imcon(e)
+function s.imcon(e, tp)
 	local c=e:GetHandler()
 	local bc=c:GetBattleTarget()
 	return bc and bc:IsLevelAbove(5) and bc:IsControler(1-tp)
