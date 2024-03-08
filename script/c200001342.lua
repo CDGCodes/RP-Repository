@@ -10,6 +10,8 @@ function s.initial_effect(c)
 	e1:SetCode(EFFECT_IMMUNE_EFFECT)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCondition(s.imcon)
+	e1:SetValue(s.imfilter)
+	c:RegisterEffect(e1)
 	--Gain ATK
 	--Revive materials
 	--Negate
