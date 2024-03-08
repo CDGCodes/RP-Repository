@@ -51,7 +51,7 @@ function s.con(e, tp, eg, ep, ev, re, r, rp)
 	return e:GetHandler():GetOverlayGroup():IsExists(Card.IsCode, 1, nil, 89516305)
 end
 function s.cost(e, tp, eg, ep, ev, re, r, rp, chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayChard(tp, 1, REASON_COST) end
+	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp, 1, REASON_COST) end
 	Duel.Hint(HINT_OPSELECTED, 1-tp, e:GetDescription())
 	e:GetHandler():RemoveOverlayCard(tp, 1, 1, REASON_COST)
 end
