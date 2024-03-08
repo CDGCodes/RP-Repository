@@ -70,3 +70,17 @@ function s.bpop(e, tp, eg, ev, re, r, rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsFaceup() and tc:IsRelateToEffect(e) then Duel.ChangePosition(tc, POS_FACEDOWN_DEFENSE) end
 end
+
+function s.setfilter(c)
+	return c:IsFaceDown()
+end
+function s.settarget(e, tp, eg, ep, ev, re, r, rp, chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.setfilter, tp, LOCATION_ONFIELD, LOCATION_ONFIELD, 1, nil) end
+	local g=Duel.GetMatchingGroup(s.filter, tp, LOCATION_ONFIELD, LOCATION_ONFIELD, nil)
+	Duel.SetOperationInfo(0, CATEGORY_DESTROY, g, #g, 0, 0)
+
+end
+function s.setop(e, tp, eg, ep, ev, re, r, rp)
+	local g=Duel.GetMatchingGroup(s.filter, tp, LOCATION_ONFIELD, LOCATION_ONFIELD, nil)
+	Duel.Destroy(sg, REASON_EFFECT)
+end
