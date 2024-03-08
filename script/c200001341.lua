@@ -52,14 +52,15 @@ function s.initial_effect(c)
 	--ATK increase
 	local e7=Effect.CreateEffect(c)
 	e7:SetDescription(aux.Stringid(id, 3))
-	e7:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e7:SetType(EFFECT_TYPE_IGNITION)
+	e7:SetCategory(CATEGORY_ATKCHANGE)
 	e7:SetCode(EVENT_FREE_CHAIN)
+	e7:SetRange(LOCATION_MZONE)
 	e7:SetCountLimit(1, 0, EFFECT_COUNT_CODE_SINGLE)
 	e7:SetCondition(s.con)
 	e7:SetCost(s.cost)
-	e7:SetTarget(s.bptg)
-	e7:SetOperation(s.bpop)
+	e7:SetTarget(s.atktg)
+	e7:SetOperation(s.atkop)
 	c:RegisterEffect(e7, false, REGISTER_FLAG_DETACH_XMAT)
 end
 
