@@ -96,3 +96,23 @@ function s.setop(e, tp, eg, ep, ev, re, r, rp)
 	local g=Duel.GetMatchingGroup(s.setfilter, tp, LOCATION_ONFIELD, LOCATION_ONFIELD, nil)
 	Duel.Destroy(g, REASON_EFFECT)
 end
+
+function s.atkfilter(c)
+	return c:IsFaceup() and c:IsControler(tp)
+end
+function s.atktg(e, tp, eg, ep, ev, re, r, rp, chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.atkfilter, tp, LOCATION_MZONE, LOCATION_MZONE, 1, nil) end
+end
+function s.atkop(e, tp, eg, ep, ev, re, r, rp)
+	local g=Duel.GetMatchingGroup(s.atkfilter, tp, LOCATION_MZONE, LOCATION_MZONE, nil)
+	if #g==0 then return end
+	local c=e:GetHandler()
+	for sc in g:Iter() do
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_UPDATE_ATTACK)
+		e1:SetValue(500)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE+RESET_PHASE+PHASE_END+RESET_OPPO_TURN)
+		c:RegisterEffect(e1)
+	end
+end
