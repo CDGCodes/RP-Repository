@@ -84,7 +84,7 @@ function s.bpop(e, tp, eg, ev, re, r, rp)
 end
 
 function s.setfilter(c)
-	return c:IsFaceDown()
+	return c:IsFacedown()
 end
 function s.settarget(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.setfilter, tp, LOCATION_ONFIELD, LOCATION_ONFIELD, 1, nil) end
