@@ -39,7 +39,7 @@ function s.initial_effect(c)
 	--Set card nuke
 	local e6=Effect.CreateEffect(c)
 	e6:SetDescription(aux.Stringid(id, 2))
-	e6:SetTpe(EFFECT_TYPE_IGNITION)
+	e6:SetType(EFFECT_TYPE_IGNITION)
 	e6:SetCategory(CATEGORY_DESTROY)
 	e6:SetCode(EVENT_FREE_CHAIN)
 	e6:SetRange(LOCATION_MZONE)
