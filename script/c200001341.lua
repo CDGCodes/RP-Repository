@@ -38,7 +38,7 @@ function s.sumlimit(e, c, sump, sumtype, sumpos, targetp)
 end
 
 function s.con(e, tp, eg, ep, ev, re, r, rp)
-	return e:GetHandler()GetOverlayGroup():IsExists(Card.IsCode, 1, nil, 89516305)
+	return e:GetHandler():GetOverlayGroup():IsExists(Card.IsCode, 1, nil, 89516305)
 end
 
 function s.cost(e, tp, eg, ep, ev, re, r, rp, chk)
