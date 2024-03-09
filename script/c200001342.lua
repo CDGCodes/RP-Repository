@@ -17,10 +17,11 @@ function s.initial_effect(c)
 	--Negate
 end
 
-function s.imcon(e, tp, eg, ep, ev, re, r, rp)
+function s.imcon(e)
 	local c=e:GetHandler()
-	local bc=c:GetBattleTarget()
-	return bc and bc:IsLevelAbove(5) and bc:IsControler(1-tp)
+	local bc=c:GetAttacker()
+	local tc=c:GetAttackTarget()
+	return bc and ((bc==c and tc:IsLevelAbove(5)) or (tc==c and bc:IsLevelAbove(5)))
 end
 
 function s.imfilter(e, te)
