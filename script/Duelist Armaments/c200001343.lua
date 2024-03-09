@@ -31,5 +31,6 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
 		c:AddMonsterAttribute(TYPE_EFFECT+TYPE_TRAP+TYPE_SPELL)
 		Duel.SpecialSummonStep(c, 0, tp, tp, true, false, POS_FACEUP)
 		c:AddMonsterAttributeComplete()
+		Duel.SpecialSummonComplete()
 	end
 end
