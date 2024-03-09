@@ -87,7 +87,7 @@ function spop(e, tp, eg, ep, ev, re, r, rp)
 	if Duel.GetLocationCount(tp, LOCATION_MZONE)<#g then return end
 	local tc=g:GetFirst()
 	for tc in aux.Next(g) do
-		Duel.SpecialSummonStep(tc, 0, tp, tp, false, false, POS_FACE_UP)
+		Duel.SpecialSummonStep(tc, 0, tp, tp, false, false, POS_FACEUP)
 	end
 	Duel.SpecialSummonComplete()
 end
