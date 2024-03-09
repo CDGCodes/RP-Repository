@@ -74,7 +74,7 @@ function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
 	local mg=c:GetMaterial()
 	local ct=#mg
 	if chk==0 then return c:IsSummonType(SUMMON_TYPE_SYNCHRO) and not Duel.IsPlayerAffectedByEffect(tp, CARD_BLUEEYES_SPIRIT)
-		and ct>0 and Duel.GetLocationCount(tp, LOCATION_MZONE)>=ct and mg:FilerCount(s.spfilter, nil, e, tp, c)==ct end
+		and ct>0 and Duel.GetLocationCount(tp, LOCATION_MZONE)>=ct and mg:FilterCount(s.spfilter, nil, e, tp, c)==ct end
 	Duel.SetTargetCard(mg)
 	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, mg, ct, 0, 0)
 end
