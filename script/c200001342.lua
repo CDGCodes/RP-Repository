@@ -19,8 +19,8 @@ end
 
 function s.imcon(e)
 	local c=e:GetHandler()
-	local bc=c:GetAttacker()
-	local tc=c:GetAttackTarget()
+	local bc=Duel.GetAttacker()
+	local tc=Duel.GetAttackTarget()
 	return bc and ((bc==c and tc:IsLevelAbove(5)) or (tc==c and bc:IsLevelAbove(5)))
 end
 
