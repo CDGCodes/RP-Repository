@@ -31,6 +31,15 @@ function s.initial_effect(c)
 	e3:SetOperation(s.spop)
 	c:RegisterEffect(e3)
 	--Negate
+	local e4=Effect.CreateEffect(c)
+	e4:SetCategory(CATEGORY_NEGATE+CATEGORY_DESTROY)
+	e4:SetType(EFFECT_TYPE_QUICK_O)
+	e4:SetCode(EFFECT_CHAINING)
+	e4:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
+	e4:SetRange(LOCATION_MZONE)
+	e4:SetCondition(s.ngcon)
+	e4:SetTarget(s.ngtg)
+	e4:SetOperation(s.ngop)
 end
 
 function s.imcon(e)
@@ -92,4 +101,26 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
 		Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP)
 	end
 	Duel.SpecialSummonComplete()
+end
+
+function s.ngfilter(c)
+	return c:IsCode(50954680)
+end
+function s.ngcon(e, tp, eg, ep, ev, re, r, rp)
+	local c=e:GetHandler()
+	if c:IsStatus(STATUS_BATTLE_DESTROYED) or not Duel.IsChainNegatable(ev) then return false end
+	return c:GetMaterial():IsExists(s.ngfilter, 1, nil, c)
+end
+function s.ngtg(e, tp, eg, ep, ev, re, r, rp, chk)
+	if chk==0 then return true end
+	Duel.SetOperationInfo(0, CATEGORY_NEGATE, eg, 1, 0, 0)
+	if re:GetHandler():IsDestructable() and re:GetHandler():IsRelateToEffect(re) then
+		Duel.SetOperationInfo(0, CATEGORY_DESTROY, eg, 1, 0, 0)
+	end
+end
+function s.ngop(e, tp, eg, ep, ev, re, r, rp)
+	if Duel.NegateActivation(ev) and re:GetHandler():IsRelateToEffect(re)then
+		Duel.Destroy(eg,REASON_EFFECT)
+	end
+	e:GetHandler():RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,0)
 end
