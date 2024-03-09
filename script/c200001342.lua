@@ -79,15 +79,15 @@ function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
 	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, mg, ct, 0, 0)
 end
 function spop(e, tp, eg, ep, ev, re, r, rp)
-	if Duel.IsPlayerAffectedByEffect(tp, CARD_BLUEEYES_SPIRIT) then return end
+	if Duel.IsPlayerAffectedByEffect(tp,CARD_BLUEEYES_SPIRIT) then return end
 	local c=e:GetHandler()
-	local mg=Duel.GetChainInfo(0, CHAININFO_TARGET_CARDS)
-	local g=mg:Filter(Card.IsRelateToEffect, nil, e)
+	local mg=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
+	local g=mg:Filter(Card.IsRelateToEffect,nil,e)
 	if #g<#mg then return end
-	if Duel.GetLocationCount(tp, LOCATION_MZONE)<#g then return end
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<#g then return end
 	local tc=g:GetFirst()
 	for tc in aux.Next(g) do
-		Duel.SpecialSummonStep(tc, 0, tp, tp, false, false, POS_FACEUP)
+		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
 	end
 	Duel.SpecialSummonComplete()
 end
