@@ -25,7 +25,7 @@ function s.initial_effect(c)
 	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP)
-	e3:SetCode(EVENT_TO_GRAVE)
+	e3:SetRange(LOCATION_GRAVE)
 	e3:SetCondition(s.spcon)
 	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
@@ -67,14 +67,16 @@ end
 function s.spfilter(c, e, tp, sync)
 	return c:IsControler(tp) and c:IsLocation(LOCATION_GRAVE)
 		and (c:GetReason()&0x80008)==0x80008 and c:GetReasonCard()==sync
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+		and c:IsCanBeSpecialSummoned(e, 0, tp, false, false)
 end
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
 	local c=e:GetHandler()
 	local mg=c:GetMaterial()
 	local ct=#mg
-	if chk==0 then return c:IsSummonType(SUMMON_TYPE_SYNCHRO) and not Duel.IsPlayerAffectedByEffect(tp, CARD_BLUEEYES_SPIRIT)
-		and ct>0 and Duel.GetLocationCount(tp, LOCATION_MZONE)>=ct and mg:FilterCount(s.spfilter, nil, e, tp, c)==ct end
+	if chk==0 then return c:IsSummonType(SUMMON_TYPE_SYNCHRO)
+		and not Duel.IsPlayerAffectedByEffect(tp,CARD_BLUEEYES_SPIRIT)
+		and ct>0 and Duel.GetLocationCount(tp,LOCATION_MZONE)>=ct
+		and mg:FilterCount(s.spfilter,nil,e,tp,c)==ct end
 	Duel.SetTargetCard(mg)
 	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, mg, ct, 0, 0)
 end
@@ -87,7 +89,17 @@ function spop(e, tp, eg, ep, ev, re, r, rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<#g then return end
 	local tc=g:GetFirst()
 	for tc in aux.Next(g) do
-		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
+		Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP)
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_DISABLE)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+		tc:RegisterEffect(e1)
+		local e2=Effect.CreateEffect(c)
+		e2:SetType(EFFECT_TYPE_SINGLE)
+		e2:SetCode(EFFECT_DISABLE_EFFECT)
+		e2:SetReset(RESET_EVENT+RESETS_STANDARD)
+		tc:RegisterEffect(e2)
 	end
 	Duel.SpecialSummonComplete()
 end
