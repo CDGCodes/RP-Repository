@@ -2,7 +2,7 @@
 local s, id=GetID()
 function s.initial_effect(c)
 	aux.AddEquipProcedure(c)
-	--ATK up
+	--ATK/DEF up (Equip)
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_EQUIP)
 	e2:SetCode(EFFECT_UPDATE_ATTACK)
@@ -11,12 +11,14 @@ function s.initial_effect(c)
 	local e3=e2:Clone()
 	e3:SetCode(EFFECT_UPDATE_DEFENSE)
 	c:RegisterEffect(e3)
+	--Special Summon
 	local e4=Effect.CreateEffect(c)
 	e4:SetType(EFFECT_TYPE_IGNITION)
 	e4:SetRange(LOCATION_HAND)
 	e4:SetTarget(s.sptg)
 	e4:SetOperation(s.spop)
 	c:RegisterEffect(e4)
+	--Copy Equip effects as monster
 	local e5=e2:Clone()
 	e5:SetType(EFFECT_TYPE_SINGLE)
 	e5:SetRange(LOCATION_MZONE)
@@ -36,7 +38,7 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
 	if Duel.GetLocationCount(tp, LOCATION_MZONE)<=0 then return end
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) and Duel.IsPlayerCanSpecialSummonMonster(tp, id, 0xFEDC, 0x21, 1500, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT) then
-		c:AddMonsterAttribute(TYPE_EFFECT+TYPE_TRAP+TYPE_SPELL)
+		c:AddMonsterAttribute(TYPE_EFFECT+TYPE_SPELL)
 		Duel.SpecialSummonStep(c, 0, tp, tp, true, false, POS_FACEUP)
 		c:AddMonsterAttributeComplete()
 		Duel.SpecialSummonComplete()
