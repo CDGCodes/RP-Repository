@@ -80,7 +80,7 @@ function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
 	Duel.SetTargetCard(mg)
 	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, mg, ct, 0, 0)
 end
-function spop(e, tp, eg, ep, ev, re, r, rp)
+function s.spop(e, tp, eg, ep, ev, re, r, rp)
 	if Duel.IsPlayerAffectedByEffect(tp,CARD_BLUEEYES_SPIRIT) then return end
 	local c=e:GetHandler()
 	local mg=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
@@ -90,16 +90,6 @@ function spop(e, tp, eg, ep, ev, re, r, rp)
 	local tc=g:GetFirst()
 	for tc in aux.Next(g) do
 		Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP)
-		local e1=Effect.CreateEffect(c)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_DISABLE)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-		tc:RegisterEffect(e1)
-		local e2=Effect.CreateEffect(c)
-		e2:SetType(EFFECT_TYPE_SINGLE)
-		e2:SetCode(EFFECT_DISABLE_EFFECT)
-		e2:SetReset(RESET_EVENT+RESETS_STANDARD)
-		tc:RegisterEffect(e2)
 	end
 	Duel.SpecialSummonComplete()
 end
