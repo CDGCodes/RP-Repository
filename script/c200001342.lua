@@ -83,7 +83,7 @@ function spop(e, tp, eg, ep, ev, re, r, rp)
 	local c=e:GetHandler()
 	local mg=Duel.GetChainInfo(0, CHAININFO_TARGET_CARDS)
 	local g=mg:Filter(Card.IsRelateToEffect, nil, e)
-	is #g<#mg then return end
+	if #g<#mg then return end
 	if Duel.GetLocationCount(tp, LOCATION_MZONE)<#g then return end
 	local tc=g:GetFirst()
 	for tc in aux.Next(g) do
