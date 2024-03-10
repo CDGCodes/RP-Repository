@@ -25,13 +25,13 @@ function s.initial_effect(c)
 	e5:SetType(EFFECT_TYPE_SINGLE)
 	e5:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
 	e5:SetRange(LOCATION_MZONE)
-	e5:SetCondition(s.effcon)
+	--e5:SetCondition(s.effcon)
 	c:RegisterEffect(e5)
 	local e6=e3:Clone()
 	e6:SetType(EFFECT_TYPE_SINGLE)
 	e6:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
 	e6:SetRange(LOCATION_MZONE)
-	e6:SetCondition(s.effcon)
+	--e6:SetCondition(s.effcon)
 	c:RegisterEffect(e6)
 	--Allow direct attacks
 	local e7=Effect.CreateEffect(c)
@@ -65,5 +65,5 @@ function s.effcon(e)
 end
 
 function s.dircon(e)
-	return e:GetHandler():IsAttackPos() and s.effcon
+	return e:GetHandler():IsAttackPos() --and s.effcon
 end
