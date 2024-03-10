@@ -50,7 +50,7 @@ function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
 end
 function s.splimit(e, c, sump, sumtype, sumpos, targetp, se)
 	if se:GetHandler():IsSpell() then return false end
-	return (c:IsPreviousLocation(LOCATION_DECK) or c:IsPreviousLocation(LOCATION_HAND))
+	return (c:IsLocation(LOCATION_DECK) or c:IsLocation(LOCATION_HAND))
 end
 function s.spop(e, tp, eg, ep, ev, re, r, rp)
 	if Duel.GetLocationCount(tp, LOCATION_MZONE)<=0 then return end
