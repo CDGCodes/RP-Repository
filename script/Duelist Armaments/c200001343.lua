@@ -41,14 +41,14 @@ function s.initial_effect(c)
 end
 
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
-	if chk==0 then return Duel.GetLocationCount(tp, LOCATION_MZONE)>0 and Duel.IsPlayerCanSpecialSummonMonster(tp, id, 0xFEDC, 0x21, 1500, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT) end
+	if chk==0 then return Duel.GetLocationCount(tp, LOCATION_MZONE)>0 and e:GetHandler():IsCanBeSpecialSummoned(e, 0, tp, false, false, POS_FACEUP) end--Duel.IsPlayerCanSpecialSummonMonster(tp, id, 0xFEDC, 0x21, 1500, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT) end
 	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, e:GetHandler(), 1, 0, 0)
 end
 
 function s.spop(e, tp, eg, ep, ev, re, r, rp)
 	if Duel.GetLocationCount(tp, LOCATION_MZONE)<=0 then return end
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) and Duel.IsPlayerCanSpecialSummonMonster(tp, id, 0xFEDC, 0x21, 1500, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT) then
+	if c:IsRelateToEffect(e) and e:GetHandler():IsCanBeSpecialSummoned(e, 0, tp, false, false, POS_FACEUP) then --Duel.IsPlayerCanSpecialSummonMonster(tp, id, 0xFEDC, 0x21, 1500, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT) then
 		c:AddMonsterAttribute(TYPE_EFFECT+TYPE_SPELL)
 		Duel.SpecialSummonStep(c, 0, tp, tp, true, false, POS_FACEUP)
 		c:AddMonsterAttributeComplete()
