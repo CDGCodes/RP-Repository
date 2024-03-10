@@ -29,6 +29,15 @@ function s.initial_effect(c)
 	e6:SetType(EFFECT_TYPE_SINGLE)
 	e6:SetRange(LOCATION_MZONE)
 	c:RegisterEffect(e6)
+	--Allow direct attacks
+	local e7=Effect.CreateEffect(c)
+	e7:SetType(EFFECT_TYPE_SINGLE)
+	e7:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+	e7:SetCode(EFFECT_IGNORE_BATTLE_TARGET)
+	e7:SetRange(LOCATION_MZONE)
+	e7:SetValue(1)
+	e7:SetCondition(s.dircon)
+	d:RegisterEffect(e7)
 end
 
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
@@ -45,4 +54,8 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
 		c:AddMonsterAttributeComplete()
 		Duel.SpecialSummonComplete()
 	end
+end
+
+function s.dircon(e, c)
+	return c:IsAttackPos()
 end
