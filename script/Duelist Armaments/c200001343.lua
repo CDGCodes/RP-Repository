@@ -59,7 +59,7 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
 end
 
 function s.effcon(e)
-	return e:GetHandler():IsNegatableMonster()
+	return e:GetHandler():IsType(TYPE_EFFECT)
 end
 
 function s.dircon(e)
