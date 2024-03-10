@@ -48,7 +48,9 @@ function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return Duel.GetLocationCount(tp, LOCATION_MZONE)>0 and Duel.IsPlayerCanSpecialSummonMonster(tp, id, 0xFEDC, 0x21, 1500, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT) end
 	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, e:GetHandler(), 1, 0, 0)
 end
-
+function s.splimit(e, c)
+	return not (c:IsSpell() or c:GetOriginalType()&TYPE_SPELL)
+end
 function s.spop(e, tp, eg, ep, ev, re, r, rp)
 	if Duel.GetLocationCount(tp, LOCATION_MZONE)<=0 then return end
 	local c=e:GetHandler()
@@ -63,7 +65,6 @@ end
 function s.effcon(e)
 	return e:GetHandler():IsType(TYPE_EFFECT)
 end
-
 function s.dircon(e)
 	return e:GetHandler():IsAttackPos() and s.effcon
 end
