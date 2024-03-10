@@ -37,7 +37,7 @@ function s.initial_effect(c)
 	e7:SetRange(LOCATION_MZONE)
 	e7:SetValue(1)
 	e7:SetCondition(s.dircon)
-	d:RegisterEffect(e7)
+	c:RegisterEffect(e7)
 end
 
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
