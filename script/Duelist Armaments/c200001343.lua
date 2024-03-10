@@ -49,8 +49,8 @@ function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
 	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, e:GetHandler(), 1, 0, 0)
 end
 function s.splimit(e, c, sump, sumtype, sumpos, targetp, se)
-	if se:GetHandler():IsSpell() then return true end
-	return not (c:IsPreviousLocation(LOCATION_DECK) or c:IsPreviousLocation(LOCATION_HAND))
+	if se:GetHandler():IsSpell() then return false end
+	return (c:IsPreviousLocation(LOCATION_DECK) or c:IsPreviousLocation(LOCATION_HAND))
 end
 function s.spop(e, tp, eg, ep, ev, re, r, rp)
 	if Duel.GetLocationCount(tp, LOCATION_MZONE)<=0 then return end
