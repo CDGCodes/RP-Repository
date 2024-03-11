@@ -51,8 +51,9 @@ function s.initial_effect(c)
 	e9:SetDescription(aux.Stringid(id,0))
 	e9:SetCategory(CATEGORY_TOHAND)
 	e9:SetType(EFFECT_TYPE_IGNITION)
-	e9:SetRange(LOCATION_HAND)
+	e9:SetRange(LOCATION_ONFIELD)
 	e9:SetCountLimit(1)
+	e9:SetCondition(s.addcon)
 	e9:SetTarget(s.addtg)
 	e9:SetOperation(s.addop)
 	c:RegisterEffect(e9)
@@ -96,6 +97,10 @@ function s.dircon(e)
 	return e:GetHandler():IsAttackPos() and s.effcon
 end
 
+function s.addcon(e, tp, eg, ep, ev, re, r, rp)
+	local c=e:GetHandler()
+	return (c:IsLocation(LOCATION_SZONE) and c:IsType(TYPE_EQUIP)) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
+end
 function s.addfilter(c)
 	return c:IsLocation(LOCATION_DECK) and c:IsSetCard(0xFEDC) and c:IsSpell() and c:IsAbleToHand() and not c:IsCode(id)
 end
