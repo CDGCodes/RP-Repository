@@ -6,7 +6,7 @@ function s.initial_effect(c)
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_EQUIP)
 	e2:SetCode(EFFECT_UPDATE_ATTACK)
-	e2:SetValue(1000)
+	e2:SetValue(500)
 	c:RegisterEffect(e2)
 	local e3=e2:Clone()
 	e3:SetCode(EFFECT_UPDATE_DEFENSE)
@@ -46,6 +46,15 @@ function s.initial_effect(c)
 	e8:SetValue(1)
 	e8:SetCondition(s.dircon)
 	c:RegisterEffect(e8)
+	--ATK/DEF up (Sword specific)
+	local e9=Effect.CreateEffect(c)
+	e9:SetType(EFFECT_TYPE_EQUIP)
+	e9:SetCode(EFFECT_UPDATE_ATTACK)
+	e9:SetValue(s.swvalue)
+	c:RegisterEffect(e9)
+	local e10=e9:Clone()
+	e3:SetCode(EFFECT_UPDATE_DEFENSE)
+	c:RegisterEffect(e10)
 end
 
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
@@ -84,4 +93,8 @@ function s.effcon(e)
 end
 function s.dircon(e)
 	return e:GetHandler():IsAttackPos() and s.effcon
+end
+
+function s.swvalue(e, c)
+	return Duel.GetMatchingGroupCount(Card.IsType, e:GetHandlerPlayer(), LOCATION_ONFIELD+LOCATION_GRAVE, 0, nil, TYPE_SPELL)*200
 end
