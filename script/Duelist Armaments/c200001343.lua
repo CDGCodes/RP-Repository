@@ -75,8 +75,8 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
 		Duel.RegisterEffect(e1, tp)
 	end
 end
-function s.spgycon
-	return Duel.GetFieldGroupCount(tp, 0, LOCATION_MZONE)> Duel.GetFieldGroupCount(tp, LOCATION_MZONE, 0)
+function s.spgycon(e, tp, eg, ep, ev, re, r, rp)
+	return Duel.GetFieldGroupCount(tp, 0, LOCATION_MZONE)>Duel.GetFieldGroupCount(tp, LOCATION_MZONE, 0)
 end
 
 function s.effcon(e)
