@@ -56,7 +56,7 @@ function s.initial_effect(c)
 	e9:SetCondition(s.prcon)
 	c:RegisterEffect(e9)
 	local e10=e9:Clone()
-	e10:SetCode(EFFECT_INDESTRUCTIBLE_EFFECT)
+	e10:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
 	c:RegisterEffect(e10)
 end
 
