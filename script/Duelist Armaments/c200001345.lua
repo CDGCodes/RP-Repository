@@ -49,15 +49,13 @@ function s.initial_effect(c)
 	--Protection
 	local e9=Effect.CreateEffect(c)
 	e9:SetType(EFFECT_TYPE_FIELD)
-	e9:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
+	e9:SetCode(EFFECT_INDESTRUCTABLE)
 	e9:SetRange(LOCATION_ONFIELD)
 	e9:SetTargetRange(LOCATION_ONFIELD, 0)
 	e9:SetTarget(s.prtg)
-	e9:SetCondition(s.prcon)
+	e9:SetValue(s.prval)
+	--e9:SetCondition(s.prcon)
 	c:RegisterEffect(e9)
-	local e10=e9:Clone()
-	e10:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
-	c:RegisterEffect(e10)
 end
 
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
@@ -104,4 +102,7 @@ function s.prcon(e, tp, eg, ep, ev, re, r, rp)
 end
 function s.prtg(e, c)
 	return c:IsSetCard(0xFEDC)
+end
+function s.prval(e, re, r, rp)
+	return (r&REASON_EFFECT+REASON_BATTLE)~=0
 end
