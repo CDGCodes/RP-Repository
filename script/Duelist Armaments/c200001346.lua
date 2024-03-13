@@ -103,7 +103,7 @@ function s.descon(e, tp, eg, ep, ev, re, r, rp)
 	return (c:IsLocation(LOCATION_SZONE) and c:IsType(TYPE_EQUIP)) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
 end
 function s.destgt(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
-	if chkc then return chkc:IsOnField and chkc:IsControler(1-tp) end
+	if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) end
 	local count=Duel.GetMatchingGroupCount(Card.IsType, e:GetHandlerPlayer(), LOCATION_ONFIELD, 0, nil, TYPE_SPELL)
 	if chk==0 then return Duel.IsExistingTarget(aux.TRUE, tp, 0, LOCATION_ONFIELD, 1, e:GetHandler()) end
 	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_DESTROY)
