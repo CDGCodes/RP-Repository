@@ -46,6 +46,18 @@ function s.initial_effect(c)
 	e8:SetValue(1)
 	e8:SetCondition(s.dircon)
 	c:RegisterEffect(e8)
+	--Destroy cards
+	local e9=Effect.CreateEffect(c)
+	e9:SetCategory(CATEGORY_DESTROY)
+	e9:SetType(EFFECT_TYPE_QUICK_O)
+	e9:SetCode(EFFECT_FREE_CHAIN)
+	e9:SetRange(LOCATION_ONFIELD)
+	e9:SetCountLimit(1, id, 0)
+	e9:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e9:SetCondition(s.descon)
+	e9:SetTarget(s.destgt)
+	e9:SetOperation(s.desop)
+	c:RegisterEffect(e9)
 end
 
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
@@ -84,4 +96,21 @@ function s.effcon(e)
 end
 function s.dircon(e)
 	return e:GetHandler():IsAttackPos() and s.effcon
+end
+
+function s.descon(e, tp, eg, ep, ev, re, r, rp)
+	local c=e:GetHandler()
+	return (c:IsLocation(LOCATION_SZONE) and c:IsType(TYPE_EQUIP)) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
+end
+function s.destgt(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
+	if chkc then return chkc:IsOnField and chkc:IsControler(1-tp) end
+	local count=Duel.GetMatchingGroupCount(Card.IsType, e:GetHandlerPlayer(), LOCATION_ONFIELD, 0, nil, TYPE_SPELL)
+	if chk==0 then return Duel.IsExistingTarget(aux.TRUE, tp, 0, LOCATION_ONFIELD, 1, e:GetHandler()) end
+	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_DESTROY)
+	local g=Duel.SelectTarget(tp, aux.TRUE, tp, 0, LOCATION_ONFIELD, 1, count, nil)
+	Duel.SetOperationInfo(0, CATEGORY_DESTROY, g, 1, 0, 0)
+end
+function s.desop(e, tp, eg, ep, ev, re, r, rp)
+	local g=Duel.GetTargetCards(e)
+	Duel.Destroy(g, REASON_EFFECT)
 end
