@@ -54,7 +54,7 @@ function s.initial_effect(c)
 	e9:SetTargetRange(LOCATION_ONFIELD, 0)
 	e9:SetTarget(s.prtg)
 	e9:SetValue(s.prval)
-	--e9:SetCondition(s.prcon)
+	e9:SetCondition(s.prcon)
 	c:RegisterEffect(e9)
 end
 
