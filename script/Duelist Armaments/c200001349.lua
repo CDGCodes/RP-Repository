@@ -46,6 +46,15 @@ function s.initial_effect(c)
 	e8:SetValue(1)
 	e8:SetCondition(s.dircon)
 	c:RegisterEffect(e8)
+	--Attack directly
+	local e9=Effect.CreateEffect(c)
+	e9:SetType(EFFECT_TYPE_EQUIP)
+	e9:SetCode(EFFECT_DIRECT_ATTACK)
+	c:RegisterEffect(e9)
+	local e10=e9:Clone()
+	e10:SetType(EFFECT_TYPE_SINGLE)
+	e10:SetCondition(s.effcon)
+	c:RegisterEffect(e10)
 end
 
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
