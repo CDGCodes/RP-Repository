@@ -46,6 +46,18 @@ function s.initial_effect(c)
 	e8:SetValue(1)
 	e8:SetCondition(s.dircon)
 	c:RegisterEffect(e8)
+	--Protection
+	local e9=Effect.CreateEffect(c)
+	e9:SetType(EFFECT_TYPE_FIELD)
+	e9:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
+	e9:SetRange(LOCATION_FIELD)
+	e9:SetTargetRange(LOCATION_FIELD, 0)
+	e9:SetTarget(s.prtg)
+	e9:SetCondition(s.prcon)
+	c:RegisterEffect(e9)
+	local e10=e9:Clone()
+	e10:SetCode(EFFECT_INDESTRUCTIBLE_EFFECT)
+	c:RegisterEffect(e10)
 end
 
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
@@ -84,4 +96,12 @@ function s.effcon(e)
 end
 function s.dircon(e)
 	return e:GetHandler():IsAttackPos() and s.effcon
+end
+
+function s.prcon(e, tp, eg, ep, ev, re, r, rp)
+	local c=e:GetHandler()
+	return (c:IsLocation(LOCATION_SZONE) and c:IsType(TYPE_EQUIP)) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
+end
+function s.prtg(e, c)
+	return c:IsSetCode(0xFEDC)
 end
