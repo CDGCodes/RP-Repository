@@ -103,5 +103,5 @@ function s.prcon(e, tp, eg, ep, ev, re, r, rp)
 	return (c:IsLocation(LOCATION_SZONE) and c:IsType(TYPE_EQUIP)) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
 end
 function s.prtg(e, c)
-	return c:IsSetCode(0xFEDC)
+	return c:IsSetCard(0xFEDC)
 end
