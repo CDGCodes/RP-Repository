@@ -46,6 +46,18 @@ function s.initial_effect(c)
 	e8:SetValue(1)
 	e8:SetCondition(s.dircon)
 	c:RegisterEffect(e8)
+	--Negate
+	local e9=Effect.CreateEffect(c)
+	e9:SetCategory(CATEGORY_DISABLE)
+	e9:SetType(EFFECT_TYPE_QUICK_O)
+	e9:SetCode(EVENT_FREE_CHAIN)
+	e9:SetRange(LOCATION_ONFIELD)
+	e9:SetCountLimit(1, id, 0)
+	e9:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e9:SetCondition(s.negcon)
+	e9:SetTarget(s.negtgt)
+	e9:SetOperation(s.negop)
+	c:RegisterEffect(e9)
 end
 
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
@@ -84,4 +96,54 @@ function s.effcon(e)
 end
 function s.dircon(e)
 	return e:GetHandler():IsAttackPos() and s.effcon
+end
+
+function s.negcon(e, tp, eg, ep, ev, re, r, rp)
+	local c=e:GetHandler()
+	return (c:IsLocation(LOCATION_SZONE) and c:IsType(TYPE_EQUIP)) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
+end
+function s.negtgt(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
+	if chkc then return chkc:IsControler(1-tp) and chkc:IsNegatable() end
+	if chk==0 then return Duel.IsExistingTarget(Card.IsNegatable, tp, 0, LOCATION_ONFIELD, 1, nil) end
+	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_NEGATE)
+	local g=Duel.SelectTarget(tp, Card.IsNegatable, tp, 0, LOCATION_ONFIELD, 1, 1, nil)
+	Duel.SetOperationInfo(0, CATEGORY_DISABLE, g, 1, 0, 0)
+end
+function s.negop(e, tp, eg, ep, ev re, r, rp)
+	local c=e:GetHandler()
+	local tc=Duel.GetFirstTarget()
+	if tc.IsFaceup() and tc:IsRelateToEffect(e) and tc:IsNegatable() then
+		Duel.NegateRelatedChain(tc, RESET_TURN_SET)
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_DISABLE)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+		tc:RegisterEffect(e1)
+		local e2=Effect.CreateEffect(c)
+		e2:SetType(EFFECT_TYPE_SINGLE)
+		e2:SetCode(EFFECT_DISABLE_EFFECT)
+		e2:SetValue(RESET_TURN_SET)
+		e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+		tc:RegisterEffect(e2)
+		local loc = c:GetLocation()
+		if not tc:IsImmuneToEffect(e1) and not tc:IsImmuneToEffect(e2) 
+			and Duel.IsExistingTarget(Card.IsNegatable, tp, 0, loc, 1, nil)
+			and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
+				local f=Duel.GetMatchingGroup(aux.TRUE, tp, 0, loc, nil)
+				Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_NEGATE)
+				local sg=f:SelectTarget(tp, Card.IsNegatable, tp, 0, loc, 1, 1, nil)
+				Duel.NegateRelatedChain(sg, RESET_TURN_SET)
+				local e3=Effect.CreateEffect(c)
+				e3:SetType(EFFECT_TYPE_SINGLE)
+				e3:SetCode(EFFECT_DISABLE)
+				e3:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+				sg:RegisterEffect(e3)
+				local e4=Effect.CreateEffect(c)
+				e4:SetType(EFFECT_TYPE_SINGLE)
+				e4:SetCode(EFFECT_DISABLE_EFFECT)
+				e4:SetValue(RESET_TURN_SET)
+				e4:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+				sg:RegisterEffect(e4)
+		end
+	end
 end
