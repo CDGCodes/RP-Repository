@@ -109,7 +109,7 @@ function s.negtgt(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
 	local g=Duel.SelectTarget(tp, Card.IsNegatable, tp, 0, LOCATION_ONFIELD, 1, 1, nil)
 	Duel.SetOperationInfo(0, CATEGORY_DISABLE, g, 1, 0, 0)
 end
-function s.negop(e, tp, eg, ep, ev re, r, rp)
+function s.negop(e, tp, eg, ep, ev, re, r, rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
 	if tc.IsFaceup() and tc:IsRelateToEffect(e) and tc:IsNegatable() then
