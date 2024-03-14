@@ -55,7 +55,9 @@ function s.initial_effect(c)
 	e9:SetCountLimit(1, id, 0)
 	e9:SetRange(LOCATION_ONFIELD)
 	e9:SetCondition(s.negcon)
-	e9:
+	e9:SetTarget(s.negtgt)
+	e9:SetOperation(s.negop)
+	c:RegisterEffect(e9)
 end
 
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
