@@ -100,9 +100,9 @@ end
 
 function s.negcon(e, tp, eg, ep, ev, re, r, rp)
 	local c=e:GetHandler()
-	if not (c:IsLocation(LOCATION_SZONE) and c:IsType(TYPE_EQUIP)) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT)) then 
-		return false 
-	end
+	--if not (c:IsLocation(LOCATION_SZONE) and c:IsType(TYPE_EQUIP)) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT)) then 
+	--	return false 
+	--end
 	return Duel.IsChainNegatable(ev) and not c:IsStatus(STATUS_BATTLE_DESTROYED)
 end
 function s.negtgt(e, tp, eg, ep, ev, re, r, rp, chk)
