@@ -112,9 +112,7 @@ end
 function s.negop(e, tp, eg, ep, ev, re, r, rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if tc.IsFaceup() 
-	and tc:IsRelateToEffect(e) 
-	and tc:IsNegatable() then
+	if tc:IsFaceup() and tc:IsRelateToEffect(e) and tc:IsNegatable() then
 		Duel.NegateRelatedChain(tc, RESET_TURN_SET)
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
