@@ -28,7 +28,7 @@ function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
 end
 function s.spop(e, tp, eg, ep, ev, re, r, rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectMatchingCard(tp, s.spfilter, tp, LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND, 0, 1, 1, nil, e, tp)
+	local g=Duel.SelectMatchingCard(tp, s.spfilter, tp, LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND, 0, 1, 1, nil, tp)
 	if #g>0 then
 		local gc=g:GetFirst()
 		gc:AddMonsterAttribute(TYPE_EFFECT+TYPE_SPELL)
@@ -53,6 +53,7 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
 		end
 	end
 	-- Spell Summon Restriction
+	local c=e:GetHandler()
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id, 1))
 	e1:SetType(EFFECT_TYPE_FIELD)
