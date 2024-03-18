@@ -11,7 +11,7 @@ function s.initial_effect(c)
 end
 
 function s.spfilter(c, e, tp)
-	return c:IsSetCard(0xFEDC) and c:IsType(TYPE_EQUIP) and c:IsCanBeSpecialSummoned(e,0,tp,true,false)
+	return c:IsSetCard(0xFEDC) and c:IsType(TYPE_EQUIP) and Duel.IsPlayerCanSpecialSummonMonster(tp, c:GetCode(), 0xFEDC, 0x21, 1500, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT)
 end
 function s.eqfilter(c,ec)
 	return c:IsType(TYPE_EQUIP) and c:CheckEquipTarget(ec)
@@ -28,8 +28,21 @@ end
 function s.spop(e, tp, eg, ep, ev, re, r, rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectMatchingCard(tp, s.spfilter, tp, LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND, 0, 1, 1, nil, e, tp)
-	if #g>0 and Duel.SpecialSummon(g, 0, tp, tp, false, false, POS_FACEUP) then
+	if #g>0 then
 		local gc=g:GetFirst()
+		gc:AddMonsterAttribute(TYPE_EFFECT+TYPE_SPELL)
+		Duel.SpecialSummonStep(gc, 0, tp, tp, true, false, POS_FACEUP)
+		gc:AddMonsterAttributeComplete()
+		Duel.SpecialSummonComplete()
+		local e1=Effect.CreateEffect(c)
+		e1:SetDescription(aux.Stringid(id, 1))
+		e1:SetType(EFFECT_TYPE_FIELD)
+		e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CLIENT_HINT)
+		e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+		e1:SetTargetRange(1, 0)
+		e1:SetTarget(s.splimit)
+		e1:SetReset(RESET_PHASE+PHASE_END)
+		Duel.RegisterEffect(e1, tp)
 		if Duel.IsExistingTarget(s.eqfilter, tp, LOCATION_GRAVE+LOCATION_HAND+LOCATION_DECK, 0, 1, nil, gc) and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
 			local eg=Duel.SelectMatchingCard(tp, s.eqfilter, tp, LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND, 0, 1, 1, nil, gc)
 			local egc=eg:GetFirst()
