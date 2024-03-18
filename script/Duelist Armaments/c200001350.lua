@@ -7,7 +7,7 @@ function s.initial_effect(c)
 	e1:SetCountLimit(1, id, EFFECT_COUNT_CODE_OATH)
 	e1:SetTarget(s.sptg)
 	e1:SetOperation(s.spop)
-	c:RegisterEffect(e2)
+	c:RegisterEffect(e1)
 end
 
 function s.spfilter(c, e, tp)
