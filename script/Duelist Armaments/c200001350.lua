@@ -4,16 +4,17 @@ function s.initial_effect(c)
 	local e1=Effect.CreateEffect(c)
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_EQUIP)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
+	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetCountLimit(1, id, EFFECT_COUNT_CODE_OATH)
 	e1:SetTarget(s.sptg)
 	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
 end
 
-function s.spfilter(c, e, tp)
+function s.spfilter(c, tp)
 	return c:IsSetCard(0xFEDC) and c:IsType(TYPE_EQUIP) and Duel.IsPlayerCanSpecialSummonMonster(tp, c:GetCode(), 0xFEDC, 0x21, 1500, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT)
 end
-function s.eqfilter(c,ec)
+function s.eqfilter(c, ec)
 	return c:IsType(TYPE_EQUIP) and c:CheckEquipTarget(ec)
 end
 function s.splimit(e, c, sump, sumtype, sumpos, targetp, se)
@@ -22,7 +23,7 @@ function s.splimit(e, c, sump, sumtype, sumpos, targetp, se)
 end
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingMatchingCard(s.spfilter, tp, LOCATION_DECK+LOCATION_HAND+LOCATION_GRAVE, 0, 1, nil, e, tp) end
+		and Duel.IsExistingMatchingCard(s.spfilter, tp, LOCATION_DECK+LOCATION_HAND+LOCATION_GRAVE, 0, 1, nil, tp) end
 	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, nil, 1, 0, LOCATION_DECK+LOCATION_HAND+LOCATION_GRAVE)
 end
 function s.spop(e, tp, eg, ep, ev, re, r, rp)
