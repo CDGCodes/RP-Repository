@@ -35,12 +35,10 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
 		Duel.SpecialSummonStep(gc, 0, tp, tp, true, false, POS_FACEUP)
 		gc:AddMonsterAttributeComplete()
 		Duel.SpecialSummonComplete()
-		if Duel.IsExistingTarget(s.eqfilter, tp, LOCATION_GRAVE+LOCATION_HAND+LOCATION_DECK, 0, 1, nil, gc) and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
+		if Duel.IsExistingMatchingCard(s.eqfilter, tp, LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND, 0, 1, nil, gc) and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
 			local eg=Duel.SelectMatchingCard(tp, s.eqfilter, tp, LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND, 0, 1, 1, nil, gc)
 			local egc=eg:GetFirst()
-			if tc:IsRelateToEffect(e) then
-				Duel.Equip(tp, egc, gc)
-			end
+			Duel.Equip(tp, egc, gc)
 		end
 	end
 	-- Spell Summon Restriction
