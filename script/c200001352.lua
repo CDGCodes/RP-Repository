@@ -28,7 +28,7 @@
  end
  function s.bnctgt(e, tp, eg, ep, ev, re, r, rp, chk)
  	local ct=e:GetHandler():GetMaterialCount()
- 	if chkc then return chkc:IsOnField()
+ 	if chkc then return chkc:IsOnField() end
  	if chk==0 then return Duel.IsExistingTarget(aux.TRUE, tp, 0, LOCATION_ONFIELD, 1, nil) and ct>0 end
  	Duel.Hint(HINTSELECTMSG, tp, HINTMSG_DESTROY)
  	local g=Duel.SelectTarget(tp, aux.TRUE, tp, 0, LOCATION_ONFIELD, 1, ct, nil)
