@@ -21,6 +21,7 @@ function s.initial_effect(c)
 	e1:SetCountLimit(5)
 	e1:SetCost(s.adcost)
 	e1:SetOperation(s.adop)
+	c:RegisterEffect(e2)
 end
 
 function s.imcon(e)
