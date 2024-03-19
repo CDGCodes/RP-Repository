@@ -22,6 +22,15 @@ function s.initial_effect(c)
 	e2:SetCost(s.adcost)
 	e2:SetOperation(s.adop)
 	c:RegisterEffect(e2)
+	--Special Summon
+	local e3=Effect.CreateEffect(c)
+	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e3:SetFlag(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DELAY)
+	e3:SetCode(EVENT_DESTROYED)
+	e3:SetTarget(s.sumtgt)
+	e3:SetOperation(s.sumop)
+	c:RegisterEffect(e3)
 end
 
 function s.imcon(e)
@@ -52,5 +61,21 @@ function s.adop(e, tp, eg, ep, ev, re, r, rp)
 		local e2=e1:Clone()
 		e2:SetCode(EFFECT_UPDATE_DEFENSE)
 		c:RegisterEffect(e2)
+	end
+end
+
+function s.sumfilter(c, e, tp)
+	return c:IsSetCard(0x11c) and c:IsCanBeSpecialSummoned(e, 0, tp, true, false)
+end
+function s.sumtgt(e, tp, eg, ep, ev, re, r, rp, chk)
+	if chk==0 then return Duel.GetLocationCount(tp, LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(s.sumfilter, tp, LOCATION_EXTRA, 0, 1, nil, e, tp) end
+	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, nil, 1, tp, LOCATION_EXTRA)
+end
+function s.sumop(e, tp, eg, ep, ev, re, r, rp)
+	if Duel.GetLocationCount(tp, LOCATION_MZONE)<=0 then return end
+	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_SPSUMMON)
+	local g=Duel.SelectMatchingCard(tp, s.sumfilter, tp, LOCATION_EXTRA, 0, 1, 1, nil, e, tp)
+	if #g>0 then
+		Duel.SpecialSummon(g, 0, tp, tp, true, false, POS_FACEUP)
 	end
 end
