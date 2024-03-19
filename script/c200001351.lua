@@ -27,6 +27,7 @@ function s.initial_effect(c)
 	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DELAY)
+	e3:SetCountLimit(1, id)
 	e3:SetCode(EVENT_DESTROYED)
 	e3:SetTarget(s.sumtgt)
 	e3:SetOperation(s.sumop)
@@ -65,7 +66,7 @@ function s.adop(e, tp, eg, ep, ev, re, r, rp)
 end
 
 function s.sumfilter(c, e, tp)
-	return c:IsSetCard(0x11c) and c:IsCanBeSpecialSummoned(e, 0, tp, true, false)
+	return c:IsSetCard(0x11c) and c:IsCanBeSpecialSummoned(e, 0, tp, true, false) and not c:IsCode(id)
 end
 function s.sumtgt(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return Duel.GetLocationCount(tp, LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(s.sumfilter, tp, LOCATION_EXTRA, 0, 1, nil, e, tp) end
