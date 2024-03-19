@@ -15,12 +15,12 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 	--ATK/DEF up
 	local e2=Effect.CreateEffect(c)
-	e1:SetCategory(CATEGORY_ATKCHANGE+CATEGORY_DEFCHANGE)
-	e1:SetType(EFFECT_TYPE_IGNITION)
-	e1:SetRange(LOCATION_MZONE)
-	e1:SetCountLimit(5)
-	e1:SetCost(s.adcost)
-	e1:SetOperation(s.adop)
+	e2:SetCategory(CATEGORY_ATKCHANGE+CATEGORY_DEFCHANGE)
+	e2:SetType(EFFECT_TYPE_IGNITION)
+	e2:SetRange(LOCATION_MZONE)
+	e2:SetCountLimit(5)
+	e2:SetCost(s.adcost)
+	e2:SetOperation(s.adop)
 	c:RegisterEffect(e2)
 end
 
