@@ -30,7 +30,7 @@
  	local ct=e:GetHandler():GetMaterialCount()
  	if chkc then return chkc:IsOnField() end
  	if chk==0 then return Duel.IsExistingTarget(aux.TRUE, tp, 0, LOCATION_ONFIELD, 1, nil) and ct>0 end
- 	Duel.Hint(HINTSELECTMSG, tp, HINTMSG_DESTROY)
+ 	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_RTOHAND)
  	local g=Duel.SelectTarget(tp, aux.TRUE, tp, 0, LOCATION_ONFIELD, 1, ct, nil)
  	Duel.SetOperationInfo(0, CATEGORY_TOHAND, g, #g, 0, 0)
  end
