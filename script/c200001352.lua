@@ -31,6 +31,7 @@
  	e2:SetCondition(s.sumcon)
  	e2:SetTarget(s.sumtgt)
  	e2:SetOperation(s.sumop)
+ 	c:RegisterEffect(e2)
  end
  
  function s.bnccon(e, tp, eg, ep, ev, re, r, rp)
