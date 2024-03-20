@@ -55,7 +55,7 @@
  	return c:IsPreviousLocation(LOCATION_MZONE) and c:IsSummonType(SUMMON_TYPE_FUSION)
  end
  function s.sumfilter(c)
- 	return c:IsRace(RACE_SPELLCASTER)
+ 	return c:IsRace(RACE_SPELLCASTER) and c:IsCanBeSpecialSummoned()
  end
  function s.sumtgt(e, tp, eg, ep, ev, re, r, rp, chk)
  	local c=e:GetHandler()
