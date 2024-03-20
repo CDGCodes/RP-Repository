@@ -54,20 +54,20 @@
  	local c=e:GetHandler()
  	return c:IsPreviousLocation(LOCATION_MZONE) and c:IsSummonType(SUMMON_TYPE_FUSION)
  end
- function s.sumfilter(c)
- 	return c:IsRace(RACE_SPELLCASTER) and c:IsCanBeSpecialSummoned()
+ function s.sumfilter(c, e, tp)
+ 	return c:IsRace(RACE_SPELLCASTER) and c:IsCanBeSpecialSummoned(e, 0, tp, false, false)
  end
  function s.sumtgt(e, tp, eg, ep, ev, re, r, rp, chk)
  	local c=e:GetHandler()
  	local ct=c:GetMaterialCount()
- 	if chk==0 then return c:IsSummonType(SUMMON_TYPE_FUSION) and Duel.GetLocationCount(tp, LOCATION_MZONE)>0 and ct>0 and Duel.IsExistingMatchingCard(s.sumfilter, tp, LOCATION_GRAVE, 0, 1, nil) end
+ 	if chk==0 then return c:IsSummonType(SUMMON_TYPE_FUSION) and Duel.GetLocationCount(tp, LOCATION_MZONE)>0 and ct>0 and Duel.IsExistingMatchingCard(s.sumfilter, tp, LOCATION_GRAVE, 0, 1, nil, e, tp) end
  	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, nil, 1, 0, LOCATION_GRAVE)
  end
  function s.sumop(e, tp, eg, ep, ev, re, r, rp)
  	local c=e:GetHandler()
  	local ct=c:GetMaterialCount()
  	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
- 	local g=Duel.SelectMatchingCard(tp, s.sumfilter, tp, LOCATION_GRAVE, 0, 1, ct, nil)
+ 	local g=Duel.SelectMatchingCard(tp, s.sumfilter, tp, LOCATION_GRAVE, 0, 1, ct, nil, e, tp)
  	if #g>0 then
  		local gc=g:GetFirst()
  		for gc in aux.Next(g) do
