@@ -56,7 +56,7 @@
  function s.sumfilter(c)
  	return c:IsRace(RACE_SPELLCASTER)
  end
- function s.sumtgt(e, tp, eg, ep ev, re, r, rp, chk)
+ function s.sumtgt(e, tp, eg, ep, ev, re, r, rp, chk)
  	local c=e:GetHandler()
  	local ct=c:GetMaterialCount()
  	if chk==0 then return c:IsSummonType(SUMMON_TYPE_FUSION) and Duel.GetLocationCount(tp, LOCATION_MZONE)>0 and ct>0 and Duel.IsExistingMatchingCard(s.sumfilter, tp, LOCATION_GRAVE, 0, 1, nil) end
