@@ -69,7 +69,7 @@
  	local g=Duel.SelectMatchingCard(tp, s.sumfilter, tp, LOCATION_GRAVE, 0, 1, ct, nil)
  	if #g>0 then
  		local gc=g:GetFirst()
- 		for gc in aux.Next(g)
+ 		for gc in aux.Next(g) do
  			Duel.SpecialSummonStep(gc, 0, tp, tp, false, false, POS_FACEUP)
  		end
  		Duel.SpecialSummonComplete()
