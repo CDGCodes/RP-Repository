@@ -23,7 +23,7 @@
  	c:RegisterEffect(e1)
  	--Special Summon
  	local e2=Effect.CreateEffect(c)
- 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_0)
+ 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
  	e2:SetCode(EVENT_DESTROYED)
  	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
  	e2:SetCountLimit(1, id, 1)
