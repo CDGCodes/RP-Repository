@@ -108,7 +108,7 @@ end
 
 function s.prcon(e, tp, eg, ep, ev, re, r, rp)
 	local c=e:GetHandler()
-	return (c:GetEquipTarget() and c:IsType(TYPE_EQUIP)) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
+	return (c:IsLocation(LOCATION_SZONE) and c:GetEquipTarget()) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
 end
 function s.prtg(e, c)
 	return c:IsSetCard(0xFEDC)
@@ -118,7 +118,7 @@ function s.prval(e, re, r, rp)
 end
 
 function s.atkcon(e, tp, eg, ep, ev, re, r, rp)
-	if not s.prcon then return false end
+	--if not s.prcon then return false end
 	local a=Duel.GetAttacker()
 	local d=Duel.GetAttackTarget()
 	return a:IsControler(1-tp) and d and d:IsControler(tp) and d:IsFaceup()
