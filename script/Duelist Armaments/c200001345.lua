@@ -130,6 +130,7 @@ function s.atktgt(e, tp, eg, ep, ev, re, r, rp, chk)
 end
 function s.atkop(e, tp, eg, ep, ev, re, r, rp)
 	local c=e:GetHandler()
+	local a=Duel.GetAttacker()
 	local d=Duel.GetAttackTarget()
 	if a:IsRelateToEffect() and d:IsRelateToBattle() then
 		Duel.Equip(tp, c, d)
