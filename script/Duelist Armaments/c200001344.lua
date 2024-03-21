@@ -102,7 +102,7 @@ function s.addcon(e, tp, eg, ep, ev, re, r, rp)
 	return (c:IsLocation(LOCATION_SZONE) and c:IsType(TYPE_EQUIP)) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
 end
 function s.addfilter(c)
-	return (c:IsLocation(LOCATION_DECK) or c:IsLocation(LOCATION_GRAVE)) and c:IsSetCard(0xFEDC) and c:IsSpell() and c:IsAbleToHand() and not c:IsCode(id)
+	return (c:IsLocation(LOCATION_DECK) or c:IsLocation(LOCATION_GRAVE)) and c:IsSetCard(0xFEDC) and c:IsType(TYPE_EQUIP)) and c:IsAbleToHand() and not c:IsCode(id)
 end
 function s.addtg(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.addfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil) end
