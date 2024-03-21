@@ -119,10 +119,17 @@ function s.prval(e, re, r, rp)
 end
 
 function s.atkcon(e, tp, eg, ep, ev, re, r, rp)
-	--if not s.prcon then return false end
+	if not s.prcon then return false end
+	local c=e:GetHandler()
 	local a=Duel.GetAttacker()
 	local d=Duel.GetAttackTarget()
-	return a:IsControler(1-tp) and d and d:IsControler(tp) and d:IsFaceup()
+	if not a:IsControler(1-tp) and d and d:IsControler(tp) and d:IsFaceup() then return false end
+	if c:GetEquipTarget() then
+		return not d==c:GetEquipTarget()
+	end
+	if c:IsType(TYPE_EFFECT)
+		return not d==c
+	end
 end
 function s.atktgt(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return true end
