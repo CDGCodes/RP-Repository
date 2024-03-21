@@ -55,6 +55,16 @@ function s.initial_effect(c)
 	e10:SetType(EFFECT_TYPE_SINGLE)
 	e10:SetCondition(s.effcon)
 	c:RegisterEffect(e10)
+	--Reduce damage
+	local e11=Effect.CreateEffect(c)
+	e11:SetType(EFFECT_TYPE_EQUIP)
+	e11:SetCode(EFFECT_CHANGE_BATTLE_DAMAGE)
+	e11:SetCondition(s.rdcon)
+	e11:SetValue(aux.ChangeBattleDamage(1, HALF_DAMAGE))
+	c:RegisterEffect(e11)
+	local e12=e11:Clone()
+	e12:SetType(EFFECT_TYPE_SINGLE)
+	c:RegisterEffect(e12)
 end
 
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
@@ -93,4 +103,17 @@ function s.effcon(e)
 end
 function s.dircon(e)
 	return e:GetHandler():IsAttackPos() and s.effcon
+end
+
+function s.rdcon(e)
+	local c=e:GetHandler()
+	local tp=e:GetHandlerPlayer()
+	if c:IsType(TYPE_EFFECT) then
+		return Duel.GetAttackTarget()==nil and c:GetEffectCount(EFFECT_DIRECT_ATTACK)<2 and Duel.GetFieldGroupCount(tp, 0, LOCATION_MZONE)>0
+	end
+	local ec=c:GetEquipTarget()
+	if ec then
+		return Duel.GetAttackTarget()==nil and ec:GetEffectCount(EFFECT_DIRECT_ATTACK)<2 and Duel.GetFieldGroupCount(tp, 0, LOCATION_MZONE)>0
+	end
+	return false
 end
