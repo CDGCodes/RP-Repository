@@ -124,10 +124,10 @@ function s.atkcon(e, tp, eg, ep, ev, re, r, rp)
 	local a=Duel.GetAttacker()
 	local d=Duel.GetAttackTarget()
 	if not a:IsControler(1-tp) and d and d:IsControler(tp) and d:IsFaceup() then return false end
-	if then c:GetEquipTarget() then
+	if c:GetEquipTarget() then
 		return not d==c:GetEquipTarget()
 	end
-	if then c:IsType(TYPE_EFFECT)
+	if c:IsType(TYPE_EFFECT) then
 		return not d==c
 	end
 	return false
