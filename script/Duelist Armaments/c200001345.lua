@@ -59,7 +59,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e10)
 	--Redirect equip
 	local e11=Effect.CreateEffect(c)
-	e11:SetType(EFFECT_TYPE_FIELD)
+	e11:SetType(EFFECT_TYPE_TRIGGER_O+EFFECT_TYPE_FIELD)
 	e11:SetCode(EVENT_ATTACK_ANNOUNCE)
 	e11:SetRange(LOCATION_ONFIELD)
 	e11:SetCountLimit(1, id, 0)
