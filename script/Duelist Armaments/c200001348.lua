@@ -101,7 +101,7 @@ end
 
 function s.negcost(e, tp, eg, ep, ev, re, r, rp, chk)
 	local c=e:GetHandler()
-	if chk==0 then return c:GetEquipTarget() and c:IsAbleToGraveAsCost() end
+	if chk==0 then return (c:GetEquipTarget() or c:IsType(TYPE_EFFECT)) and c:IsAbleToGraveAsCost() end
 	Duel.SendtoGrave(c, REASON_COST)
 end
 function s.negcon(e, tp, eg, ep, ev, re, r, rp)
