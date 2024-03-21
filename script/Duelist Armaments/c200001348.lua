@@ -54,6 +54,7 @@ function s.initial_effect(c)
 	e9:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
 	e9:SetCountLimit(1, id, 0)
 	e9:SetRange(LOCATION_ONFIELD)
+	e9:SetCost(s.negcost)
 	e9:SetCondition(s.negcon)
 	e9:SetTarget(s.negtgt)
 	e9:SetOperation(s.negop)
@@ -98,6 +99,11 @@ function s.dircon(e)
 	return e:GetHandler():IsAttackPos() and s.effcon
 end
 
+function s.negcost(e, tp, eg, ep, ev, re, r, rp, chk)
+	local c=e:GetHandler()
+	if chk==0 then return c:GetEquipTarget() and c:IsAbleToGraveAsCost() end
+	Duel.SendtoGrave(c, REASON_COST)
+end
 function s.negcon(e, tp, eg, ep, ev, re, r, rp)
 	local c=e:GetHandler()
 	if c:IsStatus(STATUS_BATTLE_DESTROYED) or not Duel.IsChainNegatable(ev) then return false end
