@@ -56,6 +56,16 @@ function s.initial_effect(c)
 	e9:SetValue(s.prval)
 	e9:SetCondition(s.prcon)
 	c:RegisterEffect(e9)
+	--Redirect equip
+	local e10=Effect.CreateEffect(c)
+	e10:SetType(EFFECT_TYPE_FIELD)
+	e10:SetCode(EVENT_ATTACK_ANNOUNCE)
+	e10:SetRange(LOCATION_ONFIELD)
+	e10:SetCountLimit(1, id, 0)
+	e10:SetCondition(s.atkcon)
+	e10:SetTarget(s.atktgt)
+	e10:SetOperation(s.atkop)
+	c:RegisterEffect(e10)
 end
 
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
@@ -98,11 +108,29 @@ end
 
 function s.prcon(e, tp, eg, ep, ev, re, r, rp)
 	local c=e:GetHandler()
-	return (c:IsLocation(LOCATION_SZONE) and c:IsType(TYPE_EQUIP)) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
+	return (c:GetEquipTarget() and c:IsType(TYPE_EQUIP)) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
 end
 function s.prtg(e, c)
 	return c:IsSetCard(0xFEDC)
 end
 function s.prval(e, re, r, rp)
 	return (r&REASON_EFFECT+REASON_BATTLE)~=0
+end
+
+function s.atkcon(e, tp, eg, ep, ev, re, r, rp)
+	if not s.prcon then return false end
+	local a=Duel.GetAttacker()
+	local d=Duel.GetAttackTarget()
+	return a:IsControler(1-tp) and d and d:IsControler(tp) and d:IsFaceup()
+end
+function s.atktgt(e, tp, eg, ep, ev, re, r, rp, chk)
+	if chk==0 then return true end
+	Duel.GetAttacker():CreateEffectRelation(e)
+end
+function s.atkop(e, tp, eg, ep, ev, re, r, rp)
+	local c=GetHandler()
+	local d=Duel.GetAttackTarget()
+	if a:IsRelateToEffect() and d:IsRelateToBattle() then
+		Duel.Equip(tp, c, d)
+	end
 end
