@@ -14,13 +14,14 @@ function s.initial_effect(c)
 	--Special Summon
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id, 0))
-	e4:SetType(EFFECT_TYPE_IGNITION)
-	e4:SetRange(LOCATION_HAND)
+	e4:SetType(EFFECT_TYPE_ACTIVATE)
+	e4:SetCode(EVENT_FREE_CHAIN)
 	e4:SetCountLimit(1, id, EFFECT_COUNT_CODE_OATH)
 	e4:SetTarget(s.sptg)
 	e4:SetOperation(s.spop)
 	c:RegisterEffect(e4)
 	local e5=e4:Clone()
+	e5:SetType(EFFECT_TYPE_IGNITION)
 	e5:SetRange(LOCATION_GRAVE)
 	e5:SetCondition(s.spgycon)
 	c:RegisterEffect(e5)
@@ -100,7 +101,7 @@ end
 
 function s.descon(e, tp, eg, ep, ev, re, r, rp)
 	local c=e:GetHandler()
-	return (c:IsLocation(LOCATION_SZONE) and c:IsType(TYPE_EQUIP)) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
+	return (c:IsLocation(LOCATION_SZONE) and c:GetEquipTarget()) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
 end
 function s.destgt(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
 	if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) end
