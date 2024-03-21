@@ -54,7 +54,7 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
 		e3:SetValue(ATTRIBUTE_LIGHT)
 		gc:RegisterEffect(e3)
 		Duel.SpecialSummonComplete()
-		if Duel.IsExistingMatchingCard(s.eqfilter, tp, LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND, 0, 1, nil, gc) and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
+		if Duel.IsExistingMatchingCard(s.eqfilter, tp, LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND, 0, 1, nil, gc) and Duel.GetLocationCount(tp, LOCATION_SZONE)>0 and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
 			local eg=Duel.SelectMatchingCard(tp, s.eqfilter, tp, LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND, 0, 1, 1, nil, gc)
 			local egc=eg:GetFirst()
 			Duel.Equip(tp, egc, gc)
