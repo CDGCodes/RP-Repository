@@ -108,5 +108,5 @@ function s.dircon(e)
 end
 
 function s.swvalue(e, c)
-	return Duel.GetMatchingGroupCount(Card.IsType, e:GetHandlerPlayer(), LOCATION_ONFIELD+LOCATION_GRAVE, 0, nil, TYPE_SPELL)*200
+	return Duel.GetMatchingGroupCount(Card.IsType, e:GetHandlerPlayer(), LOCATION_ONFIELD+LOCATION_GRAVE, 0, nil, TYPE_SPELL)*100
 end
