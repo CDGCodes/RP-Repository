@@ -37,8 +37,11 @@ function s.splimit(e,se,sp,st)
 	return e:GetHandler():GetLocation()~=LOCATION_EXTRA
 end
 
+function s.valfilter(c)
+	return c:IsSetCard(0x20a2) and c:IsFaceup()
+end
 function s.val(e, c)
-	return Duel.GetMatchingGroupCount(Card.IsSetCard,e:GetHandlerPlayer(),LOCATION_MZONE,LOCATION_MZONE,nil,0x20a2)*200
+	return Duel.GetMatchingGroupCount(s.valfilter, e:GetHandlerPlayer(), LOCATION_MZONE, LOCATION_MZONE, nil)*200
 end
 
 function s.cfilter(c, tp)
