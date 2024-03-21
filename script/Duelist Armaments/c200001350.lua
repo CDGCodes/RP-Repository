@@ -15,7 +15,7 @@ function s.spfilter(c, tp)
 	return c:IsSetCard(0xFEDC) and c:IsType(TYPE_EQUIP) and Duel.IsPlayerCanSpecialSummonMonster(tp, c:GetCode(), 0xFEDC, 0x21, 1500, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT)
 end
 function s.eqfilter(c, ec)
-	return c:IsType(TYPE_EQUIP) and c:CheckEquipTarget(ec)
+	return c:IsSetCard(0xFEDC) and c:IsType(TYPE_EQUIP) and c:CheckEquipTarget(ec)
 end
 function s.splimit(e, c, sump, sumtype, sumpos, targetp, se)
 	if se:GetHandler():IsSpell() then return false end
