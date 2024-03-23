@@ -55,6 +55,7 @@ function s.initial_effect(c)
 	e9:SetRange(LOCATION_ONFIELD)
 	e9:SetCountLimit(1, id, 0)
 	e9:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e9:SetCost(s.negcost)
 	e9:SetCondition(s.negcon)
 	e9:SetTarget(s.negtgt)
 	e9:SetOperation(s.negop)
@@ -99,6 +100,21 @@ function s.dircon(e)
 	return e:GetHandler():IsAttackPos() and s.effcon
 end
 
+function s.costfilter(c, e)
+	local ec=e:GetHandler()
+	if ec:GetEquipTarget() then
+		if c==ec:GetEquipTarget() then return false end
+	else
+		if c:IsRelateToEffect(e) then return false end
+	end
+	return c:IsSpell() and c:IsAbleToGraveAsCost()
+end
+function s.negcost(e, tp, eg, ep, ev, re, r, rp, chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.costfilter, tp, LOCATION_HAND+LOCATION_ONFIELD, 0, 2, nil, e) end
+	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_TOGRAVE)
+	local g=Duel.SelectMatchingCard(tp, s.costfilter, tp, LOCATION_HAND+LOCATION_ONFIELD, 0, 2, 2, nil, e)
+	Duel.SendtoGrave(g, REASON_COST)
+end
 function s.negcon(e, tp, eg, ep, ev, re, r, rp)
 	local c=e:GetHandler()
 	return (c:IsLocation(LOCATION_SZONE) and c:IsType(TYPE_EQUIP)) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
