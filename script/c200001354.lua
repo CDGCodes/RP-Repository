@@ -11,27 +11,40 @@ function s.initial_effect(c)
 	e1:SetCode(EFFECT_SPSUMMON_CONDITION)
 	e1:SetValue(aux.fuslimit)
 	c:RegisterEffect(e1)
-	--Search
-	local e2=Effect.CreateEffect(c)
-	e2:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
-	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e2:SetProperty(EFFECT_FLAG_DELAY)
-	e2:SetCountLimit(1, id)
-	e2:SetTarget(s.schtgt)
-	e2:SetOperation(s.schop)
-	c:RegisterEffect(e2)
-	--Make monster into Evil HERO
+	--Dark Fusion Ignore
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(id, 0))
-	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e3:SetType(EFFECT_TYPE_IGNITION)
-	e3:SetCountLimit(1, {id, 1})
+	e3:SetType(EFFECT_TYPE_CONTINUOUS)
+	e3:SetCode(72043279)
+	e3:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CLIENT_HINT)
 	e3:SetRange(LOCATION_MZONE)
-	e3:SetTarget(s.ehtgt)
-	e3:SetOperation(s.ehop)
 	c:RegisterEffect(e3)
-	--Dark Fusion
+	--Search
+	local e4=Effect.CreateEffect(c)
+	e4:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e4:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e4:SetProperty(EFFECT_FLAG_DELAY)
+	e4:SetCountLimit(1, id)
+	e4:SetTarget(s.schtgt)
+	e4:SetOperation(s.schop)
+	c:RegisterEffect(e4)
+	--Make monster into Evil HERO
+	local e5=Effect.CreateEffect(c)
+	e5:SetDescription(aux.Stringid(id, 0))
+	e5:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e5:SetType(EFFECT_TYPE_IGNITION)
+	e5:SetCountLimit(1, {id, 1})
+	e5:SetRange(LOCATION_MZONE)
+	e5:SetTarget(s.ehtgt)
+	e5:SetOperation(s.ehop)
+	c:RegisterEffect(e5)
+	--Fusion
+	local e6=Fusion.CreateSummonEff(c, aux.FilterBoolFunction(Card.IsSetCard(0x8), Fusion.OnFieldMat, s.fusxtra)
+	e6:SetCountLimit(1, {id, 2})
+	e6:SetType(EFFECT_TYPE_QUICK_O)
+	e6:SetRange(LOCATION_MZONE)
+	e6:SetCode(EVENT_FREE_CHAIN)
+	c:RegisterEffect(e6)
 end
 s.listed_names={CARD_DARK_FUSION}
 
@@ -77,4 +90,8 @@ function s.ehop(e, tp, eg, ep, ev, re, r, rp)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 		tc:RegisterEffect(e1)
 	end
+end
+
+function s.fusxtra(e, tp, mg)
+	return Duel.GetMatchingGroup(Fusion.IsMonsterFilter(Card.IsFaceup), tp, 0, LOCATION_ONFIELD, nil)
 end
