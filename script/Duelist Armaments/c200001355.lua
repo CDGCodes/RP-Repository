@@ -1,4 +1,5 @@
- --Duelist Armaments - Gunlocal s, id=GetID()
+ --Duelist Armaments - Gun
+ local s, id=GetID()
 function s.initial_effect(c)
 	aux.AddEquipProcedure(c)
 	--ATK/DEF up (Equip)
