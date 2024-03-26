@@ -11,7 +11,14 @@ function s.initial_effect(c)
 	e1:SetCode(EFFECT_SPSUMMON_CONDITION)
 	e1:SetValue(aux.fuslimit)
 	c:RegisterEffect(e1)
-	--Dark Fusion Ignore
+	--Reduce ATK
+	local e3=Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_FIELD)
+	e3:SetCode(EFFECT_UPDATE_ATTACK)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetTargetRange(0, LOCATION_MZONE)
+	e3:SetValue(s.redval)
+	c:RegisterEffect(e3)
 	--Search
 	local e4=Effect.CreateEffect(c)
 	e4:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
@@ -44,6 +51,10 @@ s.listed_names={CARD_DARK_FUSION}
 
 function s.fusfilter(c, fc, sumtype, tp, sub, mg, sg)
 	return c:IsSetCard(0x8, fc, sumtype, tp) and (c:IsAttribute(ATTRIBUTE_DARK, fc, sumtype, tp) or c:IsType(TYPE_NORMAL, tc, sumtype, tp))
+end
+
+function s.redval(e, c)
+	return Duel.GetMatchingGroupCount(Card.IsSetCard, e:GetHandler():GetControler(), LOCATION_GRAVE+LOCATION_REMOVED, 0, nil, 0x8)*-200
 end
 
 function s.schfilter(c)
