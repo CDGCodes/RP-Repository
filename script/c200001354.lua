@@ -12,12 +12,6 @@ function s.initial_effect(c)
 	e1:SetValue(aux.fuslimit)
 	c:RegisterEffect(e1)
 	--Dark Fusion Ignore
-	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_CONTINUOUS)
-	e3:SetCode(72043279)
-	e3:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CLIENT_HINT)
-	e3:SetRange(LOCATION_MZONE)
-	c:RegisterEffect(e3)
 	--Search
 	local e4=Effect.CreateEffect(c)
 	e4:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
@@ -89,6 +83,14 @@ function s.ehop(e, tp, eg, ep, ev, re, r, rp)
 		e1:SetValue(0x6008)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 		tc:RegisterEffect(e1)
+		local e2=Effect.CreateEffect(c)
+		e2:SetType(EFFECT_TYPE_FIELD)
+		e2:SetCode(EFFECT_SUPREME_CASTLE)
+		e2:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CLIENT_HINT)
+		e2:SetRange(LOCATION_MZONE)
+		e2:SetTargetRange(1, 0)
+		e2:SetReset(RESET_PHASE+PHASE_END)
+		Duel.RegisterEffect(e2, tp)
 	end
 end
 
