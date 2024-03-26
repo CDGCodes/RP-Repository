@@ -112,6 +112,10 @@ function s.descost(e, tp, eg, ep, ev, re, r, rp, chk)
 	local g=Duel.SelectMatchingCard(tp, s.costfilter, tp, LOCATION_HAND+LOCATION_ONFIELD, 0, 1, 1, nil, e)
 	Duel.SendtoGrave(g, REASON_COST)
 end
+function s.negcon(e, tp, eg, ep, ev, re, r, rp)
+	local c=e:GetHandler()
+	return (c:IsLocation(LOCATION_SZONE) and c:GetEquipTarget()) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
+end
 function s.destgt(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
 	if chkc then return chkc:IsControler(1-tp) and chkc:IsNegatable() end
 	if chk==0 then return Duel.IsExistingTarget(aux.True, tp, 0, LOCATION_ONFIELD, 1, nil) end
