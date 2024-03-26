@@ -39,7 +39,7 @@ function s.initial_effect(c)
 	e5:SetOperation(s.ehop)
 	c:RegisterEffect(e5)
 	--Fusion
-	local e6=Fusion.CreateSummonEff(c, aux.FilterBoolFunction(Card.IsSetCard(0x8), Fusion.OnFieldMat, s.fusxtra)
+	local e6=Fusion.CreateSummonEff(c, aux.FilterBoolFunction(Card.IsSetCard, 0x8), Fusion.OnFieldMat, s.fusxtra)
 	e6:SetCountLimit(1, {id, 2})
 	e6:SetType(EFFECT_TYPE_QUICK_O)
 	e6:SetRange(LOCATION_MZONE)
