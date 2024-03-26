@@ -22,6 +22,15 @@ function s.initial_effect(c)
 	e2:SetOperation(s.schop)
 	c:RegisterEffect(e2)
 	--Make monster into Evil HERO
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id, 0))
+	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e3:SetType(EFFECT_TYPE_IGNITION)
+	e3:SetCountLimit(1, {id, 1})
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetTarget(s.ehtgt)
+	e3:SetOperation(s.ehop)
+	c:RegisterEffect(e3)
 	--Dark Fusion
 end
 s.listed_names={CARD_DARK_FUSION}
@@ -49,7 +58,7 @@ end
 function s.ehfilter(c)
 	return c:IsFaceup() and not c:IsSetCard(0x6008)
 end
-function s.ehtg(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
+function s.ehtgt(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and s.ehfilter(chkc) end
 	if chk==0 then return Duel.IsExistingTarget(s.ehfilter, tp, LOCATION_MZONE, LOCATION_MZONE, 1, nil) end
 	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_FACEUP)
