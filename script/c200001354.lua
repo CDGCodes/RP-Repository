@@ -65,6 +65,7 @@ function s.ehtgt(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
 	local g=Duel.SelectTarget(tp, s.ehfilter, tp, LOCATION_MZONE, LOCATION_MZONE, 1, 1, nil)
 end
 function s.ehop(e, tp, eg, ep, ev, re, r, rp)
+	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
 	if tc:IsFaceup() and tc:IsRelateToEffect(e) then
 		local e1=Effect.CreateEffect(c)
