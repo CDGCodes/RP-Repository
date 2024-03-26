@@ -45,3 +45,26 @@ function s.schop(e, tp, eg, ep, ev, re, r, rp)
 		Duel.ConfirmCards(1-tp, g)
 	end
 end
+
+function s.ehfilter(c)
+	return c:IsFaceup() and not c:IsSetCard(0x6008)
+end
+function s.ehtg(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and s.ehfilter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.ehfilter, tp, LOCATION_MZONE, LOCATION_MZONE, 1, nil) end
+	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_FACEUP)
+	local g=Duel.SelectTarget(tp, s.ehfilter, tp, LOCATION_MZONE, LOCATION_MZONE, 1, 1, nil)
+end
+function s.ehop(e, tp, eg, ep, ev, re, r, rp)
+	local tc=Duel.GetFirstTarget()
+	if tc:IsFaceup() and tc:IsRelateToEffect(e) then
+		local e1=Effect.CreateEffect(c)
+		e1:SetDescription(aux.Stringid(id, 2))
+		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_ADD_SETCODE)
+		e1:SetValue(0x6008)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+		tc:RegisterEffect(e1)
+	end
+end
