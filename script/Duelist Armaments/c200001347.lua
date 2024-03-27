@@ -103,15 +103,13 @@ function s.costfilter(c, e)
 	local ec=e:GetHandler()
 	if ec:GetEquipTarget() then
 		if c==ec:GetEquipTarget() then return false end
-	else
-		if c:IsRelateToEffect(e) then return false end
 	end
-	return c:IsSpell() and c:IsAbleToGraveAsCost()
+	return c:IsSpell() and c:IsAbleToGraveAsCost() and not c:IsRelateToEffect(e)
 end
 function s.negcost(e, tp, eg, ep, ev, re, r, rp, chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.costfilter, tp, LOCATION_HAND+LOCATION_ONFIELD, 0, 2, nil, e) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.costfilter, tp, LOCATION_HAND+LOCATION_ONFIELD, 0, 1, nil, e) end
 	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_TOGRAVE)
-	local g=Duel.SelectMatchingCard(tp, s.costfilter, tp, LOCATION_HAND+LOCATION_ONFIELD, 0, 2, 2, nil, e)
+	local g=Duel.SelectMatchingCard(tp, s.costfilter, tp, LOCATION_HAND+LOCATION_ONFIELD, 0, 1, 1, nil, e)
 	Duel.SendtoGrave(g, REASON_COST)
 end
 function s.negcon(e, tp, eg, ep, ev, re, r, rp)
