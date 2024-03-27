@@ -119,7 +119,7 @@ end
 function s.destgt(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
 	if chkc then return chkc:IsControler(1-tp) and chkc:IsNegatable() end
 	if chk==0 then return Duel.IsExistingTarget(aux.True, tp, 0, LOCATION_ONFIELD, 1, nil) end
-	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_NEGATE)
+	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_DESTROY)
 	local g=Duel.SelectTarget(tp, aux.True, tp, 0, LOCATION_ONFIELD, 1, 1, nil)
 	Duel.SetOperationInfo(0, CATEGORY_DESTROY, g, 1, 0, 0)
 end
