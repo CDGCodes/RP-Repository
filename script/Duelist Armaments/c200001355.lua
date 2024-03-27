@@ -49,7 +49,7 @@ function s.initial_effect(c)
 	--Destroy
 	local e9=Effect.CreateEffect(c)
 	e9:SetCategory(CATEGORY_DESTROY)
-	e9:SetType(EFFECT_TYPE_QUICK_O)
+	e9:SetType(EFFECT_TYPE_IGNITION)
 	e9:SetCode(EVENT_FREE_CHAIN)
 	e9:SetRange(LOCATION_ONFIELD)
 	e9:SetCountLimit(1, id, 0)
