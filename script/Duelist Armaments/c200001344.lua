@@ -53,6 +53,7 @@ function s.initial_effect(c)
 	e9:SetType(EFFECT_TYPE_IGNITION)
 	e9:SetRange(LOCATION_ONFIELD)
 	e9:SetCountLimit(1, id, 0)
+	e9:SetCost(s.addcost)
 	e9:SetCondition(s.addcon)
 	e9:SetTarget(s.addtg)
 	e9:SetOperation(s.addop)
@@ -97,6 +98,11 @@ function s.dircon(e)
 	return e:GetHandler():IsAttackPos() and s.effcon
 end
 
+function s.addcost(e, tp, eg, ep, ev, re, r, rp, chk)
+	local c=e:GetHandler()
+	if chk==0 then return (c:GetEquipTarget() or c:IsType(TYPE_EFFECT)) and c:IsAbleToGraveAsCost() end
+	Duel.SendtoGrave(c, REASON_COST)
+end
 function s.addcon(e, tp, eg, ep, ev, re, r, rp)
 	local c=e:GetHandler()
 	return (c:IsLocation(LOCATION_SZONE) and c:IsType(TYPE_EQUIP)) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
