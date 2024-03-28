@@ -93,7 +93,7 @@ end
 
 function s.atkcon(e)
 	local a=Duel.GetAttacker()
-	if not a:IsControler(1-tp) then return false
+	if not a:IsControler(1-tp) then return false end
 	local c=e:GetHandler()
 	return (c:IsLocation(LOCATION_SZONE) and c:GetEquipTarget()) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
 end
