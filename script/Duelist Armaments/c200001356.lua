@@ -47,10 +47,14 @@ function s.initial_effect(c)
 	e8:SetCondition(s.dircon)
 	c:RegisterEffect(e8)
 	local e9=Effect.CreateEffect(c)
-	e9:SetType(EFFECT_TYPE_TRIGGER_O)
+	e9:SetType(EFFECT_TYPE_TRIGGER_O+EFFECT_TYPE_FIELD)
+	e9:SetRange(LOCATION_ONFIELD)
 	e9:SetCategory(CATEGORY_DESTROY)
 	e9:SetCode(EVENT_ATTACK_ANNOUNCE)
 	e9:SetCondition(s.atkcon)
+	e9:SetTarget(s.atktgt)
+	e9:SetOperation(s.atkop)
+	c:RegisterEffect(e9)
 end
 
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
@@ -91,22 +95,28 @@ function s.dircon(e)
 	return e:GetHandler():IsAttackPos() and s.effcon
 end
 
-function s.atkcon(e)
+function s.atkcon(e, tp)
 	local a=Duel.GetAttacker()
 	if not a:IsControler(1-tp) then return false end
 	local c=e:GetHandler()
 	return (c:IsLocation(LOCATION_SZONE) and c:GetEquipTarget()) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
 end
-function s.atktgt(e, tp, eg, ep, ev, re, r, rp)
+function s.atktgt(e, tp, eg, ep, ev, re, r, rp, chk)
+	if chk==0 then return true end
+	local a=Duel.GetAttacker()
+	Duel.SetOperationInfo(0, CATEGORY_DESTROY, a, 1, 0, 0)
+end
+function s.atkop(e, tp, eg, ep, ev, re, r, rp)
 	local a=Duel.GetAttacker()
 	local loc = e:GetHandler():GetLocation()
-	local g=Duel.GetMatchingGroup(aux.True, tp, 0, loc, nil)
-	if a then g:RemoveCard(a)
-	if a:IsRelateToBattle() and not a:IsStatus(STATUS_ATTACK_CANCELED) and Duel.Destroy(tc, REASON_EFFECT)~=0 and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
-		Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_DESTROY)
-		local sg=g:Select(tp, 1, 1, nil)
-		Duel.HintSelection(sg)
-		local gc=sg:GetFirst()
-		Duel.Destroy(gc, REASON_EFFECT)
+	if a:IsRelateToBattle() and not a:IsStatus(STATUS_ATTACK_CANCELED) and Duel.Destroy(a, REASON_EFFECT)~=0 then
+		local g=Duel.GetMatchingGroup(aux.True, tp, 0, loc, nil)
+		if #g>0 and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
+			Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_DESTROY)
+			local sg=g:Select(tp, 1, 1, nil)
+			Duel.HintSelection(sg)
+			local gc=sg:GetFirst()
+			Duel.Destroy(gc, REASON_EFFECT)
+		end
 	end
 end
