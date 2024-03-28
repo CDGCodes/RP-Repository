@@ -107,6 +107,9 @@ function s.dircon(e)
 	return e:GetHandler():IsAttackPos() and s.effcon
 end
 
+function s.swfilter(c)
+	return c:IsSpell() and c:IsFaceup()
+end
 function s.swvalue(e, c)
-	return Duel.GetMatchingGroupCount(Card.IsType, e:GetHandlerPlayer(), LOCATION_ONFIELD+LOCATION_GRAVE, 0, nil, TYPE_SPELL)*100
+	return Duel.GetMatchingGroupCount(s.swfilter, e:GetHandlerPlayer(), LOCATION_ONFIELD+LOCATION_GRAVE, 0, nil, nil)*100
 end
