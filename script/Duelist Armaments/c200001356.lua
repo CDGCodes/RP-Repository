@@ -51,6 +51,7 @@ function s.initial_effect(c)
 	e9:SetRange(LOCATION_ONFIELD)
 	e9:SetCategory(CATEGORY_DESTROY)
 	e9:SetCode(EVENT_ATTACK_ANNOUNCE)
+	e9:SetCost(s.atkcost)
 	e9:SetCondition(s.atkcon)
 	e9:SetTarget(s.atktgt)
 	e9:SetOperation(s.atkop)
@@ -95,6 +96,19 @@ function s.dircon(e)
 	return e:GetHandler():IsAttackPos() and s.effcon
 end
 
+function s.costfilter(c, e)
+	local ec=e:GetHandler()
+	if ec:GetEquipTarget() then
+		if c==ec:GetEquipTarget() then return false end
+	end
+	return c:IsSpell() and c:IsAbleToGraveAsCost() and not c:IsRelateToEffect(e)
+end
+function s.atkcost(e, tp, eg, ep, ev, re, r, rp, chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.costfilter, tp, LOCATION_HAND+LOCATION_ONFIELD, 0, 1, nil, e) end
+	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_TOGRAVE)
+	local g=Duel.SelectMatchingCard(tp, s.costfilter, tp, LOCATION_HAND+LOCATION_ONFIELD, 0, 1, 1, nil, e)
+	Duel.SendtoGrave(g, REASON_COST)
+end
 function s.atkcon(e, tp)
 	local a=Duel.GetAttacker()
 	if not a:IsControler(1-tp) then return false end
