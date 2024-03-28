@@ -127,7 +127,6 @@ function s.desop(e, tp, eg, ep, ev, re, r, rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
 	local loc = c:GetLocation()
-	if tc then g:RemoveCard(tc) end
 	if tc and tc:IsRelateToEffect(e) and Duel.Destroy(tc, REASON_EFFECT) then
 		if #g>0 and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
 			local g=Duel.GetMatchingGroup(aux.True, tp, 0, loc, nil)
