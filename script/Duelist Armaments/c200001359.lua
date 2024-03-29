@@ -2,7 +2,7 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	--Summon Restrictions
-	c:SetUniqueOnField(1, 0, s.arcfusfilter)
+	c:SetUniqueOnField(1, 0, s.arcfusfilter(c)
 	c:EnableReviveLimit()
 	c:SetSPSummonOnce(id)
 	--Special Summoning Condition
@@ -24,8 +24,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 
-function s.armfusfilter(e)
-	local c=e:GetHandler()
+function s.armfusfilter(c)
 	return c:IsSetCode(0xFEDC) and c:IsType(TYPE_FUSION)
 end
 
