@@ -33,7 +33,21 @@ function s.initial_effect(c)
 	e2:SetTarget(s.feqtgt)
 	e2:SetOperation(s.feqop)
 	c:RegisterEffect(e2)
+	aux.AddEREquipLimit(c, nil, aux.True, function(c, e, tp, tc) c:EquipByEffectAndLimitRegister(e, tp, tc, id, true) end, e2)
+	aux.AddEREquipLimit(c, nil, aux.True, function(c, e, tp, tc) c:EquipByEffectAndLimitRegister(e, 1-tp, tc, id, true) end, e2)
 	--Equip card from grave
+	local e3=Effect.CreateEffect(c)
+	e3:SetCategory(CATEGORY_EQUIP)
+	e3:SetType(EFFECT_TYPE_QUICK_O)
+	e3:SetCode(EVENT_FREE_CHAIN)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e3:SetCountLimit(1)
+	e3:SetCondition(s.geqcon)
+	e3:SetTarget(s.geqtgt)
+	e3:SetOperation(s.geqop)
+	c:RegisterEffect(e3)
+	aux.AddEREquipLimit(c, nil, aux.True, function(c, e, tp, tc) c:EquipByEffectAndLimitRegister(e, tp, tc, id, true) end, e3)
 	--Gains ATK equal to ATK of equipped monsters
 end
 
@@ -71,7 +85,7 @@ function s.feqfilter(c, e, tp)
 	if Duel.GetLocationCount(1 - tp, LOCATION_SZONE)<=0 and c:GetLocation()==LOCATION_MZONE and c:GetControler()==(1-tp) then return false end
 	if c==e:GetHandler() or not c:IsFaceup() then return false end
 	if c:GetEquipTarget() and c:GetEquipTarget()==e:GetHandler() then return false end
-	return c:CheckEquipTarget(e:GetHandler())
+	return (c:CheckEquipTarget(e:GetHandler()) or not c:IsType(TYPE_EQUIP) )
 end
 function s.feqtgt(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
 	if chkc then return true end
@@ -84,6 +98,27 @@ function s.feqop(e, tp, eg, ep, ev, re, r, rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) then
 		local p=tc:GetControler()
-		Duel.Equip(p, tc, c)
+		c:EquipByEffectAndLimitRegister(e, p, tc, id)
+	end
+end
+
+function s.geqcon(e, tp, eg, ep, ev, re, r, rp)
+	return Duel.GetLocationCount(tp, LOCATION_SZONE)>0
+end
+function s.geqfilter(c, e)
+	if c:IsType(TYPE_EQUIP) then return c:CheckEquipTarget(e:GetHandler()) end
+	return c:IsType(TYPE_MONSTER)
+end
+function s.geqtgt(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
+	if chkc then return true end
+	if chk==0 then return Duel.IsExistingTarget(s.geqfilter, tp, LOCATION_GRAVE, LOCATION_GRAVE, 1, nil, e) end
+	local sg=Duel.SelectTarget(tp, s.geqfilter, tp, LOCATION_GRAVE, LOCATION_GRAVE, 1, 1, nil, e)
+	Duel.SetOperationInfo(0, CATEGORY_EQUIP, sq, 1, 0, 0)
+end
+function s.geqop(e, tp, eg, ep, ev, re, r, rp)
+	local c=e:GetHandler()
+	local tc=Duel.GetFirstTarget()
+	if tc:IsRelateToEffect(e) then
+		c:EquipByEffectAndLimitRegister(e, tp, tc, id)
 	end
 end
