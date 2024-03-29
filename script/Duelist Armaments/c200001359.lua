@@ -22,6 +22,19 @@ function s.initial_effect(c)
 	e1:SetTarget(s.sumtgt)
 	e1:SetOperation(s.sumop)
 	c:RegisterEffect(e1)
+	--Equip card on field
+	local e2=Effect.CreateEffect(c)
+	e2:SetCategory(CATEGORY_EQUIP)
+	e2:SetType(EFFECT_TYPE_IGNITION)
+	e2:SetCode(EVENT_FREE_CHAIN)
+	e2:SetRange(LOCATION_MZONE)
+	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e2:SetCountLimit(1)
+	e2:SetTarget(s.feqtgt)
+	e2:SetOperation(s.feqop)
+	c:RegisterEffect(e2)
+	--Equip card from grave
+	--Gains ATK equal to ATK of equipped monsters
 end
 
 function s.armfusfilter(c)
@@ -51,4 +64,26 @@ function s.sumop(e, tp, eg, ep, ev, re, r, rp)
 	if not g then return end
 	Duel.SendtoGrave(g, REASON_COST)
 	g:DeleteGroup()
+end
+
+function s.feqfilter(c, e, tp)
+	if Duel.GetLocationCount(tp, LOCATION_SZONE)<=0 and c:GetLocation()==LOCATION_MZONE and c:GetControler()==tp then return false end
+	if Duel.GetLocationCount(1 - tp, LOCATION_SZONE)<=0 and c:GetLocation()==LOCATION_MZONE and c:GetControler()==(1-tp) then return false end
+	if c==e:GetHandler() or not c:IsFaceup() then return false end
+	if c:GetEquipTarget() and c:GetEquipTarget()==e:GetHandler() then return false end
+	return c:CheckEquipTarget(e:GetHandler())
+end
+function s.feqtgt(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
+	if chkc then return true end
+	if chk==0 then return Duel.IsExistingTarget(s.feqfilter, tp, LOCATION_ONFIELD, LOCATION_ONFIELD, 1, nil, e, tp) end
+	local sg=Duel.SelectTarget(tp, s.feqfilter, tp, LOCATION_ONFIELD, LOCATION_ONFIELD, 1, 1, nil, e, tp)
+	Duel.SetOperationInfo(0, CATEGORY_EQUIP, sg, 1, 0, 0)
+end
+function s.feqop(e, tp, eg, ep, ev, re, r, rp)
+	local c=e:GetHandler()
+	local tc=Duel.GetFirstTarget()
+	if tc:IsRelateToEffect(e) then
+		local p=tc:GetControler()
+		Duel.Equip(p, tc, c)
+	end
 end
