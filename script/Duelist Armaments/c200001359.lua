@@ -2,7 +2,7 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	--Summon Restrictions
-	c:SetUniqueOnField(1, 0, s.arcfusfilter(c)
+	c:SetUniqueOnField(1, 0, s.armfusfilter, LOCATION_MZONE, c)
 	c:EnableReviveLimit()
 	c:SetSPSummonOnce(id)
 	--Special Summoning Condition
@@ -18,14 +18,14 @@ function s.initial_effect(c)
 	e1:SetCode(EFFECT_SPSUMMON_PROC)
 	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 	e1:SetRange(LOCATION_EXTRA+LOCATION_GRAVE)
-	e1:SetConditions(s.sumcon)
+	e1:SetCondition(s.sumcon)
 	e1:SetTarget(s.sumtgt)
 	e1:SetOperation(s.sumop)
 	c:RegisterEffect(e1)
 end
 
 function s.armfusfilter(c)
-	return c:IsSetCode(0xFEDC) and c:IsType(TYPE_FUSION)
+	return c:IsSetCard(0xFEDC) and c:IsType(TYPE_FUSION)
 end
 
 function s.sumfilter(c)
@@ -34,15 +34,14 @@ end
 function s.sumcon(e, c)
 	if c==nil then return true end
 	local tp=c:GetControler()
-	local g=Duel.GetMatchingGroup(s.sumfilter, tp, LOCATION_ONFIELD, 0, nil)
-	return #g>=2 and aux.SelectUnselectGroup(g, e, tp, 2, 2, true, 0)
+	return Duel.GetMatchingGroupCount(s.sumfilter, tp, LOCATION_ONFIELD, 0, nil)>=2
 end
 function s.sumtgt(e, tp, eg, ep, ev, re, r, rp, c)
 	local g=Duel.GetMatchingGroup(s.sumfilter, tp, LOCATION_ONFIELD, 0, nil)
-	local sg=aux.SelectUnselectGroup(g, e, tp, 2, 2, true, 1, tp, HINTMSG_TOGRAVE, nil, nil, true)
+	local sg=g:Select(tp, 2, 2, nil)
 	if #sg>0 then
 		sg:KeepAlive()
-		e:GetLabelObject(sg)
+		e:SetLabelObject(sg)
 		return true
 	end
 	return false
