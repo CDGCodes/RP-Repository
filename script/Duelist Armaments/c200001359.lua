@@ -49,6 +49,13 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 	aux.AddEREquipLimit(c, nil, aux.True, function(c, e, tp, tc) c:EquipByEffectAndLimitRegister(e, tp, tc, id, true) end, e3)
 	--Gains ATK equal to ATK of equipped monsters
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_SINGLE)
+	e4:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+	e4:SetCode(EFFECT_UPDATE_ATTACK)
+	e4:SetRange(LOCATION_MZONE)
+	e4:SetValue(s.atkval)
+	c:RegisterEffect(e4)
 end
 
 function s.armfusfilter(c)
@@ -121,4 +128,11 @@ function s.geqop(e, tp, eg, ep, ev, re, r, rp)
 	if tc:IsRelateToEffect(e) then
 		c:EquipByEffectAndLimitRegister(e, tp, tc, id)
 	end
+end
+
+function s.atkvalfilter(c)
+	return c:IsOriginalType(TYPE_MONSTER)
+end
+function s.atkval(e, c)
+	return e:GetHandler():GetEquipGroup():Filter(s.atkvalfilter, nil):GetSum(Card.GetTextAttack)
 end
