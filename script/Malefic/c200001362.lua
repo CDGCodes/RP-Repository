@@ -30,6 +30,10 @@ function s.initial_effect(c)
 end
 s.listed_names={16178681}
 
+function s.damcon(e)
+	return e:GetHandler():GetBattleTarget()~=nil
+end
+
 function s.descon(e)
 	return not Duel.IsExistingMatchingCard(Card.IsFaceup,0,LOCATION_FZONE,LOCATION_FZONE,1,nil)
 end
