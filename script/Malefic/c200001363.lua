@@ -1,6 +1,6 @@
 --Malefic Firewall Dragon
 local s, id=GetID()
-function s.initial_function(c)
+function s.initial_effect(c)
 	c:EnableReviveLimit()
 	c:SetUniqueOnField(1, 1, aux.MaleficUniqueFilter(c), LOCATION_MZONE)
 	aux.AddMaleficSummonProcedure(c, 5043010, LOCATION_EXTRA)
