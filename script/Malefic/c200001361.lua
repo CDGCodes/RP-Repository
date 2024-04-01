@@ -73,6 +73,24 @@ function s.rmop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.RegisterEffect(e1,tp)
 	end
 end
+function s.retfilter(c)
+	return c:GetFlagEffect(id)~=0
+end
+function s.retop(e,tp,eg,ep,ev,re,r,rp)
+	local g=e:GetLabelObject()
+	local sg=g:Filter(s.retfilter,nil)
+	g:DeleteGroup()
+	for tc in aux.Next(sg) do
+		if Duel.ReturnToField(tc) and tc==e:GetOwner() and tc:IsFaceup() and e:GetLabel()~=0 then
+			local e1=Effect.CreateEffect(e:GetOwner())
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_UPDATE_ATTACK)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
+			e1:SetValue(e:GetLabel()*500)
+			e:GetOwner():RegisterEffect(e1)
+		end
+	end
+end
 
 function s.descon(e)
 	return not Duel.IsExistingMatchingCard(Card.IsFaceup,0,LOCATION_FZONE,LOCATION_FZONE,1,nil)
