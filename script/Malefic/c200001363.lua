@@ -43,7 +43,7 @@ end
 function s.atkfilter(c)
 	return c:IsSetCard(0x23) and c:IsMonster() and c:IsAbleToRemoveAsCost() and aux.SpElimFilter(c, true)
 end
-function s.atkcost(e, ep, eg, ep, ev, re, r, rp, chk)
+function s.atkcost(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.atkfilter, tp, LOCATION_GRAVE, 0, 1, nil) end
 	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_REMOVE)
 	local g=Duel.GetSelectMatchingCard(tp, s.atkfilter, tp, LOCATION_GRAVE, 0, 1, 1, nil)
