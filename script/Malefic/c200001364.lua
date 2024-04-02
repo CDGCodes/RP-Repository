@@ -9,6 +9,22 @@
  	e1:SetTarget(s.target)
  	e1:SetOperation(s.operation)
  	c:RegisterEffect(e1)
+ 	--Change Code
+ 	local e2=Effect.CreateEffect(c)
+ 	e2:SetType(EFFECT_TYPE_SINGLE)
+ 	e2:SetCode(EFFECT_CHANGE_CODE)
+ 	e2:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+ 	e2:SetRange(LOCATION_FZONE+LOCATION_HAND+LOCATION_GRAVE)
+ 	e2:SetValue(27564031)
+ 	c:RegisterEffect(e2)
+ 	--Immune
+ 	local e3=Effect.CreateEffect(c)
+ 	e3:SetType(EFFECT_TYPE_SINGLE)
+ 	e3:SetCode(EFFECT_IMMUNE_EFFECT)
+ 	e3:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+ 	e3:SetRange(LOCATION_FZONE)
+ 	e3:SetValue(s.imfilter)
+ 	c:RegisterEffect(e3)
  end
  
  function s.filter(c)
@@ -24,4 +40,8 @@
  	if #g>0 then
  		Duel.Remove(g, POS_FACEUP, REASON_COST)
  	end
+ end
+ 
+ function s.imfilter(e, te)
+ 	return te:GetOwner()~=e:GetOwner()
  end
