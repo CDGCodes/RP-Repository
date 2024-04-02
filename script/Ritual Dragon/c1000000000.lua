@@ -1,4 +1,5 @@
 --Ritual Dragon
+--Made by ScareTheVoices
 local s,id=GetID()
 function s.initial_effect(c)
 	c:EnableReviveLimit()
