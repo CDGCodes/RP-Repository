@@ -18,10 +18,10 @@ function s.initial_effect(c)
 	--Indes
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE)
+	e2:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
 	e2:SetRange(LOCATION_FZONE)
-	e2:SetCode(EFFECT_INDESTRUCTABLE)
-	e2:SetValue(s.prval)
-	e2:SetCondition(s.prcon)
+	e2:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
+	e2:SetValue(1)
 	c:RegisterEffect(e2)
 	--Cannot activate/set
 	local e3=Effect.CreateEffect(c)
