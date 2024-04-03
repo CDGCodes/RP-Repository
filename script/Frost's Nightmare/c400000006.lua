@@ -24,9 +24,8 @@ function s.initial_effect(c)
 end
 
 function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.CheckReleaseGroupCost(tp,Card.IsAttribute,1,false,nil,nil,ATTRIBUTE_DARK) end
-	local g=Duel.SelectReleaseGroupCost(tp,Card.IsAttribute,1,1,false,nil,nil,ATTRIBUTE_DARK)
-	Duel.Release(g,REASON_COST)
+	if chk==0 then return e:GetHandler():IsReleasable() end
+	Duel.Release(e:GetHandler(),REASON_COST)
 end
 function s.thfilter(c)
 	return c:IsSetCard(0x1A2B) and (c:IsTrap() or c:IsSpell()) and c:IsAbleToHand()
