@@ -1,7 +1,7 @@
 -- Nightmare Skull
 local s,id=GetID()
 function s.initial_effect(c)
-	--search
+	--search (From "lilith lady of lament")
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_FREE_CHAIN)
@@ -12,7 +12,8 @@ function s.initial_effect(c)
 	e2:SetOperation(s.thop)
 	c:RegisterEffect(e2)
 
-	--destroy replace
+
+	--destroy replace (from "Return of the dragon lords")
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e2:SetCode(EFFECT_DESTROY_REPLACE)
@@ -21,6 +22,9 @@ function s.initial_effect(c)
 	e2:SetValue(s.repval)
 	e2:SetOperation(s.repop)
 	c:RegisterEffect(e2)
+
+
+	end
 end
 
 function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -29,10 +33,10 @@ function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.Release(g,REASON_COST)
 end
 function s.thfilter(c)
-	return c:IsSetCard(0x1A2B) c:GetType()==TYPE_TRAP+TYPE_SPELL and c:IsSSetable()
+	return c:IsSetCard(0x1A2B) and c:GetType()==TYPE_TRAP or c:GetType()==TYPE_SPELL 
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0 
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_HAND)>0 
 		and Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,3,nil) end
 end
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
@@ -47,6 +51,8 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SSet(tp,tg:GetFirst(),tp,false)
 	end
 end
+
+-- Destruction protection functions
 function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsAbleToRemove() and eg:IsExists(s.repfilter,1,nil,tp) end
 	return Duel.SelectEffectYesNo(tp,e:GetHandler(),96)
