@@ -26,6 +26,23 @@ function s.initial_effect(c)
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
+
+	--spsummon
+	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(id,2))
+	e2:SetCategory(CATEGORY_DESTROY)
+	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e2:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_CARD_TARGET)
+	e2:SetCode(EVENT_DESTROYED)
+	e2:SetRange(LOCATION_GRAVE)
+	e2:SetCountLimit(1,id)
+	e2:SetHintTiming(0,TIMINGS_CHECK_MONSTER_E)
+	e2:SetCondition(s.descon)
+	e2:SetTarget(s.destg)
+	e2:SetOperation(s.desop)
+	c:RegisterEffect(e2)
+
+
   
 end
 s.listed_series={0x1A2B}
@@ -91,3 +108,13 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SendtoHand(tc,nil,REASON_EFFECT)
 	end
 end
+function s.descon(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	return c:IsPreviousLocation(LOCATION_MZONE) and c:IsLocation(LOCATION_GRAVE)
+end
+function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+
+end
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+	
+	end
