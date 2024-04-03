@@ -1,7 +1,7 @@
 --The Ritual Spell
 local s,id=GetID()
 function s.initial_effect(c)
-	Ritual.AddProcEqual(c,aux.FilterBoolFunction(Card.IsCode,1000000000),8)
+	Ritual.AddProcGreaterCode(c, 8,nil,1000000000)
 	--spsummon
 	local e1=Effect.CreateEffect(c)
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
