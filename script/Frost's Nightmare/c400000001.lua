@@ -27,7 +27,7 @@ function s.initial_effect(c)
 	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
 
-	--spsummon
+	--If this is destroyed, destroy an opponents target
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,2))
 	e2:SetCategory(CATEGORY_DESTROY)
@@ -113,8 +113,16 @@ function s.descon(e,tp,eg,ep,ev,re,r,rp)
 	return c:IsPreviousLocation(LOCATION_MZONE) and c:IsLocation(LOCATION_GRAVE)
 end
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-
+	if chkc then return chkc:IsOnField() and aux.True(chkc) and chkc~=e:GetHandler() end
+	if chk==0 then return Duel.IsExistingTarget(aux.True,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,e:GetHandler()) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+	local g=Duel.SelectTarget(tp,aux.True,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,e:GetHandler())
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end
 function s.desop(e,tp,eg,ep,ev,re,r,rp)
-	
+	local tc=Duel.GetFirstTarget()
+	if tc and tc:IsRelateToEffect(e) then
+	Duel.Destroy(tc,REASON_EFFECT)
 	end
+end
+	
