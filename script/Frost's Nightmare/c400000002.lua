@@ -39,6 +39,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	if #g>0 then
 		Duel.SendtoHand(g,nil,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,g)
+		Duel.DiscardHand(tp,aux.True,1,1,REASON_EFFECT+REASON_DISCARD)
 	end
 end
 --Special Summon on being Fusion Material
