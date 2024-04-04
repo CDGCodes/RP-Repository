@@ -67,7 +67,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local tg=Duel.GetMatchingGroup(aux.FaceupFilter(Card.IsSetCard,0x6942),tp,LOCATION_MZONE,0,nil)
 	local g=Duel.GetMatchingGroup(s.ctfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,LOCATION_MZONE+LOCATION_GRAVE,nil)
 	if #tg>0 and #g>0 then
-		local d=g:GetClassCount(Card.GetCode)*300
+		local d=g:GetClassCount(Card.GetCode)*500
 		local sc=tg:GetFirst()
 		for sc in aux.Next(tg) do
 			local e1=Effect.CreateEffect(e:GetHandler())
