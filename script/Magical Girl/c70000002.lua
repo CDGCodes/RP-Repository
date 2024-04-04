@@ -1,6 +1,9 @@
 --Magical Girl Rouge Lv5
 local s,id=GetID()
 function s.initial_effect(c)
+	--Xyz Summon
+	c:EnableReviveLimit()
+	Xyz.AddProcedure(c, nil, 3, 2, nil, nil, 2)
 local e1=Effect.CreateEffect(c)
 	e1:SetCategory(CATEGORY_DESTROY)
 	e1:SetType(EFFECT_TYPE_IGNITION)
@@ -23,4 +26,5 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsFaceup() and tc:IsRelateToEffect(e) then
 		Duel.Destroy(tc,REASON_EFFECT)
+	end
 	end
