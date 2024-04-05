@@ -19,7 +19,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function s.cfilter(c,tp)
-	return (c:GetPreviousTypeOnField()&TYPE_SPELL==TYPE_SPELL or c:GetPreviousTypeOnField()&TYPE_TRAP==TYPE_TRAP)
+	return (c:IsSetCard(0x1A2B) and c:GetPreviousTypeOnField()&TYPE_SPELL==TYPE_SPELL or c:GetPreviousTypeOnField()&TYPE_TRAP==TYPE_TRAP)
 		and c:IsPreviousControler(tp) and c:IsPreviousLocation(LOCATION_ONFIELD)
 		and c:IsReason(REASON_EFFECT) and c:GetReasonPlayer()==1-tp
 end
@@ -32,7 +32,7 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
 end
 function s.setfilter(c)
-	return c:IsSpellTrap() and not c:IsType(TYPE_FIELD) and (c:IsLocation(LOCATION_GRAVE) or c:IsFaceup()) and c:IsSSetable()
+	return c:IsSetCard(0x1A2B) c:IsSpellTrap() and not c:IsType(TYPE_FIELD) and (c:IsLocation(LOCATION_GRAVE) or c:IsFaceup()) and c:IsSSetable() end
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
