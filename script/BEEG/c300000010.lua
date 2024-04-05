@@ -35,6 +35,15 @@ function s.initial_effect(c)
 	e5:SetCode(EFFECT_UPDATE_ATTACK)
 	e5:SetValue(s.value)
 	c:RegisterEffect(e5)
+	--Cannot Special Summon from Extra Deck
+	local e6=Effect.CreateEffect(c)
+	e6:SetType(EFFECT_TYPE_FIELD)
+	e6:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e6:SetRange(LOCATION_MZONE)
+	e6:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+	e6:SetTargetRange(1, 0)
+	e6:SetTarget(s.splimit)
+	c:RegisterEffect(e6)
 end
 
 function s.prval(e, re, r, rp)
@@ -72,4 +81,8 @@ end
 
 function s.value(e, c)
 	return Duel.GetFieldGroupCount(c:GetControler(), LOCATION_REMOVED, LOCATION_REMOVED)
+end
+
+function s.splimit(e, c)
+	return c:IsLocation(LOCATION_EXTRA)
 end
