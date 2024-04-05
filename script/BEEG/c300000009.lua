@@ -1,4 +1,4 @@
---BEEG Goo LVL 4
+--BEEG Slime LVL 6
 local s, id=GetID()
 function s.initial_effect(c)
 	local e1=Effect.CreateEffect(c)
