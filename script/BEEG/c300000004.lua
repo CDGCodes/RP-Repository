@@ -15,7 +15,7 @@ function s.initial_effect(c)
 end
 
 function s.drfilter(c, e, tp)
-	return c:IsAbleToRemoveAsCost() end
+	return c:IsAbleToRemoveAsCost()
 end
 function s.drcost(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.drfilter, tp, LOCATION_MZONE, 0, 1, nil, tp) end
