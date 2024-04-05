@@ -53,6 +53,16 @@ function s.initial_effect(c)
 	e7:SetTarget(s.btg)
 	e7:SetOperation(s.bop)
 	c:RegisterEffect(e7)
+	--Draw
+	local e8=Effect.CreateEffect(c)
+	e8:SetCategory(CATEGORY_DRAW)
+	e8:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e8:SetType(EFFECT_TYPE_IGNITION)
+	e8:SetRange(LOCATION_MZONE)
+	e8:SetCountLimit(1)
+	e8:SetTarget(s.drtg)
+	e8:SetOperation(s.drop)
+	c:RegisterEffect(e8)
 end
 
 function s.prval(e, re, r, rp)
@@ -105,4 +115,19 @@ end
 function s.bop(e, tp, eg, ep, ev, re, r, rp)
 	local p, d=Duel.GetChainInfo(0, CHAININFO_TARGET_PLAYER, CHAININFO_TARGET_PARAM)
 	Duel.Damage(p, d, REASON_EFFECT)
+end
+
+function s.drtg(e, tp, eg, ep, ev, re, r, rp, chk)
+	if chk==0 then return Duel.IsPlayerCanDraw(tp, 1) end
+	Duel.SetTargetPlayer(tp)
+	Duel.SetTargetParam(1)
+	Duel.SetOperationInfo(0, CATEGORY_DRAW, nil, 0, tp, 1)
+	Duel.SetOperationInfo(0, CATEGORY_TODECK, nil, 0, tp, 1)
+end
+function s.drop(e, tp, eg, ev, re, r, rp)
+	local p,d=Duel.GetChainInfo(0, CHAININFO_TARGET_PLAYER, CHAININFO_TARGET_PARAM)
+	if Duel.Draw(p, d, REASON_EFFECT)~=0 then
+		local tc=Duel.GetOperatedGroup():GetFirst()
+		Duel.SendtoDeck(tc, nil, SEQ_DECKTOP, REASON_EFFECT)
+	end
 end
