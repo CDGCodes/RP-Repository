@@ -46,7 +46,7 @@ function s.spcost(e, tp, eg, ep, ev, re, r, rp, chk)
 	Duel.Release(e:GetHandler(), REASON_COST)
 end
 function s.spfilter(c, e, tp)
-	return c:IsCode(300000006) and c:IsCanBeSpecialSummoned(e, 0, tp, true, true)
+	return c:IsCode(300000010) and c:IsCanBeSpecialSummoned(e, 0, tp, true, true)
 end
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.spfilter, tp, LOCATION_HAND+LOCATION_DECK, 0, 1, nil, e, tp) end
