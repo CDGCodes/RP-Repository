@@ -40,20 +40,21 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.ConfirmCards(1-tp,g)
 	end
 end
-
+function s.drfilter(c)
+	return c:IsSetCard(0x1A2B) and c:IsSpellTrap() and c:IsSSetable()
+end 
 function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return Duel.IsPlayerCanDraw(tp,1) and c:IsAbleToDeck() end
-	Duel.SetTargetPlayer(tp)
-	Duel.SetTargetParam(1)
-	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,1)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.drfilter,tp,LOCATION_DECK,0,1,nil) and c:IsAbleToRemove() end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 end
 function s.drop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) and c:IsFaceup() and c:IsAbleToDeck() then
-		Duel.SendtoDeck(c,nil,2,REASON_EFFECT)
-		Duel.ShuffleDeck(tp)
-		local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
-		Duel.Draw(p,d,REASON_EFFECT) 
+	Duel.Remove(c,POS_FACEUP,REASON_EFFECT)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local g=Duel.SelectMatchingCard(tp,s.drfilter,tp,LOCATION_DECK,0,1,1,nil)
+	if #g>0 then
+		Duel.SSet(tp,g,tp,true)
 	end
+	
 end	
