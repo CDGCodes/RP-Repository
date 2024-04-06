@@ -70,9 +70,4 @@ function s.fspop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)==0 or not c:IsRelateToEffect(e) then return end
 	Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
-
-	function s.fsfilter(c,tp)
-		return c:IsSummonType(SUMMON_TYPE_FUSION)
-	end
-	function s.fscon(e,tp,eg,ep,ev,re,r,rp)
-		return eg and eg:IsExists(s.fsfilter,1,nil,tp)
+end
