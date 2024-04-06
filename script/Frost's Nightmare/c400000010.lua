@@ -1,4 +1,4 @@
--- Nightmare gene
+-- Nightmare Warden
 local s,id=GetID()
 function s.initial_effect(c)
 	--destroy replace
