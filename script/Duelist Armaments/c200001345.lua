@@ -17,12 +17,19 @@ function s.initial_effect(c)
 	e4:SetType(EFFECT_TYPE_ACTIVATE)
 	e4:SetCode(EVENT_FREE_CHAIN)
 	e4:SetCountLimit(1, id, EFFECT_COUNT_CODE_OATH)
+	e4:SetCost(s.spcost)
 	e4:SetTarget(s.sptg)
 	e4:SetOperation(s.spop)
 	c:RegisterEffect(e4)
-	local e5=e4:Clone()
+	--Return to hand
+	local e5=Effect.CreateEffect(c)
+	e5:SetType(EFFECT_TYPE_IGNITION)
 	e5:SetRange(LOCATION_GRAVE)
-	e5:SetCondition(s.spgycon)
+	e5:SetCode(EVENT_FREE_CHAIN)
+	e5:SetCountLimit(1, id, 0)
+	e5:SetCost(s.rtcost)
+	e5:SetTarget(s.rttg)
+	e5:SetOperation(s.rtop)
 	c:RegisterEffect(e5)
 	--Copy Equip effects as monster
 	local e6=e2:Clone()
@@ -69,6 +76,13 @@ function s.initial_effect(c)
 	c:RegisterEffect(e11)
 end
 
+function s.spcstfilter(c)
+	return c:IsSpell() and c:IsDiscardable()
+end
+function s.spcost(e, tp, eg, ep, ev, re, r, rp, chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.spcstfilter, tp, LOCATION_HAND, 0, 1, nil) end
+	Duel.DiscardHand(tp, s.spcstfilter, 1, 1, REASON_COST|REASON_DISCARD)
+end
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return Duel.GetLocationCount(tp, LOCATION_MZONE)>0 and Duel.IsPlayerCanSpecialSummonMonster(tp, id, 0xFEDC, 0x21, 1500, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT) end
 	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, e:GetHandler(), 1, 0, 0)
@@ -96,8 +110,26 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
 		Duel.RegisterEffect(e1, tp)
 	end
 end
-function s.spgycon(e, tp, eg, ep, ev, re, r, rp)
-	return Duel.GetFieldGroupCount(tp, 0, LOCATION_MZONE)>Duel.GetFieldGroupCount(tp, LOCATION_MZONE, 0)
+
+function s.rtfilter(c)
+	return c:IsSpell() and c:IsAbleToRemoveAsCost()
+end
+function s.rtcost(e, tp, eg, ep, ev, re, r, rp, chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.rtfilter, tp, LOCATION_HAND+LOCATION_GRAVE, 0, 1, nil) end
+	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_REMOVE)
+	local g=Duel.SelectMatchingCard(tp, s.rtfilter, tp, LOCATION_HAND+LOCATION_GRAVE, 0, 1, 1, nil, tp)
+	Duel.Remove(g, POS_FACEUP, REASON_COST)
+end
+function s.rttg(e, tp, eg, ep, ev, re, r, rp, chk)
+	if chk==0 then return e:GetHandler():IsAbleToHand() end
+	Duel.SetOperationInfo(0, CATEGORY_TOHAND, nil, 1, tp, LOCATION_GRAVE)
+end
+function s.rtop(e, tp, eg, ep, ev, re, r, rp)
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) then
+		Duel.SendtoHand(c, nil, REASON_EFFECT)
+		Duel.ConfirmCards(1-tp, c)
+	end
 end
 
 function s.effcon(e)
