@@ -65,16 +65,16 @@ function s.armfusfilter(c)
 end
 
 function s.sumfilter(c)
-	return c:IsType(TYPE_SPELL) and c:IsAbleToGraveAsCost()
+	return c:IsType(TYPE_SPELL) and c:IsFaceup() and c:IsSetCard(0xFEDC) and c:IsAbleToGraveAsCost()
 end
 function s.sumcon(e, c)
 	if c==nil then return true end
 	local tp=c:GetControler()
-	return Duel.GetMatchingGroupCount(s.sumfilter, tp, LOCATION_ONFIELD, 0, nil)>=2
+	return Duel.GetMatchingGroupCount(s.sumfilter, tp, LOCATION_ONFIELD, 0, nil)>=3
 end
 function s.sumtgt(e, tp, eg, ep, ev, re, r, rp, c)
 	local g=Duel.GetMatchingGroup(s.sumfilter, tp, LOCATION_ONFIELD, 0, nil)
-	local sg=g:Select(tp, 2, 2, nil)
+	local sg=g:Select(tp, 3, 3, nil)
 	if #sg>0 then
 		sg:KeepAlive()
 		e:SetLabelObject(sg)

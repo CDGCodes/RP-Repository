@@ -59,7 +59,7 @@ function s.initial_effect(c)
 	e9:SetType(EFFECT_TYPE_IGNITION)
 	e9:SetCode(EVENT_FREE_CHAIN)
 	e9:SetRange(LOCATION_ONFIELD)
-	e9:SetCountLimit(1, id, 0)
+	e9:SetCountLimit(1, id, 1)
 	e9:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e9:SetCost(s.descost)
 	e9:SetCondition(s.descon)
@@ -149,7 +149,7 @@ function s.descon(e, tp, eg, ep, ev, re, r, rp)
 	return (c:IsLocation(LOCATION_SZONE) and c:GetEquipTarget()) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
 end
 function s.destgt(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
-	if chkc then return chkc:IsControler(1-tp) and chkc:IsNegatable() end
+	if chkc then return chkc:IsControler(1-tp) end
 	if chk==0 then return Duel.IsExistingTarget(aux.True, tp, 0, LOCATION_ONFIELD, 1, nil) end
 	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_DESTROY)
 	local g=Duel.SelectTarget(tp, aux.True, tp, 0, LOCATION_ONFIELD, 1, 1, nil)
