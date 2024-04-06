@@ -56,7 +56,7 @@ function s.initial_effect(c)
 	--Protection
 	local e9=Effect.CreateEffect(c)
 	e9:SetType(EFFECT_TYPE_EQUIP)
-	e9:SetCode(EFFECT_INDESTRUCTABLE)
+	e9:SetCode(EFFECT_INDESTRUCTABLE_COUNT)
 	e9:SetValue(s.prval)
 	e9:SetCondition(s.prcon)
 	c:RegisterEffect(e9)
