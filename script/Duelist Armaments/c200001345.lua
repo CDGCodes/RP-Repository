@@ -111,13 +111,13 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
 	end
 end
 
-function s.rtfilter(c)
-	return c:IsSpell() and c:IsAbleToRemoveAsCost()
+function s.rtfilter(c, e)
+	return c:IsSpell() and c:IsAbleToRemoveAsCost() and c~=e:GetHandler()
 end
 function s.rtcost(e, tp, eg, ep, ev, re, r, rp, chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.rtfilter, tp, LOCATION_HAND+LOCATION_GRAVE, 0, 1, nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.rtfilter, tp, LOCATION_HAND+LOCATION_GRAVE, 0, 1, nil, e) end
 	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp, s.rtfilter, tp, LOCATION_HAND+LOCATION_GRAVE, 0, 1, 1, nil, tp)
+	local g=Duel.SelectMatchingCard(tp, s.rtfilter, tp, LOCATION_HAND+LOCATION_GRAVE, 0, 1, 1, nil, e)
 	Duel.Remove(g, POS_FACEUP, REASON_COST)
 end
 function s.rttg(e, tp, eg, ep, ev, re, r, rp, chk)
