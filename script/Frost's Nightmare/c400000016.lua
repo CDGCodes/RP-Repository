@@ -8,6 +8,7 @@ function s.initial_effect(c)
  	e0:SetCode(EVENT_TO_HAND)
  	e0:SetCountLimit(1, id)
  	e0:SetRange(LOCATION_HAND)
+ 	e0:SetCondition(s.spcon)
  	e0:SetCost(s.spcost)
  	c:RegisterEffect(e0)
 end
@@ -35,4 +36,8 @@ end
 function s.extratg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
 	Duel.SetPossibleOperationInfo(0,CATEGORY_HANDES,nil,0,tp,2)
+end
+
+function s.spcon(e, tp, eg, ep, ev, re, r, rp)
+	return (r&REASON_EFFECT)~=0
 end
