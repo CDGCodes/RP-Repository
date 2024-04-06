@@ -153,7 +153,7 @@ end
 function s.atkcon(e, tp, eg, ep, ev, re, r, rp)
 	if not s.prcon then return false end
 	local c=e:GetHandler()
-	if c:IsLocation(LOCATION_MZONE) (and not Duel.GetLocationCount(tp, LOCATION_SZONE)>0) then return false end
+	if c:IsLocation(LOCATION_MZONE) and not (Duel.GetLocationCount(tp, LOCATION_SZONE)>0) then return false end
 	local a=Duel.GetAttacker()
 	local d=Duel.GetAttackTarget()
 	if not (a:IsControler(1-tp) and d and d:IsControler(tp) and d:IsFaceup()) then return false end
