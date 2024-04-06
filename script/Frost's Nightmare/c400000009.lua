@@ -12,9 +12,20 @@ function s.initial_effect(c)
 	e1:SetTarget(s.sptg)
 	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
+
+	--Special Summon on being Fusion Material
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e3:SetProperty(EFFECT_FLAG_DELAY)
+	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e3:SetRange(LOCATION_GRAVE)
+	e3:SetCondition(s.fscon)
+	e3:SetTarget(s.fstg)
+	e3:SetOperation(s.fsop)
+	c:RegisterEffect(e3)
 end
-
-
 
 -- Shuffle a banished card to gain 500 ATK
 function s.spfilter(c,e,tp)
@@ -41,3 +52,27 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		e:GetHandler():RegisterEffect(e1)
 	end
 end
+
+--Special Summon on being Fusion Material
+function s.fsfilter(c,tp)
+	return c:IsSummonType(SUMMON_TYPE_FUSION)
+end
+function s.fscon(e,tp,eg,ep,ev,re,r,rp)
+	return eg and eg:IsExists(s.fsfilter,1,nil,tp)
+end
+function s.fstg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,tp,c:GetLocation())
+end
+function s.fspop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)==0 or not c:IsRelateToEffect(e) then return end
+	Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+
+	function s.fsfilter(c,tp)
+		return c:IsSummonType(SUMMON_TYPE_FUSION)
+	end
+	function s.fscon(e,tp,eg,ep,ev,re,r,rp)
+		return eg and eg:IsExists(s.fsfilter,1,nil,tp)
