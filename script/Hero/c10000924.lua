@@ -95,6 +95,6 @@ function s.addToHandOperation(e, tp, eg, ep, ev, re, r, rp)
 end
 
 function s.addToHandFilter(c)
-	return c:IsType(TYPE_SPELL) and (c:IsCode(24094653) or c:IsCode(41482598) or c:IsSetCard(0x1f))
+	return c:IsType(TYPE_SPELL) and (c:IsCode(24094653) or c:IsSetCard(0x46))
 		or (c:IsType(TYPE_MONSTER) and c:IsSetCard(0x8))
 end
