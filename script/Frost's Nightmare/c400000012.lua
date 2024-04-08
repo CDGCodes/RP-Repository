@@ -28,9 +28,9 @@ function s.initial_effect(c)
 	e4:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetCountLimit(1,id,1)
-	e4:SetCondition(s.spcon)
-	e4:SetTarget(s.sptg)
-	e4:SetOperation(s.spop)
+	e4:SetCondition(s.discon)
+	e4:SetTarget(s.distg)
+	e4:SetOperation(s.disop)
 	c:RegisterEffect(e4)
 end
 
