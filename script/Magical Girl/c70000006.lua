@@ -48,7 +48,7 @@ function s.mtop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Overlay(c,tc)
 	end
 	
-	unction s.copycost(e,tp,eg,ep,ev,re,r,rp,chk)
+	function s.copycost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():GetFlagEffect(id)==0 end
 	e:GetHandler():RegisterFlagEffect(id,RESET_EVENT|RESETS_STANDARD|RESET_PHASE|PHASE_END,0,1)
 end
