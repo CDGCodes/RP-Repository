@@ -37,7 +37,7 @@ function s.initial_effect(c)
 end
 --Invunrability
 function s.prval(e, re, r, rp)
-	return (r&REASON_EFFECT+REASON_BATTLE)~=0
+	return (r&REASON_EFFECT)~=0
 end
 
 --Discard 1 to search 1
