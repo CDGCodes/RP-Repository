@@ -1,8 +1,7 @@
--- Define the card's ID
 local s, id = GetID()
 
 function s.initial_effect(c)
-    c:EnableReviveLimit()  -- Enable Revive Limit
+    c:EnableReviveLimit()  -- Enable Revive Limit for fusion summon
 
     -- Define fusion materials
     Fusion.AddProcMixN(c, true, true, s.ffilter, 2)
@@ -37,12 +36,13 @@ function s.initial_effect(c)
     e3:SetOperation(s.spop)
     c:RegisterEffect(e3)
 
-    -- Damage effect for HERO monsters
+    -- Simple damage effect for HERO monsters
     local e4 = Effect.CreateEffect(c)
     e4:SetCategory(CATEGORY_DAMAGE)
-    e4:SetType(EFFECT_TYPE_SINGLE + EFFECT_TYPE_TRIGGER_F)
+    e4:SetType(EFFECT_TYPE_FIELD + EFFECT_TYPE_TRIGGER_F)
     e4:SetCode(EVENT_BATTLE_DESTROYING)
     e4:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+    e4:SetRange(LOCATION_MZONE)
     e4:SetCondition(s.dmgcon_hero)
     e4:SetTarget(s.dmgtg_hero)
     e4:SetOperation(s.dmgop_hero)
@@ -119,28 +119,15 @@ function s.spfilter(c, e, tp)
 end
 
 function s.dmgcon_hero(e, tp, eg, ep, ev, re, r, rp)
-    -- Check if 'eg' is not nil and has at least one card
-    if not eg or #eg == 0 then return false end
-    
-    local dc = eg:GetFirst()
-    -- Further check that 'dc' and 'dt' are valid
-    if not dc then return false end
-    local dt = dc:GetBattleTarget()
-    if not dt then return false end
-    
-    -- Conditions for the effect to trigger
-    return dc:IsSetCard(0x8) and dc:IsControler(tp) and
-           dt:IsControler(1-tp) and dt:IsDisabled()
+    local tc = eg:GetFirst()
+    return tc:IsControler(tp) and tc:IsSetCard(0x8) and tc:IsStatus(STATUS_OPPO_BATTLE)
 end
 
 function s.dmgtg_hero(e, tp, eg, ep, ev, re, r, rp, chk)
     if chk == 0 then return true end
-    Duel.SetTargetPlayer(1 - tp)
-    Duel.SetTargetParam(500)
-    Duel.SetOperationInfo(0, CATEGORY_DAMAGE, nil, 0, 1 - tp, 500)
+    Duel.SetOperationInfo(0, CATEGORY_DAMAGE, nil, 0, 1-tp, 500)
 end
 
 function s.dmgop_hero(e, tp, eg, ep, ev, re, r, rp)
-    local p, d = Duel.GetChainInfo(0, CHAININFO_TARGET_PLAYER, CHAININFO_TARGET_PARAM)
-    Duel.Damage(p, d, REASON_EFFECT)
+    Duel.Damage(1-tp, 500, REASON_EFFECT)
 end
