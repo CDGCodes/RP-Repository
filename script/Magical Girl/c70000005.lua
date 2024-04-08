@@ -1,4 +1,4 @@
---Magical Girl Jaune
+--Magical Girl Blanche
 local s,id=GetID()
 function s.initial_effect(c)
 	--Copy
