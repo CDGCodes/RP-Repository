@@ -22,13 +22,12 @@ function s.initial_effect(c)
 	e2:SetOperation(s.spSummonOperation)
 	c:RegisterEffect(e2)
 
-	-- Draw 2 cards when this card is Special Summoned
+	-- Draw 2 cards as an Ignition effect
 	local e3 = Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id, 1))
 	e3:SetCategory(CATEGORY_DRAW)
-	e3:SetType(EFFECT_TYPE_SINGLE + EFFECT_TYPE_TRIGGER_O)
-	e3:SetProperty(EFFECT_FLAG_PLAYER_TARGET + EFFECT_FLAG_DELAY)
-	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e3:SetType(EFFECT_TYPE_IGNITION)
+	e3:SetRange(LOCATION_MZONE)
 	e3:SetCountLimit(1, id + 100)
 	e3:SetTarget(s.drawTarget)
 	e3:SetOperation(s.drawOperation)
@@ -72,17 +71,18 @@ function s.spSummonOperation(e, tp, eg, ep, ev, re, r, rp)
 end
 
 function s.drawTarget(e, tp, eg, ep, ev, re, r, rp, chk)
-	if chk == 0 then
-		return true
-	end
-	Duel.SetTargetPlayer(tp)
-	Duel.SetOperationInfo(0, CATEGORY_DRAW, nil, 0, tp, 2)
+    if chk == 0 then
+        return Duel.IsPlayerCanDraw(tp, 2)  -- Check if the player can draw 2 cards
+    end
+    Duel.SetTargetPlayer(tp)
+    Duel.SetOperationInfo(0, CATEGORY_DRAW, nil, 0, tp, 2)
 end
 
 function s.drawOperation(e, tp, eg, ep, ev, re, r, rp)
-	local p = Duel.GetChainInfo(0, CHAININFO_TARGET_PLAYER)
-	Duel.Draw(p, 2, REASON_EFFECT)
+    local p = Duel.GetChainInfo(0, CHAININFO_TARGET_PLAYER)
+    Duel.Draw(p, 2, REASON_EFFECT)
 end
+
 
 function s.materialCondition(e, tp, eg, ep, ev, re, r, rp)
 	local c = e:GetHandler()
