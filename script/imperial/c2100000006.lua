@@ -7,16 +7,21 @@ function s.initial_effect(c)
     e1:SetCode(EVENT_CHAINING)
     e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
     e1:SetRange(LOCATION_HAND)
+    e1:SetCountLimit(1,{id,0})
     e1:SetCondition(s.ngcon)
     e1:SetTarget(s.ngtg)
     e1:SetOperation(s.ngop)
     c:RegisterEffect(e1)
 end
+function s.ngfilter(c,tp)
+    return c:IsSetCard(0x467) and c:IsControler(tp) and c:IsOnField() and c:IsFaceup()
+end
 function s.ngcon(e,tp,eg,ep,ev,re,r,rp)
+    if ep==tp then return false end
 	if re:IsHasCategory(CATEGORY_NEGATE)
 		and Duel.GetChainInfo(ev-1,CHAININFO_TRIGGERING_EFFECT):IsHasType(EFFECT_TYPE_ACTIVATE) then return false end
 	local ex,tg,tc=Duel.GetOperationInfo(ev,CATEGORY_DESTROY)
-	return ex and tg~=nil and tc+tg:FilterCount(Card.IsOnField,nil)-#tg>0
+	return ex and tg~=nil and tc+tg:FilterCount(s.ngfilter,nil,tp)-#tg>0
 end
 function s.ngtg(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return true end
