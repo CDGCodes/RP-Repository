@@ -21,16 +21,6 @@ function s.initial_effect(c)
 	e4:SetTarget(s.sptg)
 	e4:SetOperation(s.spop)
 	c:RegisterEffect(e4)
-	--Return to hand
-	local e5=Effect.CreateEffect(c)
-	e5:SetType(EFFECT_TYPE_IGNITION)
-	e5:SetRange(LOCATION_GRAVE)
-	e5:SetCode(EVENT_FREE_CHAIN)
-	e5:SetCountLimit(1, {id, 0})
-	e5:SetCost(s.rtcost)
-	e5:SetTarget(s.rttg)
-	e5:SetOperation(s.rtop)
-	c:RegisterEffect(e5)
 	--Copy Equip effects as monster
 	local e6=e2:Clone()
 	e6:SetType(EFFECT_TYPE_SINGLE)
@@ -98,27 +88,6 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
 		e1:SetTarget(s.splimit)
 		e1:SetReset(RESET_PHASE+PHASE_END)
 		Duel.RegisterEffect(e1, tp)
-	end
-end
-
-function s.rtfilter(c, e)
-	return c:IsSpell() and c:IsAbleToRemoveAsCost() and c~=e:GetHandler()
-end
-function s.rtcost(e, tp, eg, ep, ev, re, r, rp, chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.rtfilter, tp, LOCATION_HAND+LOCATION_GRAVE, 0, 1, nil, e) end
-	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp, s.rtfilter, tp, LOCATION_HAND+LOCATION_GRAVE, 0, 1, 1, nil, e)
-	Duel.Remove(g, POS_FACEUP, REASON_COST)
-end
-function s.rttg(e, tp, eg, ep, ev, re, r, rp, chk)
-	if chk==0 then return e:GetHandler():IsAbleToHand() end
-	Duel.SetOperationInfo(0, CATEGORY_TOHAND, nil, 1, tp, LOCATION_GRAVE)
-end
-function s.rtop(e, tp, eg, ep, ev, re, r, rp)
-	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) then
-		Duel.SendtoHand(c, nil, REASON_EFFECT)
-		Duel.ConfirmCards(1-tp, c)
 	end
 end
 
