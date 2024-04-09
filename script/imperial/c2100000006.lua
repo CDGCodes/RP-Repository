@@ -1,6 +1,6 @@
 --Imperial Destructive dragon 
 local s,id=GetID()
-function s.inital_effect(c)
+function s.initial_effect(c)
     local e1=Effect.CreateEffect(c)
     e1:SetCategory(CATEGORY_NEGATE+CATEGORY_DESTROY)
     e1:SetType(EFFECT_TYPE_QUICK_O)
