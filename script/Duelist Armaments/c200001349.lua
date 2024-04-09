@@ -1,6 +1,7 @@
 --Duelist Armaments - Bow
 local s, id=GetID()
 function s.initial_effect(c)
+	c:SetUniqueOnField(1, 0, id)
 	aux.AddEquipProcedure(c)
 	--ATK/DEF up (Equip)
 	local e2=Effect.CreateEffect(c)
@@ -17,13 +18,10 @@ function s.initial_effect(c)
 	e4:SetType(EFFECT_TYPE_ACTIVATE)
 	e4:SetCode(EVENT_FREE_CHAIN)
 	e4:SetCountLimit(1, id, EFFECT_COUNT_CODE_OATH)
+	e4:SetCost(s.spcost)
 	e4:SetTarget(s.sptg)
 	e4:SetOperation(s.spop)
 	c:RegisterEffect(e4)
-	local e5=e4:Clone()
-	e5:SetRange(LOCATION_GRAVE)
-	e5:SetCondition(s.spgycon)
-	c:RegisterEffect(e5)
 	--Copy Equip effects as monster
 	local e6=e2:Clone()
 	e6:SetType(EFFECT_TYPE_SINGLE)
@@ -67,8 +65,18 @@ function s.initial_effect(c)
 	c:RegisterEffect(e12)
 end
 
+function s.spchkfilter(c, e)
+	return c:IsSpell() and c:IsDiscardable() and c~=e:GetHandler()
+end
+function s.spcstfilter(c)
+	return c:IsSpell() and c:IsDiscardable()
+end
+function s.spcost(e, tp, eg, ep, ev, re, r, rp, chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.spchkfilter, tp, LOCATION_HAND, 0, 1, nil, e) end
+	Duel.DiscardHand(tp, s.spcstfilter, 1, 1, REASON_COST|REASON_DISCARD)
+end
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
-	if chk==0 then return Duel.GetLocationCount(tp, LOCATION_MZONE)>0 and Duel.IsPlayerCanSpecialSummonMonster(tp, id, 0xFEDC, 0x21, 1500, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT) end
+	if chk==0 then return Duel.GetLocationCount(tp, LOCATION_MZONE)>0 and Duel.IsPlayerCanSpecialSummonMonster(tp, id, 0xFEDC, 0x21, 1000, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT) end
 	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, e:GetHandler(), 1, 0, 0)
 end
 function s.splimit(e, c, sump, sumtype, sumpos, targetp, se)
@@ -94,15 +102,12 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
 		Duel.RegisterEffect(e1, tp)
 	end
 end
-function s.spgycon(e, tp, eg, ep, ev, re, r, rp)
-	return Duel.GetFieldGroupCount(tp, 0, LOCATION_MZONE)>Duel.GetFieldGroupCount(tp, LOCATION_MZONE, 0)
-end
 
 function s.effcon(e)
 	return e:GetHandler():IsType(TYPE_EFFECT)
 end
 function s.dircon(e)
-	return e:GetHandler():IsAttackPos() and s.effcon
+	return e:GetHandler():IsAttackPos() and s.effcon(e)
 end
 
 function s.rdcon(e)

@@ -12,10 +12,10 @@ function s.initial_effect(c)
 end
 
 function s.spfilter(c, tp)
-	return c:IsSetCard(0xFEDC) and c:IsType(TYPE_EQUIP) and Duel.IsPlayerCanSpecialSummonMonster(tp, c:GetCode(), 0xFEDC, 0x21, 1500, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT)
+	return c:IsSetCard(0xFEDC) and c:IsType(TYPE_EQUIP) and Duel.IsPlayerCanSpecialSummonMonster(tp, c:GetCode(), 0xFEDC, 0x21, 1000, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT) and c:CheckUniqueOnField(tp)
 end
-function s.eqfilter(c, ec)
-	return c:IsSetCard(0xFEDC) and c:IsType(TYPE_EQUIP) and c:CheckEquipTarget(ec)
+function s.eqfilter(c, tp, ec)
+	return c:IsSetCard(0xFEDC) and c:IsType(TYPE_EQUIP) and c:CheckEquipTarget(ec) and c:CheckUniqueOnField(tp)
 end
 function s.splimit(e, c, sump, sumtype, sumpos, targetp, se)
 	if se:GetHandler():IsSpell() then return false end
@@ -54,8 +54,8 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
 		e3:SetValue(ATTRIBUTE_LIGHT)
 		gc:RegisterEffect(e3)
 		Duel.SpecialSummonComplete()
-		if Duel.IsExistingMatchingCard(s.eqfilter, tp, LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND, 0, 1, nil, gc) and Duel.GetLocationCount(tp, LOCATION_SZONE)>0 and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
-			local eg=Duel.SelectMatchingCard(tp, s.eqfilter, tp, LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND, 0, 1, 1, nil, gc)
+		if Duel.IsExistingMatchingCard(s.eqfilter, tp, LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND, 0, 1, nil, tp, gc) and Duel.GetLocationCount(tp, LOCATION_SZONE)>0 and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
+			local eg=Duel.SelectMatchingCard(tp, s.eqfilter, tp, LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND, 0, 1, 1, nil, tp, gc)
 			local egc=eg:GetFirst()
 			Duel.Equip(tp, egc, gc)
 		end

@@ -17,7 +17,7 @@ function s.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_SPSUMMON_PROC)
 	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-	e1:SetRange(LOCATION_EXTRA+LOCATION_GRAVE)
+	e1:SetRange(LOCATION_EXTRA)
 	e1:SetCondition(s.sumcon)
 	e1:SetTarget(s.sumtgt)
 	e1:SetOperation(s.sumop)
@@ -30,7 +30,7 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e2:SetCountLimit(1)
+	e2:SetCountLimit(1, id, EFFECT_COUNT_CODE_SINGLE)
 	e2:SetTarget(s.feqtgt)
 	e2:SetOperation(s.feqop)
 	c:RegisterEffect(e2)
@@ -40,11 +40,11 @@ function s.initial_effect(c)
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id, 1))
 	e3:SetCategory(CATEGORY_EQUIP)
-	e3:SetType(EFFECT_TYPE_QUICK_O)
+	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetCode(EVENT_FREE_CHAIN)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e3:SetCountLimit(1)
+	e3:SetCountLimit(1, id, EFFECT_COUNT_CODE_SINGLE)
 	e3:SetCondition(s.geqcon)
 	e3:SetTarget(s.geqtgt)
 	e3:SetOperation(s.geqop)
@@ -58,6 +58,14 @@ function s.initial_effect(c)
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetValue(s.atkval)
 	c:RegisterEffect(e4)
+	--Return to Extra Deck is it leaves the field
+	local e5=Effect.CreateEffect(c)
+	e5:SetType(EFFECT_TYPE_SINGLE)
+	e5:SetCode(EFFECT_LEAVE_FIELD_REDIRECT)
+	e5:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e5:SetCondition(function(e)return e:GetHandler():IsFaceup()end)
+	e5:SetValue(LOCATION_DECKBOT)
+	c:RegisterEffect(e5)
 end
 
 function s.armfusfilter(c)
@@ -65,16 +73,16 @@ function s.armfusfilter(c)
 end
 
 function s.sumfilter(c)
-	return c:IsType(TYPE_SPELL) and c:IsAbleToGraveAsCost()
+	return c:IsType(TYPE_SPELL) and c:IsFaceup() and c:IsSetCard(0xFEDC) and c:IsAbleToGraveAsCost()
 end
 function s.sumcon(e, c)
 	if c==nil then return true end
 	local tp=c:GetControler()
-	return Duel.GetMatchingGroupCount(s.sumfilter, tp, LOCATION_ONFIELD, 0, nil)>=2
+	return Duel.GetMatchingGroupCount(s.sumfilter, tp, LOCATION_ONFIELD, 0, nil)>=3
 end
 function s.sumtgt(e, tp, eg, ep, ev, re, r, rp, c)
 	local g=Duel.GetMatchingGroup(s.sumfilter, tp, LOCATION_ONFIELD, 0, nil)
-	local sg=g:Select(tp, 2, 2, nil)
+	local sg=g:Select(tp, 3, 3, nil)
 	if #sg>0 then
 		sg:KeepAlive()
 		e:SetLabelObject(sg)
@@ -114,14 +122,15 @@ end
 function s.geqcon(e, tp, eg, ep, ev, re, r, rp)
 	return Duel.GetLocationCount(tp, LOCATION_SZONE)>0
 end
-function s.geqfilter(c, e)
+function s.geqfilter(c, e, tp)
+	if not c:CheckUniqueOnField(tp) then return false end
 	if c:IsType(TYPE_EQUIP) then return c:CheckEquipTarget(e:GetHandler()) end
 	return c:IsType(TYPE_MONSTER)
 end
 function s.geqtgt(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
 	if chkc then return true end
-	if chk==0 then return Duel.IsExistingTarget(s.geqfilter, tp, LOCATION_GRAVE, LOCATION_GRAVE, 1, nil, e) end
-	local sg=Duel.SelectTarget(tp, s.geqfilter, tp, LOCATION_GRAVE, LOCATION_GRAVE, 1, 1, nil, e)
+	if chk==0 then return Duel.IsExistingTarget(s.geqfilter, tp, LOCATION_GRAVE, LOCATION_GRAVE, 1, nil, e, tp) end
+	local sg=Duel.SelectTarget(tp, s.geqfilter, tp, LOCATION_GRAVE, LOCATION_GRAVE, 1, 1, nil, e, tp)
 	Duel.SetOperationInfo(0, CATEGORY_EQUIP, sq, 1, 0, 0)
 end
 function s.geqop(e, tp, eg, ep, ev, re, r, rp)
