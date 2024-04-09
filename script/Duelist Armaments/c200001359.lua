@@ -122,14 +122,15 @@ end
 function s.geqcon(e, tp, eg, ep, ev, re, r, rp)
 	return Duel.GetLocationCount(tp, LOCATION_SZONE)>0
 end
-function s.geqfilter(c, e)
+function s.geqfilter(c, e, tp)
+	if not c:CheckUniqueOnField(tp) then return false end
 	if c:IsType(TYPE_EQUIP) then return c:CheckEquipTarget(e:GetHandler()) end
 	return c:IsType(TYPE_MONSTER)
 end
 function s.geqtgt(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
 	if chkc then return true end
-	if chk==0 then return Duel.IsExistingTarget(s.geqfilter, tp, LOCATION_GRAVE, LOCATION_GRAVE, 1, nil, e) end
-	local sg=Duel.SelectTarget(tp, s.geqfilter, tp, LOCATION_GRAVE, LOCATION_GRAVE, 1, 1, nil, e)
+	if chk==0 then return Duel.IsExistingTarget(s.geqfilter, tp, LOCATION_GRAVE, LOCATION_GRAVE, 1, nil, e, tp) end
+	local sg=Duel.SelectTarget(tp, s.geqfilter, tp, LOCATION_GRAVE, LOCATION_GRAVE, 1, 1, nil, e, tp)
 	Duel.SetOperationInfo(0, CATEGORY_EQUIP, sq, 1, 0, 0)
 end
 function s.geqop(e, tp, eg, ep, ev, re, r, rp)
