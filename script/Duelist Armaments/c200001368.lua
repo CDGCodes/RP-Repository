@@ -48,6 +48,7 @@ function s.initial_effect(c)
 	e9:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e9:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e9:SetRange(LOCATION_ONFIELD)
+	e9:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e9:SetCountLimit(1, {id, 1})
 	e9:SetCondition(s.bnccon)
 	e9:SetTarget(s.bnctg)
@@ -118,18 +119,14 @@ function s.bncfilter(c)
 	return c:IsType(TYPE_MONSTER) and c:IsAbleToHand()
 end
 function s.bnctg(e, tp, eg, ep, ev, re, r, rp, chk)
-	if chk==0 then return Duel.IsExistingTarget(s.bncfilter, tp, 0, LOCATION_MZONE, 1, 1, nil) end
-	local tc=Duel.SelectTarget(tp, s.bncfilter, tp, 0, LOCATION_MZONE, 1, 1, nil)
-	if tc then
-		Duel.SetOperationInfo(0, CATEGORY_TOHAND, tc, 1, 0, REASON_EFFECT)
-		Duel.SetOperationInfo(0, CATEGORY_TOHAND, e:GetHandler(), 1, 0, REASON_EFFECT)
-	end
+	if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) and s.bncfilter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.bncfilter,tp,0,LOCATION_ONFIELD,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
+	local g=Duel.SelectTarget(tp,s.bncfilter,tp,0,LOCATION_ONFIELD,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
 end
 function s.bncop(e, tp, eg, ep, ev, re, r, rp)
 	local tc=Duel.GetFirstTarget()
-	local c=e:GetHandler()
-	if tc:IsRelateToEffect(e) and c:IsRelateToEffect(e) then
-		Duel.SendtoHand(tc, nil, REASON_EFFECT)
-		Duel.SendtoHand(c, nil, REASON_EFFECT)
-	end
+	Duel.SendtoHand(tc, nil, REASON_EFFECT)
+	Duel.SendtoHand(e:GetHandler(), nil, REASON_EFFECT)
 end
