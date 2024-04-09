@@ -98,7 +98,7 @@ function s.effcon(e)
 	return e:GetHandler():IsType(TYPE_EFFECT)
 end
 function s.dircon(e)
-	return e:GetHandler():IsAttackPos() and s.effcon
+	return e:GetHandler():IsAttackPos() and s.effcon(e)
 end
 
 function s.addcost(e, tp, eg, ep, ev, re, r, rp, chk)

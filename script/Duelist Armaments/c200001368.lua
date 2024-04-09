@@ -103,7 +103,7 @@ function s.effcon(e)
 	return e:GetHandler():IsType(TYPE_EFFECT)
 end
 function s.dircon(e)
-	return e:GetHandler():IsAttackPos() and s.effcon
+	return e:GetHandler():IsAttackPos() and s.effcon(e)
 end
 
 function s.bnconfil(c, tp)
@@ -127,6 +127,9 @@ function s.bnctg(e, tp, eg, ep, ev, re, r, rp, chk)
 end
 function s.bncop(e, tp, eg, ep, ev, re, r, rp)
 	local tc=Duel.GetFirstTarget()
-	Duel.SendtoHand(tc, nil, REASON_EFFECT)
-	Duel.SendtoHand(e:GetHandler(), nil, REASON_EFFECT)
+	local c=e:GetHandler()
+	if tc:IsRelateToEffect(e) and c:IsRelateToEffect(e) then
+		Duel.SendtoHand(tc, nil, REASON_EFFECT)
+		Duel.SendtoHand(c, nil, REASON_EFFECT)
+	end
 end
