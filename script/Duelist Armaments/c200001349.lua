@@ -64,11 +64,14 @@ function s.initial_effect(c)
 	c:RegisterEffect(e12)
 end
 
+function s.spchkfilter(c, e)
+	return c:IsSpell() and c:IsDiscardable() and c~=e:GetHandler()
+end
 function s.spcstfilter(c)
 	return c:IsSpell() and c:IsDiscardable()
 end
 function s.spcost(e, tp, eg, ep, ev, re, r, rp, chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.spcstfilter, tp, LOCATION_HAND, 0, 1, nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.spchkfilter, tp, LOCATION_HAND, 0, 1, nil, e) end
 	Duel.DiscardHand(tp, s.spcstfilter, 1, 1, REASON_COST|REASON_DISCARD)
 end
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
