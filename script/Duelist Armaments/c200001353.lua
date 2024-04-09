@@ -67,7 +67,7 @@ function s.spcost(e, tp, eg, ep, ev, re, r, rp, chk)
 	Duel.DiscardHand(tp, s.spcstfilter, 1, 1, REASON_COST|REASON_DISCARD)
 end
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
-	if chk==0 then return Duel.GetLocationCount(tp, LOCATION_MZONE)>0 and Duel.IsPlayerCanSpecialSummonMonster(tp, id, 0xFEDC, 0x21, 1500, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT) end
+	if chk==0 then return Duel.GetLocationCount(tp, LOCATION_MZONE)>0 and Duel.IsPlayerCanSpecialSummonMonster(tp, id, 0xFEDC, 0x21, 100, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT) end
 	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, e:GetHandler(), 1, 0, 0)
 end
 function s.splimit(e, c, sump, sumtype, sumpos, targetp, se)
