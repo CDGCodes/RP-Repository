@@ -1,6 +1,7 @@
 --Duelist Armaments - Boxing Glove
 local s, id=GetID()
 function s.initial_effect(c)
+	c:SetUniqueOnField(1, 0, id)
 	aux.AddEquipProcedure(c)
 	--ATK/DEF up (Equip)
 	local e2=Effect.CreateEffect(c)
@@ -126,7 +127,10 @@ function s.bnctg(e, tp, eg, ep, ev, re, r, rp, chk)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
 end
 function s.bncop(e, tp, eg, ep, ev, re, r, rp)
+	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	Duel.SendtoHand(tc, nil, REASON_EFFECT)
-	Duel.SendtoHand(e:GetHandler(), nil, REASON_EFFECT)
+	if tc:IsRelateToEffect(e) and c:IsRelateToEffect(e) then
+		Duel.SendtoHand(tc, nil, REASON_EFFECT)
+		Duel.SendtoHand(e:GetHandler(), nil, REASON_EFFECT)
+	end
 end

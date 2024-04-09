@@ -51,7 +51,7 @@ function s.spcost(e, tp, eg, ep, ev, re, r, rp, chk)
 	Duel.DiscardHand(tp, s.spcstfilter, 1, 1, REASON_COST|REASON_DISCARD)
 end
 function s.spfilter(c, tp)
-	return c:IsSetCard(0xFEDC) and c:IsType(TYPE_EQUIP) and Duel.IsPlayerCanSpecialSummonMonster(tp, c:GetCode(), 0xFEDC, 0x21, 1000, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT)
+	return c:IsSetCard(0xFEDC) and c:IsType(TYPE_EQUIP) and Duel.IsPlayerCanSpecialSummonMonster(tp, c:GetCode(), 0xFEDC, 0x21, 1000, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT) and not Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode, c:GetCode()), tp, LOCATION_ONFIELD, 0, 1, nil)
 end
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
 	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_GRAVE) and s.spfilter(chkc, tp) end
@@ -93,7 +93,7 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
 	end
 	-- Spell Summon Restriction
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(id, 1))
+	e1:SetDescription(aux.Stringid(id, 0))
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CLIENT_HINT)
 	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
@@ -116,10 +116,27 @@ function s.rttg(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return e:GetHandler():IsAbleToHand() end
 	Duel.SetOperationInfo(0, CATEGORY_TOHAND, nil, 1, tp, LOCATION_GRAVE)
 end
+function s.rtlimit(e, c, sump, sumtype, sumpos, targetp, se)
+	if se:GetHandler():IsSpell() and se:GetHandler():IsSetCard(0xEDC) then return false end
+	return (c:IsLocation(LOCATION_DECK) or c:IsLocation(LOCATION_HAND))
+end
 function s.rtop(e, tp, eg, ep, ev, re, r, rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) then
 		Duel.SendtoHand(c, nil, REASON_EFFECT)
 		Duel.ConfirmCards(1-tp, c)
+		if Duel.IsPlayerCanDraw(tp,1) and Duel.SelectYesNo(tp, aux.Stringid(id, 1)) then
+			Duel.Draw(tp, 1, REASON_EFFECT)
+		end
 	end
+	-- Spell Summon Restriction
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id, 0))
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CLIENT_HINT)
+	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+	e1:SetTargetRange(1, 0)
+	e1:SetTarget(s.rtlimit)
+	e1:SetReset(RESET_PHASE+PHASE_END)
+	Duel.RegisterEffect(e1, tp)
 end

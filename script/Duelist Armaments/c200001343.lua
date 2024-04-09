@@ -1,6 +1,7 @@
 --Duelist Armaments - Sword
 local s, id=GetID()
 function s.initial_effect(c)
+	c:SetUniqueOnField(1, 0, id)
 	aux.AddEquipProcedure(c)
 	--ATK/DEF up (Equip)
 	local e2=Effect.CreateEffect(c)
