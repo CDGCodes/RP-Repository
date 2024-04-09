@@ -15,16 +15,6 @@ function s.initial_effect(c)
 	e2:SetTarget(s.tg)
 	e2:SetValue(500)
 	c:RegisterEffect(e2)
-	--Overlay
-	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_FIELD)
-	e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE)
-	e3:SetCode(511000189)
-	e3:SetRange(LOCATION_FZONE)
-	e3:SetTargetRange(LOCATION_SZONE,LOCATION_SZONE)
-	e3:SetTarget(function(e,c) return c:IsType(TYPE_SPELL) and not c:IsLocation(LOCATION_FZONE) end)
-	e3:SetValue(2)
-	c:RegisterEffect(e3)
 	--Special Summon
 	local e4=Effect.CreateEffect(c)
 	e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
@@ -32,7 +22,8 @@ function s.initial_effect(c)
 	e4:SetCode(EVENT_FREE_CHAIN)
 	e4:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e4:SetRange(LOCATION_FZONE)
-	e4:SetCountLimit(0, {id, 0})
+	e4:SetCountLimit(1, {id, 0})
+	e4:SetCost(s.spcost)
 	e4:SetTarget(s.sptg)
 	e4:SetOperation(s.spop)
 	c:RegisterEffect(e4)
@@ -41,7 +32,7 @@ function s.initial_effect(c)
 	e5:SetType(EFFECT_TYPE_IGNITION)
 	e5:SetRange(LOCATION_GRAVE)
 	e5:SetCode(EVENT_FREE_CHAIN)
-	e5:SetCountLimit(1, {id, 0})
+	e5:SetCountLimit(1, {id, 1})
 	e5:SetCost(s.rtcost)
 	e5:SetTarget(s.rttg)
 	e5:SetOperation(s.rtop)
@@ -52,6 +43,13 @@ function s.tg(e, c)
 	return c:IsSetCard(0xFEDC)
 end
 
+function s.spcstfilter(c)
+	return c:IsSpell() and c:IsDiscardable()
+end
+function s.spcost(e, tp, eg, ep, ev, re, r, rp, chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.spcstfilter, tp, LOCATION_HAND, 0, 1, nil) end
+	Duel.DiscardHand(tp, s.spcstfilter, 1, 1, REASON_COST|REASON_DISCARD)
+end
 function s.spfilter(c, tp)
 	return c:IsSetCard(0xFEDC) and c:IsType(TYPE_EQUIP) and Duel.IsPlayerCanSpecialSummonMonster(tp, c:GetCode(), 0xFEDC, 0x21, 1500, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT)
 end
@@ -63,6 +61,7 @@ function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
 	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, g, 1, 0, 0)
 end
 function s.spop(e, tp, eg, ep, ev, re, r, rp)
+	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) then
 		tc:AddMonsterAttribute(TYPE_EFFECT+TYPE_SPELL+TYPE_TRAPMONSTER)
@@ -94,9 +93,9 @@ function s.rtfilter(c, e)
 	return c:IsSpell() and c:IsAbleToRemoveAsCost() and c~=e:GetHandler()
 end
 function s.rtcost(e, tp, eg, ep, ev, re, r, rp, chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.rtfilter, tp, LOCATION_HAND+LOCATION_GRAVE, 0, 1, nil, e) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.rtfilter, tp, LOCATION_GRAVE, 0, 1, nil, e) end
 	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp, s.rtfilter, tp, LOCATION_HAND+LOCATION_GRAVE, 0, 1, 1, nil, e)
+	local g=Duel.SelectMatchingCard(tp, s.rtfilter, tp, LOCATION_GRAVE, 0, 1, 1, nil, e)
 	Duel.Remove(g, POS_FACEUP, REASON_COST)
 end
 function s.rttg(e, tp, eg, ep, ev, re, r, rp, chk)
