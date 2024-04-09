@@ -126,6 +126,7 @@ function s.bnctg(e, tp, eg, ep, ev, re, r, rp, chk)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
 end
 function s.bncop(e, tp, eg, ep, ev, re, r, rp)
+	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) and c:IsRelateToEffect(e) then
 		Duel.SendtoHand(tc, nil, REASON_EFFECT)
