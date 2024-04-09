@@ -127,6 +127,8 @@ function s.bnctg(e, tp, eg, ep, ev, re, r, rp, chk)
 end
 function s.bncop(e, tp, eg, ep, ev, re, r, rp)
 	local tc=Duel.GetFirstTarget()
-	Duel.SendtoHand(tc, nil, REASON_EFFECT)
-	Duel.SendtoHand(e:GetHandler(), nil, REASON_EFFECT)
+	if tc:IsRelateToEffect(e) and c:IsRelateToEffect(e) then
+		Duel.SendtoHand(tc, nil, REASON_EFFECT)
+		Duel.SendtoHand(e:GetHandler(), nil, REASON_EFFECT)
+	end
 end
