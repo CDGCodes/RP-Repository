@@ -1,9 +1,9 @@
 local s,id=GetID()
 function s.initial_effect(c)
-    --Always treated as an "Elemental HERO" monster
+    -- Always treated as an "Elemental HERO" monster
     c:AddSetcodesRule(0x3008)
 
-    --Special Summon from hand
+    -- Ignition effect to Special Summon from hand
     local e1=Effect.CreateEffect(c)
     e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
     e1:SetType(EFFECT_TYPE_IGNITION)
@@ -13,7 +13,7 @@ function s.initial_effect(c)
     e1:SetOperation(s.spop1)
     c:RegisterEffect(e1)
 
-    --Quick Effect to Special Summon from GY
+    -- Quick Effect to Special Summon from GY
     local e2=Effect.CreateEffect(c)
     e2:SetDescription(aux.Stringid(id,1))
     e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
@@ -26,7 +26,7 @@ function s.initial_effect(c)
     e2:SetOperation(s.qeoperation)
     c:RegisterEffect(e2)
 
-    --Replace destruction
+    -- Replace destruction
     local e3=Effect.CreateEffect(c)
     e3:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_FIELD)
     e3:SetCode(EFFECT_DESTROY_REPLACE)
@@ -39,21 +39,29 @@ end
 
 --Special Summon condition from hand
 function s.spcon1(e,tp,eg,ep,ev,re,r,rp)
-    return Duel.IsExistingMatchingCard(s.spcfilter,tp,LOCATION_MZONE+LOCATION_HAND,0,1,nil)
+    return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,0x8),tp,LOCATION_MZONE,0,1,nil)
 end
 
---Special Summon target from hand
 function s.sptg1(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
     Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
 end
 
---Special Summon operation from hand
 function s.spop1(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
     if c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)~=0 then
-        -- Add Polymerization or Fusion recovery effect here if needed
+        local g=Duel.GetMatchingGroup(s.polyfilter,tp,LOCATION_GRAVE,0,nil)
+        if #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+            Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+            local sg=g:Select(tp,1,1,nil)
+            Duel.SendtoHand(sg,nil,REASON_EFFECT)
+            Duel.ConfirmCards(1-tp,sg)
+        end
     end
+end
+
+function s.polyfilter(c)
+    return (c:IsCode(24094653) or c:IsSetCard(0x46)) and c:IsType(TYPE_SPELL) and c:IsAbleToHand()
 end
 
 function s.qecost(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -88,12 +96,6 @@ function s.qeoperation(e,tp,eg,ep,ev,re,r,rp)
         e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
         tc:RegisterEffect(e2)
     end
-end
-
-function s.spcfilter(c)
-    return (c:IsCode(57116033) or (c:IsType(TYPE_FUSION) and c:IsSetCard(0x3008)))
-        and c:IsMonster() and (c:IsFaceup() or c:IsLocation(LOCATION_HAND))
-        and c:IsAbleToRemoveAsCost() and aux.SpElimFilter(c,true,true)
 end
 
 function s.repfilter(c,tp)
