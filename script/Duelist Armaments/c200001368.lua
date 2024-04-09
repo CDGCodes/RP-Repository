@@ -106,8 +106,11 @@ function s.dircon(e)
 	return e:GetHandler():IsAttackPos() and s.effcon
 end
 
-function s.bnccon(c)
-	if c:IsSummonPlayer(tp) then return false end
+function s.bnconfil(c, tp)
+	return c:IsSummonPlayer(tp)
+end
+function s.bnccon(e, tp, eg)
+	if eg:IsExists(s.bnconfil, 1, nil, tp) then return false end
 	local dc=e:GetHandler()
 	return (dc:IsLocation(LOCATION_SZONE) and dc:GetEquipTarget()) or (dc:IsLocation(LOCATION_MZONE) and dc:IsType(TYPE_EFFECT))
 end
@@ -116,7 +119,7 @@ function s.bncfilter(c)
 end
 function s.bnctg(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return Duel.IsExistingTarget(s.bncfilter, tp, 0, LOCATION_MZONE, 1, 1, nil) end
-	local tc=Duel.SelectTarget(tp, s.bncfilter, tp, 0, LOCATION_MZONE, 1, 1)
+	local tc=Duel.SelectTarget(tp, s.bncfilter, tp, 0, LOCATION_MZONE, 1, 1, nil)
 	if tc then
 		Duel.SetOperationInfo(0, CATEGORY_TOHAND, tc, 1, 0, REASON_EFFECT)
 		Duel.SetOperationInfo(0, CATEGORY_TOHAND, e:GetHandler(), 1, 0, REASON_EFFECT)
