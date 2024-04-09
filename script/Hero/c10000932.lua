@@ -1,6 +1,15 @@
 -- Skilled HERO Kid
 local s,id=GetID()
 function s.initial_effect(c)
+    -- Card should always be treated as "HERO Kid"
+    local e0=Effect.CreateEffect(c)
+    e0:SetType(EFFECT_TYPE_SINGLE)
+    e0:SetProperty(EFFECT_FLAG_SINGLE_RANGE+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+    e0:SetRange(LOCATION_HAND+LOCATION_DECK+LOCATION_GRAVE)
+    e0:SetCode(EFFECT_ADD_CODE)
+    e0:SetValue(32679370)  -- "HERO Kid" ID
+    c:RegisterEffect(e0)
+
     -- Special Summon self by banishing another "HERO" monster from hand or field
     local e1=Effect.CreateEffect(c)
     e1:SetDescription(aux.Stringid(id,0))
@@ -76,7 +85,6 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
         local sg=g:Select(tp,1,2,nil)
         for sc in aux.Next(sg) do
             Duel.SpecialSummonStep(sc,0,tp,tp,false,false,POS_FACEUP)
-            -- Prohibit direct attacks and being used as material
             local e1=Effect.CreateEffect(e:GetHandler())
             e1:SetType(EFFECT_TYPE_SINGLE)
             e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
