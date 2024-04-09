@@ -115,6 +115,7 @@ end
 function s.rttg(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return e:GetHandler():IsAbleToHand() end
 	Duel.SetOperationInfo(0, CATEGORY_TOHAND, nil, 1, tp, LOCATION_GRAVE)
+	Duel.SetPossibleOperationInfo(0,CATEGORY_DRAW,nil,1,tp,1)
 end
 function s.rtlimit(e, c, sump, sumtype, sumpos, targetp, se)
 	if se:GetHandler():IsSpell() and se:GetHandler():IsSetCard(0xEDC) then return false end
