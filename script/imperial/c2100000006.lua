@@ -10,7 +10,7 @@ function s.initial_effect(c)
     e1:SetCondition(s.ngcon)
     e1:SetTarget(s.ngcon)
     e1:SetOperation(s.ngop)
-    c1:RegisterEffect(e1)
+    c:RegisterEffect(e1)
 end
 function s.ngcon(e,tp,eg,ep,ev,re,r,rp)
 	if re:IsHasCategory(CATEGORY_NEGATE)
