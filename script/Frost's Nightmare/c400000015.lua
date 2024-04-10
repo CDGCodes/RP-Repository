@@ -162,6 +162,9 @@ end
 function s.eqlimit(e,c)
 	return c==e:GetLabelObject()
 end
+function s.eqfilter(c)
+	return c:IsFaceup() 
+
 function s.damcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.eqfilter,1,nil,tp)
 end
