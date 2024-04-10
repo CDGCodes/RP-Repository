@@ -23,6 +23,18 @@ function s.initial_effect(c)
 	e2:SetTarget(s.fstg)
 	e2:SetOperation(s.fsop)
 	c:RegisterEffect(e2)
+	
+	--equip effect
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetType(EFFECT_TYPE_IGNITION)
+	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e3:SetCategory(CATEGORY_EQUIP)
+	e3:SetRange(LOCATION_GRAVE)
+	e3:SetTarget(s.eqtg)
+	e3:SetOperation(s.eqop)
+	c:RegisterEffect(e3)
+
 end
 
 
@@ -54,30 +66,117 @@ end
 function s.fscon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	return (r&REASON_FUSION)==REASON_FUSION 
-		and c:IsLocation(LOCATION_GRAVE) and c:IsFaceup() and c:GetReasonCard():IsOriginalSetCard(0x1A2B)
+		and c:IsLocation(LOCATION_GRAVE) and c:IsFaceup() and c:GetReasonCard():IsRace(RACE_FIEND)
 end
 function s.fsfilter(c,e,tp)
 	return c:IsSetCard(0x1A2B) 
 end
 function s.fstg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_GRAVE) and s.fsfilter(chkc,e,tp) end
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingTarget(s.fsfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp) end
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectTarget(tp,s.fsfilter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
+	--local g=Duel.SelectTarget(tp,s.fsfilter,tp,LOCATION_MZONE,0,1,1,nil,e,tp)
 	Duel.SetOperationInfo(0,CATEGORY_ATKCHANGE,g,1,0,0)
 end
 function s.fsop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=Duel.GetFirstTarget()
+--	local tc=Duel.GetFirstTarget()
 	local c=e:GetHandler()
 	local fc=c:GetReasonCard()
-	if tc then
+	if fc then
 		local e1=Effect.CreateEffect(e:GetHandler())
 	    e1:SetType(EFFECT_TYPE_SINGLE)
 	    e1:SetCode(EFFECT_UPDATE_ATTACK)
 	    e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-	    e1:SetValue(tc:GetAttack()/2)
+	    e1:SetValue(500)
 		fc:RegisterEffect(e1)
 		
 	end
+end
+
+function s.eqfilter(c)
+	return c:IsFaceup() and c:IsType(TYPE_FUSION) and c:IsRace(RACE_FIEND)
+end
+function s.eqtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.eqfilter(chkc) end
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0
+		and Duel.IsExistingTarget(s.eqfilter,tp,LOCATION_MZONE,0,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
+	Duel.SelectTarget(tp,s.eqfilter,tp,LOCATION_MZONE,0,1,1,nil)
+end
+function s.eqop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if not c:IsRelateToEffect(e) then return end
+	local tc=Duel.GetFirstTarget()
+	if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 or not tc or tc:GetControler()~=tp or tc:IsFacedown() or not tc:IsRelateToEffect(e) then
+		Duel.SendtoGrave(c,REASON_EFFECT)
+		return
+		
+	end
+	Duel.Equip(tp,c,tc,true)
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetCode(EFFECT_EQUIP_LIMIT)
+	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+	e1:SetValue(s.eqlimit)
+	e1:SetLabelObject(tc)
+	c:RegisterEffect(e1)
+	--attack directly
+	local e4=Effect.CreateEffect(c)
+	e4:SetDescription(aux.Stringid(id,0))
+	e4:SetType(EFFECT_TYPE_IGNITION)
+	e4:SetCountLimit(1)
+	e4:SetRange(LOCATION_MZONE)
+	e4:SetCondition(s.datcon)
+	e4:SetCost(s.datcost)
+	e4:SetOperation(s.datop)
+	local e5=Effect.CreateEffect(c)
+	e5:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_GRANT)
+	e5:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
+	e5:SetRange(LOCATION_SZONE)
+	e5:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
+	e5:SetTarget(s.eftg)
+	e5:SetLabelObject(e4)
+	e5:SetReset(RESET_EVENT+RESETS_STANDARD)
+	c:RegisterEffect(e5)
+	local e6=Effect.CreateEffect(c)
+	e6:SetType(EFFECT_TYPE_EQUIP)
+	e6:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
+	e6:SetCode(EFFECT_ADD_TYPE)
+	e6:SetValue(TYPE_EFFECT)
+	e6:SetReset(RESET_EVENT+RESETS_STANDARD)
+	c:RegisterEffect(e6,true)
+end
+function s.eqlimit(e,c)
+	return c==e:GetLabelObject()
+end
+function s.datcon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.GetCurrentPhase()==PHASE_MAIN1
+end
+function s.datcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,nil) end
+	Duel.DiscardHand(tp,Card.IsDiscardable,1,1,REASON_COST+REASON_DISCARD)
+end
+function s.datop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) and c:IsFaceup() then
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_DIRECT_ATTACK)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+		c:RegisterEffect(e1)
+	end
+end
+function s.damop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	--Can attack directly
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(3205)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CLIENT_HINT)
+	e1:SetCode(EFFECT_DIRECT_ATTACK)
+	e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+	c:RegisterEffect(e1)
+end
+function s.eftg(e,c)
+	return c==e:GetHandler():GetEquipTarget()
 end
