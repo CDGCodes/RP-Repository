@@ -120,28 +120,15 @@ function s.eqop(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetValue(s.eqlimit)
 	e1:SetLabelObject(tc)
 	c:RegisterEffect(e1)
-	--untargetable
-	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_EQUIP)
-	e2:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
-	e2:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
-	e2:SetValue(aux.tgoval)
-	e2:SetReset(RESET_EVENT+RESETS_STANDARD)
-	c:RegisterEffect(e2)
-	local e3=e2:Clone()
-	e3:SetType(EFFECT_TYPE_SINGLE)
-	c:RegisterEffect(e3)
-	--damage
+	--attack directly
 	local e4=Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(id,2))
-	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_IGNITION)
-	e4:SetCode(EVENT_DISCARD)
-	e4:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DELAY)
+	e4:SetDescription(aux.Stringid(id,0))
+	e4:SetType(EFFECT_TYPE_IGNITION)
+	e4:SetCountLimit(1)
 	e4:SetRange(LOCATION_MZONE)
-	e4:SetCondition(s.damcon)
-	e4:SetTarget(s.damtg)
-	e4:SetOperation(s.damop)
-	e4:SetReset(RESET_EVENT+RESETS_STANDARD)
+	e4:SetCondition(s.datcon)
+	e4:SetCost(s.datcost)
+	e4:SetOperation(s.datop)
 	local e5=Effect.CreateEffect(c)
 	e5:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_GRANT)
 	e5:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
@@ -162,12 +149,22 @@ end
 function s.eqlimit(e,c)
 	return c==e:GetLabelObject()
 end
-function s.damcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(s.eqfilter,1,nil,tp)
+function s.datcon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.GetCurrentPhase()==PHASE_MAIN1
 end
-function s.damtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if not re then return false end
-	return re:IsActiveType(TYPE_MONSTER)
+function s.datcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,nil) end
+	Duel.DiscardHand(tp,Card.IsDiscardable,1,1,REASON_COST+REASON_DISCARD)
+end
+function s.datop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) and c:IsFaceup() then
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_DIRECT_ATTACK)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+		c:RegisterEffect(e1)
+	end
 end
 function s.damop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
