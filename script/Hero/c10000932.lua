@@ -85,12 +85,14 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
         local sg=g:Select(tp,1,2,nil)
         for sc in aux.Next(sg) do
             Duel.SpecialSummonStep(sc,0,tp,tp,false,false,POS_FACEUP)
+            -- Prevent direct attacks
             local e1=Effect.CreateEffect(e:GetHandler())
             e1:SetType(EFFECT_TYPE_SINGLE)
             e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-            e1:SetCode(EFFECT_CANNOT_ATTACK_ANNOUNCE)
+            e1:SetCode(EFFECT_CANNOT_DIRECT_ATTACK)
             e1:SetReset(RESET_EVENT+RESETS_STANDARD)
             sc:RegisterEffect(e1)
+            -- Other material-related restrictions as previously set
             local e2=Effect.CreateEffect(e:GetHandler())
             e2:SetType(EFFECT_TYPE_SINGLE)
             e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
@@ -108,6 +110,7 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
         Duel.SpecialSummonComplete()
     end
 end
+
 
 function s.spcon3(e,tp,eg,ep,ev,re,r,rp)
     return (r&REASON_BATTLE+REASON_EFFECT)~=0 and e:GetHandler():IsPreviousLocation(LOCATION_MZONE)
