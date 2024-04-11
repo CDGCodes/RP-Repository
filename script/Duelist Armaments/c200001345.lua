@@ -49,11 +49,11 @@ function s.initial_effect(c)
 	e9:SetType(EFFECT_TYPE_EQUIP)
 	e9:SetCode(EFFECT_INDESTRUCTABLE_COUNT)
 	e9:SetValue(s.prval)
-	e9:SetCondition(s.prcon)
 	c:RegisterEffect(e9)
 	local e10=e9:Clone()
 	e10:SetType(EFFECT_TYPE_SINGLE)
 	e10:SetRange(LOCATION_MZONE)
+	e10:SetCondition(s.prcon)
 	c:RegisterEffect(e10)
 	--Redirect equip
 	local e11=Effect.CreateEffect(c)
@@ -113,8 +113,7 @@ function s.dircon(e)
 end
 
 function s.prcon(e, tp, eg, ep, ev, re, r, rp)
-	local c=e:GetHandler()
-	return (c:IsLocation(LOCATION_SZONE) and c:GetEquipTarget()) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
+	return e:GetHandler():IsType(TYPE_EFFECT)
 end
 function s.prtg(e, c)
 	return c:IsSetCard(0xFEDC)
