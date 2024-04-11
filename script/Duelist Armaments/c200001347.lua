@@ -147,7 +147,7 @@ function s.negop(e, tp, eg, ep, ev, re, r, rp)
 		local loc = c:GetLocation()
 		local g=Duel.GetMatchingGroup(Card.IsNegatable, tp, 0, loc, nil)
 		if tc then g:RemoveCard(tc) end
-		if not tc:IsImmuneToEffect(e1) and not tc:IsImmuneToEffect(e2) and #g>0 and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
+		if not tc:IsImmuneToEffect(e1) and not tc:IsImmuneToEffect(e2) and #g>0 and c:IsRelateToEffect(e) and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
 				Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_NEGATE)
 				local sg=g:Select(tp, 1, 1, nil)
 				Duel.HintSelection(sg)
