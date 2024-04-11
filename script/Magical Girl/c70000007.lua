@@ -16,13 +16,14 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 	
 		local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD)
-	e2:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
-	e2:SetCode(EFFECT_INDESTRUCTABLE_COUNT)
-	e2:SetRange(LOCATION_FZONE)
-	e2:SetTargetRange(LOCATION_ONFIELD,0)
-	e2:SetValue(s.indct)
-	c:RegisterEffect(e2)
+	e3:SetType(EFFECT_TYPE_FIELD)
+	e3:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
+	e3:SetCode(EFFECT_INDESTRUCTABLE_COUNT)
+	e3:SetRange(LOCATION_FZONE)
+	e3:SetTargetRange(LOCATION_ONFIELD,0)
+	e3:SetValue(s.indct)
+	e3:SetTarget(function(_,c) return c:IsMonster() and c:IsSetCard(0x6942) end)
+	c:RegisterEffect(e3)
 	
 end
 
