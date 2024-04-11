@@ -2,7 +2,7 @@
 local s,id=GetID()
 function s.initial_effect(c)
     c:EnableReviveLimit()
-	Fusion.AddProcMixN(c,true,true,610000000,aux.FilterBoolFunctionEx(Card.IsSetCard,SET_ANCIENT_GEAR),1)
+	Fusion.AddProcMixN(c,true,610000000,aux.FilterBoolFunctionEx(Card.IsSetCard,SET_ANCIENT_GEAR),1,99)
 	--Your opponent cannot activate Spell/Trap cards until the End of the Damage Step
  local e3=Effect.CreateEffect(c)
  e3:SetType(EFFECT_TYPE_FIELD)
