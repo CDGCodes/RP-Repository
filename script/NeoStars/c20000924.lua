@@ -49,6 +49,7 @@ function s.initial_effect(c)
     e4:SetProperty(EFFECT_FLAG_DELAY)
     e4:SetCode(EVENT_TO_DECK)
     e4:SetOperation(s.leave)
+    e4:SetTarget(s.leavetarget)
     c:RegisterEffect(e4)
 
     local e5 = e4:Clone()
@@ -92,7 +93,10 @@ function s.leaveCondition(e, tp, eg, ep, ev, re, r, rp)
     local c = e:GetHandler()
     return not c:IsPreviousLocation(LOCATION_ONFIELD)
 end
-
+function s.leavetarget(e, tp, eg, ep, ev, re, r, rp, chk)
+    if chk==0 then return Duel.IsExistingMatchingCard(s.searchfilter, tp, LOCATION_DECK, 0, 1, 1, nil) end
+    Duel.SetOperationInfo(0, CATEGORY_TOHAND, nil, 1, tp, LOCATION_DECK)
+end
 function s.leave(e, tp, eg, ep, ev, re, r, rp)
     Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_ATOHAND)
     local g = Duel.SelectMatchingCard(tp, s.searchfilter, tp, LOCATION_DECK, 0, 1, 1, nil)
