@@ -1,5 +1,6 @@
 local s,id=GetID()
 function s.initial_effect(c)
+
 	--Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
@@ -11,7 +12,7 @@ function s.initial_effect(c)
 end
 s.listed_series={0x6942}
 function s.filter(c)
-	return c:IsSetCard(0x6942) and c:IsSpell() and c:IsAbleToHand() and c:IsTrap()
+	return c:IsSetCard(0x6942) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToHand()
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK,0,1,nil) end
