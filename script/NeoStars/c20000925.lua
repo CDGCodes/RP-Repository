@@ -1,14 +1,14 @@
--- Neo-Spacian Star Hummingbird
+-- Neo-Spacian Flare Scarab
 local s, id = GetID()
 
 function s.initial_effect(c)
-    -- Change name to "Neo-Spacian Air Hummingbird" while on the field, in hand, or in GY
+    -- Change name to "Neo-Spacian Flare Scarab" while on the field, in hand, or in GY
     local e0 = Effect.CreateEffect(c)
     e0:SetType(EFFECT_TYPE_SINGLE)
     e0:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
     e0:SetRange(LOCATION_MZONE + LOCATION_HAND + LOCATION_GRAVE)
     e0:SetCode(EFFECT_CHANGE_CODE)
-    e0:SetValue(54959865) -- Card ID for "Neo-Spacian Air Hummingbird"
+    e0:SetValue(89621922) -- Card ID for "Neo-Spacian Flare Scarab"
     c:RegisterEffect(e0)
 
     -- Special Summon condition
@@ -34,13 +34,13 @@ function s.initial_effect(c)
     e2:SetCondition(s.sumcon)
     c:RegisterEffect(e2)
 
-    -- LP gain effect on summon
+    -- ATK boost effect on summon
     local e3 = Effect.CreateEffect(c)
     e3:SetDescription(aux.Stringid(id, 1))
     e3:SetType(EFFECT_TYPE_SINGLE + EFFECT_TYPE_TRIGGER_O)
     e3:SetCode(EVENT_SPSUMMON_SUCCESS)
     e3:SetProperty(EFFECT_FLAG_DELAY)
-    e3:SetOperation(s.lpGain)
+    e3:SetOperation(s.atkBoost)
     c:RegisterEffect(e3)
 
     -- Search effect when leaving the field or sent from hand/deck to graveyard
@@ -78,11 +78,19 @@ function s.sumcon(e)
     return Duel.GetFlagEffect(e:GetHandlerPlayer(), id) ~= 0
 end
 
--- LP gain effect on summon
-function s.lpGain(e, tp, eg, ep, ev, re, r, rp)
-    local ct = Duel.GetFieldGroupCount(1 - tp, LOCATION_HAND, 0)
-    if ct > 0 then
-        Duel.Recover(tp, ct * 500, REASON_EFFECT)
+function s.atkBoost(e, tp, eg, ep, ev, re, r, rp)
+    -- Count only opponent's Spell/Trap cards that are face-down
+    local ct = Duel.GetFieldGroupCount(tp, 0, LOCATION_SZONE)
+    local g = Duel.GetMatchingGroup(s.faceupFilter, tp, LOCATION_MZONE, 0, nil)
+    for tc in aux.Next(g) do
+        if tc:IsSetCard(0x1f) or tc:IsCode(0x9) then -- Adjust set codes as necessary
+            local e1 = Effect.CreateEffect(e:GetHandler())
+            e1:SetType(EFFECT_TYPE_SINGLE)
+            e1:SetCode(EFFECT_UPDATE_ATTACK)
+            e1:SetReset(RESET_EVENT + RESETS_STANDARD + RESET_PHASE + PHASE_END)
+            e1:SetValue(ct * 400)
+            tc:RegisterEffect(e1)
+        end
     end
 end
 
