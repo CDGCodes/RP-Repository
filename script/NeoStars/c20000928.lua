@@ -30,7 +30,7 @@ function s.initial_effect(c)
     e3:SetDescription(aux.Stringid(id, 2))
     e3:SetType(EFFECT_TYPE_IGNITION)
     e3:SetRange(LOCATION_MZONE)
-    e3:SetTarget(s.substituteTarget)
+    e3:SetCost(s.substituteCost)
     e3:SetOperation(s.substituteOperation)
     c:RegisterEffect(e3)
 
@@ -85,29 +85,30 @@ function s.protectionOperation(e, tp, eg, ep, ev, re, r, rp)
     end
 end
 
+--Fusion Substitute Filter
+function s.substituteFilter(c)
+    return c:IsSetCard(0x1f) and c:IsAbleToGraveAsCost()
+end
 -- Activate Fusion Substitute effect
-function s.substituteTarget(e, tp, eg, ep, ev, re, r, rp, chk)
-    if chk==0 then return true end
-    Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, nil, 1, tp, LOCATION_DECK)
+function s.substituteCost(e, tp, eg, ep, ev, re, r, rp, chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.substituteFilter,tp,LOCATION_DECK,0,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local cg=Duel.SelectMatchingCard(tp,s.substituteFilter,tp,LOCATION_DECK,0,1,1,nil)
+	Duel.SendtoGrave(cg,REASON_COST)
+	e:SetLabel(cg:GetFirst():GetCode())
 end
 
 -- Fusion Substitute effect operation
 function s.substituteOperation(e, tp, eg, ep, ev, re, r, rp)
-    local c = e:GetHandler()
-    -- Select a Neo-Spacian monster
-    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CONFIRM)
-    local code = Duel.AnnounceCard(tp, 0x1f)
-    local card = Duel.CreateToken(tp, code)
-    -- Copy the selected Neo-Spacian monster's name
-    if card then
-        local e1 = Effect.CreateEffect(c)
-        e1:SetType(EFFECT_TYPE_SINGLE)
-        e1:SetCode(EFFECT_CHANGE_CODE)
-        e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-        e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-        e1:SetValue(code)
-        c:RegisterEffect(e1)
-    end
+	local c=e:GetHandler()
+	if not c:IsRelateToEffect(e) or c:IsFacedown() then return end
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetCode(EFFECT_CHANGE_CODE)
+	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+	e1:SetValue(e:GetLabel())
+	c:RegisterEffect(e1)
 end
 
 -- Shuffle into Deck when leaving the field if Special Summoned
