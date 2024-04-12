@@ -102,14 +102,11 @@ function s.leaveCondition(e, tp, eg, ep, ev, re, r, rp)
 end
 
 function s.leave(e, tp, eg, ep, ev, re, r, rp)
-    if e:GetHandler():IsReason(REASON_EFFECT) and e:GetHandler():IsReason(REASON_COST) then return end
-    if Duel.SelectYesNo(tp, aux.Stringid(id, 3)) then
-        Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_ATOHAND)
-        local g = Duel.SelectMatchingCard(tp, s.searchfilter, tp, LOCATION_DECK, 0, 1, 1, nil)
-        if #g > 0 then
-            Duel.SendtoHand(g, nil, REASON_EFFECT)
-            Duel.ConfirmCards(1 - tp, g)
-        end
+    Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_ATOHAND)
+    local g = Duel.SelectMatchingCard(tp, s.searchfilter, tp, LOCATION_DECK, 0, 1, 1, nil)
+    if #g > 0 then
+        Duel.SendtoHand(g, nil, REASON_EFFECT)
+        Duel.ConfirmCards(1 - tp, g)
     end
 end
 
