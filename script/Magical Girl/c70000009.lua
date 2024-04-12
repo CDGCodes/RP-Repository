@@ -10,20 +10,14 @@ function s.initial_effect(c)
 	e2:SetDescription(aux.Stringid(id,0))
 	e2:SetCategory(CATEGORY_LEAVE_GRAVE)
 	e2:SetType(EFFECT_TYPE_IGNITION)
+	e2:SetCountLimit(1,id)
+	e2:SetRange(LOCATION_SZONE)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e2:SetCondition(s.attcon)
 	e2:SetTarget(s.atttg)
 	e2:SetOperation(s.attop)
 	c:RegisterEffect(e2)
-	local e3=e2:Clone()
-	e3:SetCode(EVENT_TO_GRAVE)
-	c:RegisterEffect(e3)
-
 end
 
-function s.attcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(s.attconfilter,1,nil,tp)
-end
 function s.attfilter(c)
 	return c:IsType(TYPE_XYZ) and c:IsSetCard(0x6942)
 end
