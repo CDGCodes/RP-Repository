@@ -32,21 +32,21 @@ function s.initial_effect(c)
     c:RegisterEffect(e2)
 
     -- Search effect when leaving the field
-    local e3 = Effect.CreateEffect(c)
-    e3:SetDescription(aux.Stringid(id, 2))
-    e3:SetCategory(CATEGORY_TOHAND + CATEGORY_SEARCH)
-    e3:SetType(EFFECT_TYPE_SINGLE + EFFECT_TYPE_TRIGGER_O)
-    e3:SetCode(EVENT_LEAVE_FIELD)
-    e3:SetProperty(EFFECT_FLAG_DELAY)
-    e3:SetCondition(s.thcon)
-    e3:SetTarget(s.thtg)
-    e3:SetOperation(s.thop)
-    c:RegisterEffect(e3)
-
-    -- Search effect when sent from hand/deck to GY
-    local e4 = e3:Clone()
-    e4:SetCode(EVENT_TO_GRAVE)
+    local e4 = Effect.CreateEffect(c)
+    e4:SetType(EFFECT_TYPE_SINGLE + EFFECT_TYPE_TRIGGER_O)
+    e4:SetProperty(EFFECT_FLAG_DELAY)
+    e4:SetCode(EVENT_TO_DECK)
+    e4:SetOperation(s.leave)
     c:RegisterEffect(e4)
+
+    local e5 = e4:Clone()
+    e5:SetCode(EVENT_TO_GRAVE)
+    e5:SetCondition(s.leaveCondition)
+    c:RegisterEffect(e5)
+
+    local e6 = e4:Clone()
+    e6:SetCode(EVENT_LEAVE_FIELD)
+    c:RegisterEffect(e6)
 end
 
 -- Special Summon from hand condition
@@ -96,6 +96,25 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
     end
 end
 
+-- Search effect when leaving the field or sent from hand/deck to graveyard
+function s.leaveCondition(e, tp, eg, ep, ev, re, r, rp)
+    local c = e:GetHandler()
+    return not c:IsPreviousLocation(LOCATION_ONFIELD)
+end
+
+function s.leave(e, tp, eg, ep, ev, re, r, rp)
+    if e:GetHandler():IsReason(REASON_EFFECT) and e:GetHandler():IsReason(REASON_COST) then return end
+    if Duel.SelectYesNo(tp, aux.Stringid(id, 3)) then
+        Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_ATOHAND)
+        local g = Duel.SelectMatchingCard(tp, s.searchfilter, tp, LOCATION_DECK, 0, 1, 1, nil)
+        if #g > 0 then
+            Duel.SendtoHand(g, nil, REASON_EFFECT)
+            Duel.ConfirmCards(1 - tp, g)
+        end
+    end
+end
+
+-- Filter for searching cards (listing "Elemental HERO Neos," "Neos Space," or "Neo-Spacian")
 function s.searchfilter(c)
     return c:IsAbleToHand() and (c:IsCode(89943723) or c:IsSetCard(0x9) or c:IsSetCard(0x1f))
 end

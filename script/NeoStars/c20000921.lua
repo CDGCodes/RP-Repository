@@ -46,20 +46,20 @@ function s.initial_effect(c)
 
     -- Search effect when leaving the field or sent from hand/deck to graveyard
     local e4 = Effect.CreateEffect(c)
-    e4:SetType(EFFECT_TYPE_SINGLE + EFFECT_TYPE_CONTINUOUS)
-    e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-    e4:SetCode(EVENT_LEAVE_FIELD)
-    e4:SetCondition(s.leaveCondition)
+    e4:SetType(EFFECT_TYPE_SINGLE + EFFECT_TYPE_TRIGGER_O)
+    e4:SetProperty(EFFECT_FLAG_DELAY)
+    e4:SetCode(EVENT_TO_DECK)
     e4:SetOperation(s.leave)
     c:RegisterEffect(e4)
 
-    -- Search effect when sent from hand to graveyard
-    local e5 = Effect.CreateEffect(c)
-    e5:SetType(EFFECT_TYPE_SINGLE + EFFECT_TYPE_CONTINUOUS)
+    local e5 = e4:Clone()
     e5:SetCode(EVENT_TO_GRAVE)
     e5:SetCondition(s.leaveCondition)
-    e5:SetOperation(s.leave)
     c:RegisterEffect(e5)
+
+    local e6 = e4:Clone()
+    e6:SetCode(EVENT_LEAVE_FIELD)
+    c:RegisterEffect(e6)
 end
 
 -- Special Summon from hand condition
@@ -99,9 +99,7 @@ end
 -- Search effect when leaving the field or sent from hand/deck to graveyard
 function s.leaveCondition(e, tp, eg, ep, ev, re, r, rp)
     local c = e:GetHandler()
-    return c:IsPreviousLocation(LOCATION_MZONE) or
-           c:IsPreviousLocation(LOCATION_HAND) or
-           c:IsPreviousLocation(LOCATION_DECK)
+    return not c:IsPreviousLocation(LOCATION_ONFIELD)
 end
 
 function s.leave(e, tp, eg, ep, ev, re, r, rp)
