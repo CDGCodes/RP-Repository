@@ -1,13 +1,13 @@
 local s, id = GetID()
 
 function s.initial_effect(c)
-    -- Change name to "Neo-Spacian Grand Mole" while on the field, in hand, or in GY
+    -- Change name to "Neo-Spacian Aqua Dolphin" while on the field, in hand, or in GY
     local e0 = Effect.CreateEffect(c)
     e0:SetType(EFFECT_TYPE_SINGLE)
     e0:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
     e0:SetRange(LOCATION_MZONE + LOCATION_HAND + LOCATION_GRAVE)
     e0:SetCode(EFFECT_CHANGE_CODE)
-    e0:SetValue(80344569) -- Card ID for "Neo-Spacian Grand Mole"
+    e0:SetValue(17955766) -- Card ID for "Neo-Spacian Aqua Dolphin"
     c:RegisterEffect(e0)
 
     -- Special Summon condition
@@ -33,15 +33,15 @@ function s.initial_effect(c)
     e2:SetCondition(s.sumcon)
     c:RegisterEffect(e2)
 
-    -- Bounce effect on summon
+    -- Shuffle effect on summon
     local e3 = Effect.CreateEffect(c)
     e3:SetDescription(aux.Stringid(id, 1))
-    e3:SetCategory(CATEGORY_TOHAND)
+    e3:SetCategory(CATEGORY_TODECK)
     e3:SetType(EFFECT_TYPE_SINGLE + EFFECT_TYPE_TRIGGER_O)
     e3:SetCode(EVENT_SPSUMMON_SUCCESS)
-    e3:SetProperty(EFFECT_FLAG_CARD_TARGET + EFFECT_FLAG_DELAY)
-    e3:SetTarget(s.rettg)
-    e3:SetOperation(s.retop)
+    e3:SetProperty(EFFECT_FLAG_DELAY)
+    e3:SetTarget(s.shuffletg)
+    e3:SetOperation(s.shuffleop)
     c:RegisterEffect(e3)
 
     -- Search effect when leaving the field or sent from hand/deck to graveyard
@@ -80,19 +80,18 @@ function s.sumcon(e)
     return Duel.GetFlagEffect(e:GetHandlerPlayer(), id) ~= 0
 end
 
--- Bounce target
-function s.rettg(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
-    if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsAbleToHand() end
-    if chk == 0 then return Duel.IsExistingTarget(Card.IsAbleToHand, tp, LOCATION_MZONE,LOCATION_MZONE, 1, nil) end
-    Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_RTOHAND)
-    local g = Duel.SelectTarget(tp, Card.IsAbleToHand, tp, LOCATION_MZONE,LOCATION_MZONE, 1, 1, nil)
-    Duel.SetOperationInfo(0, CATEGORY_TOHAND, g, 1, 0, 0)
+-- Shuffle target
+function s.shuffletg(e, tp, eg, ep, ev, re, r, rp, chk)
+    if chk == 0 then return true end
+    local g = Duel.GetFieldGroup(tp, 0, LOCATION_HAND)
+    Duel.SetOperationInfo(0, CATEGORY_TODECK, g, 1, 0, 0)
 end
 
-function s.retop(e, tp, eg, ep, ev, re, r, rp)
-    local tc = Duel.GetFirstTarget()
-    if tc and tc:IsRelateToEffect(e) then
-        Duel.SendtoHand(tc, nil, REASON_EFFECT)
+function s.shuffleop(e, tp, eg, ep, ev, re, r, rp)
+    local g = Duel.GetFieldGroup(tp, 0, LOCATION_HAND)
+    if #g > 0 then
+        local tc = g:RandomSelect(tp, 1):GetFirst()
+        Duel.SendtoDeck(tc, nil, 2, REASON_EFFECT)
     end
 end
 
@@ -122,7 +121,7 @@ end
 
 -- Filter for face-up cards with specific condition
 function s.faceupFilter(c)
-    return c:IsFaceup() and c:IsCode(89943723)
+    return c:IsFaceup() and (c:IsCode(89943723) or c:IsSetCard(0x1f))
 end
 
 -- Filter for cards with a specific set
