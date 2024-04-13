@@ -6,13 +6,24 @@ function s.initial_effect(c)
     e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
     e1:SetCode(EVENT_SUMMON_SUCCESS)
     e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DELAY)
-    e1:SetCountLimit(1,id)
+    e1:SetCountLimit(1,{id,0})
     e1:SetTarget(s.thtg)
     e1:SetOperation(s.thop)
     c:RegisterEffect(e1)
     local e2=e1:Clone()
     e2:SetCode(EVENT_SPSUMMON_SUCCESS)
     c:RegisterEffect(e2)
+    --Special Summon
+    local e3=Effect.CreateEffect(c)
+    e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
+    e3:SetType(EFFECT_TYPE_IGNITION)
+    e3:SetCode(EVENT_FREE_CHAIN)
+    e3:SetRange(LOCATION_HAND)
+    e3:SetCountLimit(1,{id,1})
+    e3:SetCondition(s.spcon)
+    e3:SetTarget(s.sptg)
+    e3:SetOperation(s.spop)
+    c:RegisterEffect(e3)
 end
 function s.thfilter(c)
     return c:IsSetCard(0x467) and c:IsAbleToHand()
@@ -29,12 +40,22 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
         Duel.ConfirmCards(1-tp,G)
     end
 end
+function s.spfilter(c)
+    return c:IsFaceup() and c:IsSetCard(0x467)
+end
+function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+    return Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_MZONE,0,1,nil)
+end
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 end
+    Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
+end
 --Special summon this card from hand, then if player controls another "Imperial" monster, negate 1 card
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local g=Duel.GetMatchingGroup(Card.IsNegatable,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil)
 	if c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)~=0
-		and #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+		and #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
 			Duel.BreakEffect()
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
 			local sg=g:Select(tp,1,1,nil)
