@@ -4,9 +4,38 @@ function s.initial_effect(c)
 	--Xyz Summon
 	c:EnableReviveLimit()
 	Xyz.AddProcedure(c, nil, 5, 2, s.ovfilter, aux.Stringid(id,0))
-	
+		local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e1:SetType(EFFECT_TYPE_IGNITION)
+	e1:SetRange(LOCATION_MZONE)
+	e1:SetCountLimit(1)
+	e1:SetCost(s.sptg)
+	e1:SetOperation(s.spop)
+	c:RegisterEffect(e1,false,REGISTER_FLAG_DETACH_XMAT)
 	end
 	
+	function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local b1=Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp) and e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST)
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and (b1 or b2) end
+	local opt=0
+	if b1 and b2 then
+		opt=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,2))
+	elseif b1 then
+		opt=Duel.SelectOption(tp,aux.Stringid(id,1))
+	else
+		opt=Duel.SelectOption(tp,aux.Stringid(id,2))+1
+	end
+	
+	function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
+	local tc=nil
+	if e:GetLabel()==0 then
+		tc=Duel.GetFirstMatchingCard(s.spfilter,tp,LOCATION_HAND,0,nil,e,tp)
+	else
+		tc=Duel.GetFirstMatchingCard(s.spfilter,tp,LOCATION_DECK,0,nil,e,tp)
+	end
 	
 	function s.ovfilter(c,tp,lc)
 	return c:IsFaceup() and c:IsSummonCode(lc,SUMMON_TYPE_XYZ,tp,70000011)
