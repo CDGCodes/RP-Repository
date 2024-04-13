@@ -8,7 +8,7 @@ function s.initial_effect(c)
     e1:SetType(EFFECT_TYPE_QUICK_O)
     e1:SetRange(LOCATION_HAND + LOCATION_GRAVE)
     e1:SetCode(EVENT_FREE_CHAIN)
-    e1:SetCountLimit(1, id)
+    e1:SetCountLimit(1, {id, 0})
     e1:SetCondition(s.spSummonCondition)
     e1:SetTarget(s.spSummonTarget)
     e1:SetOperation(s.spSummonOperation)
@@ -29,6 +29,7 @@ function s.initial_effect(c)
     e3:SetDescription(aux.Stringid(id, 2))
     e3:SetType(EFFECT_TYPE_IGNITION)
     e3:SetRange(LOCATION_MZONE)
+    e3:SetCountLimit(1, {id, 1})
     e3:SetCost(s.substituteCost)
     e3:SetOperation(s.substituteOperation)
     c:RegisterEffect(e3)
@@ -45,15 +46,13 @@ function s.initial_effect(c)
     local e5=Effect.CreateEffect(c)
     e5:SetCategory(CATEGORY_EQUIP)
     e5:SetType(EFFECT_TYPE_SINGLE + EFFECT_TYPE_TRIGGER_O)
+    e5:SetCountLimit(1, {id, 2})
     e5:SetCode(EVENT_TO_DECK)
     e5:SetProperty(EFFECT_FLAG_DELAY)
     e5:SetCondition(s.eqCondition)
     e5:SetOperation(s.eqOperation)
     c:RegisterEffect(e5)
     aux.AddEREquipLimit(c, nil, aux.TRUE, s.equipLimit, e5)
-    
-    -- Flag to prevent re-equip
-    c:RegisterFlagEffect(id,RESET_EVENT+0x1fe0000,0,1,0)
 end
 
 function s.spSummonCondition(e, tp, eg, ep, ev, re, r, rp)
@@ -118,7 +117,7 @@ end
 function s.shuffleOperation(e, tp, eg, ep, ev, re, r, rp)
     local c = e:GetHandler()
     c:ResetFlagEffect(id)  -- Reset flag when shuffled back to deck
-    if c:IsPreviousPosition(POS_FACEUP) and c:IsSummonType(SUMMON_TYPE_SPECIAL) then
+    if c:IsPreviousPosition(POS_FACEUP) and c:IsSummonType(SUMMON_TYPE_SPECIAL) and c:IsPreviousLocation(LOCATION_MZONE) then
         Duel.SendtoDeck(c, nil, 2, REASON_EFFECT)
     end
 end
@@ -144,10 +143,11 @@ function s.eqOperation(e, tp, eg, ep, ev, re, r, rp)
             e1:SetValue(s.eqlimit)
             e1:SetLabelObject(tc)
             c:RegisterEffect(e1)
-
-            -- Additional flags for equipped monster effects here...
-
-            c:SetFlagEffect(id,RESET_EVENT+0x1fe0000,0,1) -- Set the flag to prevent re-equip
+            local e2=Effect.CreateEffect(c)
+            e2:SetType(EFFECT_TYPE_EQUIP)
+            e2:SetCode(42015635)
+            e2:SetRange(LOCATION_SZONE)
+            c:RegisterEffect(e2)            
         end
     end
 end
