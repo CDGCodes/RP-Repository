@@ -23,12 +23,12 @@ function s.splimit(e, c, sump, sumtype, sumpos, targetp, se)
 end
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingMatchingCard(s.spfilter, tp, LOCATION_DECK+LOCATION_HAND+LOCATION_GRAVE, 0, 1, nil, tp) end
-	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, nil, 1, 0, LOCATION_DECK+LOCATION_HAND+LOCATION_GRAVE)
+		and Duel.IsExistingMatchingCard(s.spfilter, tp, LOCATION_HAND|LOCATION_DECK|LOCATION_GRAVE, 0, 1, nil, tp) end
+	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, nil, 1, 0, LOCATION_HAND|LOCATION_DECK|LOCATION_GRAVE)
 end
 function s.spop(e, tp, eg, ep, ev, re, r, rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectMatchingCard(tp, s.spfilter, tp, LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND, 0, 1, 1, nil, tp)
+	local g=Duel.SelectMatchingCard(tp, aux.NecroValleyFilter(s.spfilter), tp, LOCATION_HAND|LOCATION_DECK|LOCATION_GRAVE, 0, 1, 1, nil, tp)
 	local c=e:GetHandler()
 	if #g>0 then
 		local gc=g:GetFirst()
@@ -54,8 +54,8 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
 		e3:SetValue(ATTRIBUTE_LIGHT)
 		gc:RegisterEffect(e3)
 		Duel.SpecialSummonComplete()
-		if Duel.IsExistingMatchingCard(s.eqfilter, tp, LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND, 0, 1, nil, tp, gc) and Duel.GetLocationCount(tp, LOCATION_SZONE)>0 and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
-			local eg=Duel.SelectMatchingCard(tp, s.eqfilter, tp, LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND, 0, 1, 1, nil, tp, gc)
+		if Duel.IsExistingMatchingCard(s.eqfilter, tp, LOCATION_HAND|LOCATION_DECK|LOCATION_GRAVE, 0, 1, nil, tp, gc) and Duel.GetLocationCount(tp, LOCATION_SZONE)>0 and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
+			local eg=Duel.SelectMatchingCard(tp, aux.NecroValleyFilter(s.eqfilter), tp, LOCATION_HAND|LOCATION_DECK|LOCATION_GRAVE, 0, 1, 1, nil, tp, gc)
 			local egc=eg:GetFirst()
 			Duel.Equip(tp, egc, gc)
 		end
