@@ -31,6 +31,7 @@ end
 	else
 		opt=Duel.SelectOption(tp,aux.Stringid(id,2))+1
 	end
+	end
 	
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
