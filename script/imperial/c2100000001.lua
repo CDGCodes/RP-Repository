@@ -29,3 +29,26 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
         Duel.ConfirmCards(1-tp,G)
     end
 end
+--Special summon this card from hand, then if player controls another "Imperial" monster, negate 1 card
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local g=Duel.GetMatchingGroup(Card.IsNegatable,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil)
+	if c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)~=0
+		and #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+			Duel.BreakEffect()
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
+			local sg=g:Select(tp,1,1,nil)
+			Duel.HintSelection(sg)
+			local tc=sg:GetFirst()
+			Duel.NegateRelatedChain(tc,RESET_TURN_SET)
+			local e1=Effect.CreateEffect(c)
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_DISABLE)
+			e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+			tc:RegisterEffect(e1)
+			local e2=e1:Clone()
+			e2:SetCode(EFFECT_DISABLE_EFFECT)
+			tc:RegisterEffect(e2)
+		end
+end
