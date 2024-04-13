@@ -32,7 +32,7 @@ end
 		opt=Duel.SelectOption(tp,aux.Stringid(id,2))+1
 	end
 	
-	function s.spop(e,tp,eg,ep,ev,re,r,rp)
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local tc=nil
 	if e:GetLabel()==0 then
@@ -40,3 +40,7 @@ end
 	else
 		tc=Duel.GetFirstMatchingCard(s.spfilter,tp,LOCATION_DECK,0,nil,e,tp)
 	end
+	if tc then
+		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
+	end
+end
