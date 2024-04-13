@@ -15,6 +15,10 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1,false,REGISTER_FLAG_DETACH_XMAT)
 	end
 	
+		function s.ovfilter(c,tp,lc)
+	return c:IsFaceup() and c:IsSummonCode(lc,SUMMON_TYPE_XYZ,tp,70000011)
+end
+	
 	function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local b1=Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp) and e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
@@ -36,7 +40,3 @@ function s.initial_effect(c)
 	else
 		tc=Duel.GetFirstMatchingCard(s.spfilter,tp,LOCATION_DECK,0,nil,e,tp)
 	end
-	
-	function s.ovfilter(c,tp,lc)
-	return c:IsFaceup() and c:IsSummonCode(lc,SUMMON_TYPE_XYZ,tp,70000011)
-end
