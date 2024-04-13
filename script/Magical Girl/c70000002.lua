@@ -3,7 +3,7 @@ local s,id=GetID()
 function s.initial_effect(c)
 	--Xyz Summon
 	c:EnableReviveLimit()
-	Xyz.AddProcedure(c, nil, 3, 2, nil, nil, 2)
+	Xyz.AddProcedure(c, nil, 3, 2, s.ovfilter, aux.Stringid(id,0))
 local e1=Effect.CreateEffect(c)
     e1:SetCountLimit(1,id)
 	e1:SetCategory(CATEGORY_DESTROY)
@@ -15,6 +15,10 @@ local e1=Effect.CreateEffect(c)
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
+end
+
+function s.ovfilter(c,tp,lc)
+	return c:IsFaceup() and c:IsSummonCode(lc,SUMMON_TYPE_XYZ,tp,70000001)
 end
 
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)

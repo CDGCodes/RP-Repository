@@ -3,7 +3,7 @@ local s,id=GetID()
 function s.initial_effect(c)
 	--Xyz Summon
 	c:EnableReviveLimit()
-	Xyz.AddProcedure(c, nil, 4, 2, nil, nil, 2)
+	Xyz.AddProcedure(c, nil, 4, 2, s.ovfilter, aux.Stringid(id,0))
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_DISABLE)
@@ -23,6 +23,9 @@ function s.filter(c)
 	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsFaceup()
 end
 
+function s.ovfilter(c,tp,lc)
+	return c:IsFaceup() and c:IsSummonCode(lc,SUMMON_TYPE_XYZ,tp,70000003)
+end
 
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsOnField() and chkc:IsSpellTrap() end

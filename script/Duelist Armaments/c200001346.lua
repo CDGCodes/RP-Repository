@@ -47,8 +47,8 @@ function s.initial_effect(c)
 	--Can attack all monsters
 	local e9=Effect.CreateEffect(c)
 	e9:SetType(EFFECT_TYPE_EQUIP)
-	e9:SetCode(EFFECT_ATTACK_ALL)
-	e9:SetValue(1)
+	e9:SetCode(EFFECT_EXTRA_ATTACK_MONSTER)
+	e9:SetValue(s.spval)
 	c:RegisterEffect(e9)
 	local e10=e9:Clone()
 	e10:SetType(EFFECT_TYPE_SINGLE)
@@ -117,4 +117,13 @@ end
 function s.desop(e, tp, eg, ep, ev, re, r, rp)
 	local g=Duel.GetTargetCards(e)
 	Duel.Destroy(g, REASON_EFFECT)
+end
+
+function s.spfilter(c, e)
+	return c:IsFaceup() and c:IsSpell() and c:IsControler(e:GetHandler():GetControler())
+end
+function s.spval(e)
+	local tp=e:GetHandler():GetControler()
+	--Debug.Message(Duel.GetMatchingGroupCount(s.spfilter, tp, LOCATION_ONFIELD, 0, nil, e))
+	return math.max(Duel.GetMatchingGroupCount(s.spfilter, tp, LOCATION_ONFIELD, 0, nil, e)-1, 0)
 end
