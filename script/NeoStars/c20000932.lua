@@ -41,6 +41,20 @@ function s.initial_effect(c)
     e3:SetTarget(s.xyztg)
     e3:SetOperation(s.xyzop)
     c:RegisterEffect(e3)
+
+    -- New effect: Tribute and Special Summon "Elemental HERO Neos"
+    local e4 = Effect.CreateEffect(c)
+    e4:SetDescription(aux.Stringid(id, 3))
+    e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
+    e4:SetType(EFFECT_TYPE_QUICK_O)
+    e4:SetCode(EVENT_FREE_CHAIN)
+    e4:SetRange(LOCATION_MZONE)
+    e4:SetCountLimit(1, id+3)
+    e4:SetCondition(s.neoscon)
+    e4:SetCost(s.neoscost)
+    e4:SetTarget(s.neostg)
+    e4:SetOperation(s.neosop)
+    c:RegisterEffect(e4)
 end
 
 function s.spcost(e, tp, eg, ep, ev, re, r, rp, chk)
@@ -116,6 +130,47 @@ function s.xyzop(e,tp,eg,ep,ev,re,r,rp)
     local g = Duel.SelectMatchingCard(tp, s.xyzfilter, tp, LOCATION_HAND+LOCATION_GRAVE+LOCATION_REMOVED, 0, 1, 1, nil)
     local tc = g:GetFirst()
     if tc then
-        Duel.Overlay(e:GetHandler(), tc) -- Overlay the specific card tc, not the group g
+        Duel.Overlay(e:GetHandler(), tc)
+    end
+end
+
+function s.neosfilter(c, tp)  -- Ensure tp is explicitly referenced
+    return (c:IsSetCard(0x1f) or c:GetCode() == 20000933) and c:IsControler(tp) and c:IsFaceup() and c:IsLocation(LOCATION_MZONE)
+end
+
+function s.neoscon(e,tp,eg,ep,ev,re,r,rp)
+    return Duel.GetTurnPlayer() == tp
+end
+
+function s.neoscost(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk == 0 then
+        return Duel.CheckReleaseGroup(tp, s.neosfilter, 2, nil, tp)  -- Pass tp explicitly to the filter
+    end
+    local g = Duel.SelectReleaseGroup(tp, s.neosfilter, 2, 2, nil, tp)
+    Duel.Release(g, REASON_COST)
+end
+
+function s.neostg(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk == 0 then
+        return Duel.GetLocationCount(tp, LOCATION_MZONE)>0 and
+               Duel.IsExistingMatchingCard(s.neofilter, tp, LOCATION_HAND+LOCATION_GRAVE, 0, 1, nil, e, tp)
+    end
+    Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, nil, 1, tp, LOCATION_HAND+LOCATION_GRAVE)
+end
+function s.neofilter(c,e,tp)
+    return c:IsCanBeSpecialSummoned(e, 0, tp, false, false) and c:IsCode(89943723)
+end
+
+function s.neosop(e,tp,eg,ep,ev,re,r,rp)
+    if Duel.GetLocationCount(tp, LOCATION_MZONE) <= 0 then return end
+    Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_SPSUMMON)
+    local g = Duel.SelectMatchingCard(tp, aux.NecroValleyFilter(Card.IsCode), tp, LOCATION_HAND+LOCATION_GRAVE, 0, 1, 1, nil, 89943723)
+    if #g > 0 then
+        Duel.SpecialSummon(g, 0, tp, tp, false, false, POS_FACEUP)
+        local e1 = Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_CANNOT_ATTACK)
+        e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+        g:GetFirst():RegisterEffect(e1)
     end
 end
