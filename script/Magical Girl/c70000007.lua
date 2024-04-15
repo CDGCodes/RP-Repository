@@ -12,7 +12,7 @@ function s.initial_effect(c)
 	e2:SetRange(LOCATION_FZONE)
 	e2:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
 	e2:SetTarget(aux.TargetBoolFunction(Card.IsSetCard,0x6942))
-	e2:SetValue(200)
+	e2:SetValue(s.atkval)
 	c:RegisterEffect(e2)
 	
 		local e3=Effect.CreateEffect(c)
@@ -25,6 +25,13 @@ function s.initial_effect(c)
 	e3:SetTarget(function(_,c) return c:IsMonster() and c:IsSetCard(0x6942) and c:IsFaceup() end)
 	c:RegisterEffect(e3)
 	
+end
+
+function s.atkfilter(c)
+	return c:IsSetCard(0x6942)
+end
+function s.atkval(e, c)
+	return Duel.GetMatchingGroupCount(s.atkfilter, e:GetHandlerPlayer(), LOCATION_MZONE, 0, nil, nil)*200
 end
 
 function s.indct(e,re,r,rp)
