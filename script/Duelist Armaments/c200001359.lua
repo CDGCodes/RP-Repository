@@ -4,24 +4,8 @@ function s.initial_effect(c)
 	--Summon Restrictions
 	c:SetUniqueOnField(1, 0, s.armfusfilter, LOCATION_MZONE, c)
 	c:EnableReviveLimit()
+	Fusion.AddProcMixN(c,true,true,s.ffilter,2)
 	c:SetSPSummonOnce(id)
-	--Special Summoning Condition
-	local e0=Effect.CreateEffect(c)
-	e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-	e0:SetType(EFFECT_TYPE_SINGLE)
-	e0:SetCode(EFFECT_SPSUMMON_CONDITION)
-	e0:SetValue(aux.fuslimit)
-	c:RegisterEffect(e0)
-	--Special Summoning Procedure
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetCode(EFFECT_SPSUMMON_PROC)
-	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-	e1:SetRange(LOCATION_EXTRA)
-	e1:SetCondition(s.sumcon)
-	e1:SetTarget(s.sumtgt)
-	e1:SetOperation(s.sumop)
-	c:RegisterEffect(e1)
 	--Equip card on field
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id, 0))
@@ -68,13 +52,15 @@ function s.initial_effect(c)
 	c:RegisterEffect(e5)
 end
 
+
 function s.armfusfilter(c)
-	return c:IsSetCard(0xFEDC) and c:IsType(TYPE_FUSION)
+	return c:IsSetCard(0xFEDC) and c:IsType(TYPE_FUSION+TYPE_XYZ+TYPE_SYNCHRO)
 end
 
-function s.sumfilter(c)
-	return c:IsType(TYPE_SPELL) and c:IsFaceup() and c:IsSetCard(0xFEDC) and c:IsAbleToGraveAsCost()
+function s.ffilter(c,fc,sumtype,tp)
+	return c:IsSetCard(0xFEDC,fc,sumtype,tp) and c:IsOnField()
 end
+
 function s.sumcon(e, c)
 	if c==nil then return true end
 	local tp=c:GetControler()
