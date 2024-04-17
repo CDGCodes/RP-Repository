@@ -12,7 +12,7 @@ end
 s.listed_series={0x6942}
 
 function s.filter(c,e,tp)
-	return c:IsSetCard(0x6942)
+	return c:IsSetCard(0x6942) and c:IsRace(RACE_SPELLCASTER) and c:IsAbleToHand()
 end
 
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
