@@ -81,7 +81,7 @@ function s.stage2(e,tc,tp,mg,chk)
 end
 
 function s.xsfilter(c, tp)
-	return c:IsSetCard(0xFEDC) and c:IsType(TYPE_EQUIP) and Duel.IsPlayerCanSpecialSummonMonster(tp, c:GetCode(), 0xFEDC, 0x21, 1000, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT)
+	return c:IsSetCard(0xFEDC) and c:IsType(TYPE_EQUIP) and Duel.IsPlayerCanSpecialSummonMonster(tp, c:GetCode(), 0xFEDC, 0x21, 1000, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT) and c:IsFaceup()
 end
 function s.xstarget(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.xsfilter, tp, LOCATION_SZONE, 0, 1, nil, tp) end
@@ -158,4 +158,8 @@ function s.xsop(e, tp, eg, ep, ev, re, r, rp)
 			end
 		end
 	end
+end
+
+function s.dircon(e)
+	return e:GetHandler():IsAttackPos() and e:GetHandler():IsType(TYPE_EFFECT)
 end
