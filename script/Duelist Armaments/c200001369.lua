@@ -12,6 +12,7 @@ function s.initial_effect(c)
 	local e2=e1:Clone()
 	e2:SetCode(EFFECT_UPDATE_DEFENSE)
 	c:RegisterEffect(e2)
+	--Fusion Summon
     local params = {nil,Fusion.OnFieldMat,s.fextra, nil, nil, s.stage2}
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,0))
@@ -24,6 +25,7 @@ function s.initial_effect(c)
 	e3:SetTarget(Fusion.SummonEffTG(table.unpack(params)))
 	e3:SetOperation(Fusion.SummonEffOP(table.unpack(params)))
 	c:RegisterEffect(e3)
+	--Summon 2 Equips, then Synchro or Xyz Summon
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id, 1))
 	e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
@@ -36,6 +38,22 @@ function s.initial_effect(c)
 	e4:SetTarget(s.xstarget)
 	e4:SetOperation(s.xsop)
 	c:RegisterEffect(e4)
+	--Copy Equip Effects as Effect Monster
+	local e5=e1:Clone()
+	e5:SetType(EFFECT_TYPE_SINGLE)
+	c:RegisterEffect(e5)
+	local e6=e2:Clone()
+	e6:SetType(EFFECT_TYPE_SINGLE)
+	c:RegisterEffect(e6)
+	--Allow direct attacks
+	local e7=Effect.CreateEffect(c)
+	e7:SetType(EFFECT_TYPE_SINGLE)
+	e7:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+	e7:SetCode(EFFECT_IGNORE_BATTLE_TARGET)
+	e7:SetRange(LOCATION_MZONE)
+	e7:SetValue(1)
+	e7:SetCondition(s.dircon)
+	c:RegisterEffect(e7)
 end
 
 function s.splimit(e, c, sump, sumtype, sumpos, targetp, se)
@@ -66,7 +84,7 @@ function s.xsfilter(c, tp)
 	return c:IsSetCard(0xFEDC) and c:IsType(TYPE_EQUIP) and Duel.IsPlayerCanSpecialSummonMonster(tp, c:GetCode(), 0xFEDC, 0x21, 1000, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT)
 end
 function s.xstarget(e, tp, eg, ep, ev, re, r, rp, chk)
-	if chk==0 then return Duel.IsExistingTarget(s.xsfilter, tp, LOCATION_SZONE, 0, 1, nil, tp) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.xsfilter, tp, LOCATION_SZONE, 0, 1, nil, tp) end
 	if Duel.IsPlayerAffectedByEffect(tp, CARD_BLUEEYES_SPIRIT) then
 		local g=Duel.SelectTarget(tp, s.xsfilter, tp, LOCATION_SZONE, 0, 1, 1)
 		if #g>0 then
