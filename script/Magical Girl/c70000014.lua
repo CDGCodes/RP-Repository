@@ -12,7 +12,7 @@ end
 s.listed_series={0x6942}
 
 function s.filter(c,e,tp)
-	return c:IsSetCard(0x6942) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE)
+	return c:IsSetCard(0x6942)
 end
 
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
