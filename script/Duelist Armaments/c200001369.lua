@@ -57,8 +57,7 @@ function s.initial_effect(c)
 end
 
 function s.splimit(e, c, sump, sumtype, sumpos, targetp, se)
-	if se:GetHandler():IsSpell() then return false end
-	return (c:IsLocation(LOCATION_DECK) or c:IsLocation(LOCATION_HAND))
+	return not se:GetHandler():IsSpell()
 end
 function s.checkmat(tp,sg,fc)
 	return fc:IsSetCard(0xFEDC) or not sg:IsExists(Card.IsLocation,1,nil,LOCATION_SZONE)
@@ -98,7 +97,7 @@ function s.xstarget(e, tp, eg, ep, ev, re, r, rp, chk)
 	end
 end
 function s.exfilter(c)
-	return (c:IsSynchroSummonable() or c:IsXyzSummonable()) and c:IsSetCard(0xFEDC)
+	return (c:IsSynchroSummonable() or c:IsXyzSummonable())
 end
 function s.xsop(e, tp, eg, ep, ev, re, r, rp)
 	local c=e:GetHandler()
