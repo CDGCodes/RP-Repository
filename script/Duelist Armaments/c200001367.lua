@@ -89,6 +89,10 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
 		e3:SetCode(EFFECT_CHANGE_ATTRIBUTE)
 		e3:SetValue(ATTRIBUTE_LIGHT)
 		tc:RegisterEffect(e3)
+		local e4=e0:Clone()
+		e4:SetCode(EFFECT_CHANGE_LEVEL)
+		e4:SetValue(2)
+		tc:RegisterEffect(e4)
 		Duel.SpecialSummonComplete()
 	end
 	-- Spell Summon Restriction
