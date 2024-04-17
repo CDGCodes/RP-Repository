@@ -97,7 +97,7 @@ function s.xstarget(e, tp, eg, ep, ev, re, r, rp, chk)
 	end
 end
 function s.exfilter(c)
-	return (c:IsSynchroSummonable() or c:IsXyzSummonable())
+	return (c:IsSynchroSummonable() or c:IsXyzSummonable()) and c:IsSetCard(0xFEDC)
 end
 function s.xsop(e, tp, eg, ep, ev, re, r, rp)
 	local c=e:GetHandler()
