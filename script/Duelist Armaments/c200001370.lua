@@ -16,7 +16,7 @@ function s.initial_effect(c)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCountLimit(1, id, EFFECT_COUNT_CODE_SINGLE)
 	e1:SetHintTiming(0, TIMINGS_CHECK_MONSTER_E)
-	e1:SetCost(aux.dxmcostgen(1,1,nil))
+	e1:SetCost(s.desaltcost)
 	e1:SetTarget(s.destg)
 	e1:SetOperation(s.desop)
 	c:RegisterEffect(e1,false,REGISTER_FLAG_DETACH_XMAT)
@@ -69,6 +69,27 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	if tc:IsRelateToEffect(e) then
 		Duel.Destroy(tc,REASON_EFFECT)
 	end
+end
+function s.cfilter(c)
+	return c:IsSpell() and c:IsAbleToGraveAsCost()
+end
+function s.desaltcost(e, tp, eg, ep, ev, re, r, rp, chk)
+	local c=e:GetHandler()
+    if chk==0 then return c:GetEquipGroup():IsExists(s.cfilter, 1, nil) or c:CheckRemoveOverlayCard(tp, 1, REASON_COST) end
+	if c:CheckRemoveOverlayCard(tp, 1, REASON_COST) then
+		if c:GetEquipGroup():IsExists(s.cfilter, 1, nil) and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+			local g=c:GetEquipGroup():FilterSelect(tp,s.cfilter,1,1,nil)
+			Duel.SendtoGrave(g,REASON_COST)
+			return
+		else
+			c:RemoveOverlayCard(tp,1,1,REASON_COST)
+			return
+		end
+	end
+    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local g=c:GetEquipGroup():FilterSelect(tp,s.cfilter,1,1,nil)
+	Duel.SendtoGrave(g,REASON_COST)
 end
 
 function s.geqcon(e, tp, eg, ep, ev, re, r, rp)
