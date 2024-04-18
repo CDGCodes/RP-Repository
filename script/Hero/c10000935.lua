@@ -2,13 +2,12 @@ local s, id = GetID()
 
 function s.initial_effect(c)
     -- Name treated as Elemental HERO Avian
-    local e1=Effect.CreateEffect(c)
+    local e1 = Effect.CreateEffect(c)
     e1:SetType(EFFECT_TYPE_SINGLE)
-    e1:SetCode(EFFECT_CHANGE_CODE)
-    e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-    e1:SetValue(21844576) -- Elemental HERO Avian's card ID
+    e1:SetCode(EFFECT_ADD_CODE)
+    e1:SetValue(21844576)  -- Code of "Elemental HERO Burstinatrix"
     c:RegisterEffect(e1)
-
+    
     -- Add "Dark Fusion" or "Dark Calling" from deck or graveyard to hand
     local e2=Effect.CreateEffect(c)
     e2:SetDescription(aux.Stringid(id,0))
