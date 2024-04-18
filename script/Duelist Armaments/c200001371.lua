@@ -60,7 +60,7 @@ function s.feqfilter(c, tp)
 end
 function s.deqfilter(c, sc, tp)
     if not c:CheckUniqueOnField(tp) then return false end
-    return c:IsType(TYPE_EQUIP) and c:CheckEquipTarget(sc)
+    return c:IsSetCard(0xFEDC) and c:IsType(TYPE_EQUIP) and c:CheckEquipTarget(sc)
 end
 function s.deqtgt(e, tp, eg, ep, ev, re, r, rp, chk)
     if chk==0 then return Duel.IsExistingTarget(s.feqfilter, tp, LOCATION_MZONE, 0, 1, nil, tp) end
@@ -74,7 +74,7 @@ function s.deqop(e, tp, eg, ep, ev, re, r, rp)
 	local g=Duel.SelectMatchingCard(tp, aux.NecroValleyFilter(s.deqfilter), tp, LOCATION_DECK|LOCATION_GRAVE, 0, 1, 1, nil, tc, tp)
 	local gc=g:GetFirst()
 	if gc then
-		Duel.Equip(tp,gc,c)
+		Duel.Equip(tp,gc,tc)
 	end
 end
 
