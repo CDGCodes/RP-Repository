@@ -54,7 +54,7 @@ end
 
 
 function s.armfusfilter(c)
-	return c:IsSetCard(0xFEDC) and c:IsType(TYPE_FUSION+TYPE_XYZ+TYPE_SYNCHRO)
+	return c:IsSpell() and c:IsType(TYPE_FUSION+TYPE_XYZ+TYPE_SYNCHRO)
 end
 
 function s.ffilter(c,fc,sumtype,tp)
