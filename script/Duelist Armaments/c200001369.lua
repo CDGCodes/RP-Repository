@@ -131,6 +131,16 @@ function s.xsop(e, tp, eg, ep, ev, re, r, rp)
 				e4:SetCode(EFFECT_CHANGE_LEVEL)
 				e4:SetValue(2)
 				tc:RegisterEffect(e4)
+				--Cannot activate its effects
+				local e5=e1:Clone()
+				e5:SetDescription(3302)
+				e5:SetCode(EFFECT_CANNOT_TRIGGER)
+				e5:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CLIENT_HINT)
+				tc:RegisterEffect(e5)
+				local e6=e5:Clone()
+				e6:SetDescription(3206)
+				e6:SetCode(EFFECT_CANNOT_ATTACK)
+				tc:RegisterEffect(e6)
 			end
 		end
 		Duel.SpecialSummonComplete()
