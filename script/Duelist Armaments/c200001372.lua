@@ -4,7 +4,7 @@ function s.initial_effect(c)
     --Summon Restrictions
 	c:SetUniqueOnField(1, 0, s.armfusfilter, LOCATION_MZONE, c)
 	c:EnableReviveLimit()
-	Fusion.AddProcMix(c, true, true, s.ffilter2, s.ffilter, s.ffilter)
+	Fusion.AddProcMixN(c, true, true, s.ffilter2, 1, s.ffilter, 2)
 	c:SetSPSummonOnce(id)
     --Equip card on field
 	local e0=Effect.CreateEffect(c)
