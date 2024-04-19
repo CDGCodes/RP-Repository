@@ -10,10 +10,10 @@ function s.initial_effect(c)
 	local e0=Effect.CreateEffect(c)
 	e0:SetDescription(aux.Stringid(id, 0))
 	e0:SetCategory(CATEGORY_EQUIP)
-	e0:SetType(EFFECT_TYPE_TRIGGER_O)
+	e0:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e0:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e0:SetCondition(function(e) return e:GetHandler():IsSummonType(SUMMON_TYPE_FUSION) end)
-	e0:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e0:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DELAY)
 	e0:SetTarget(s.feqtgt)
 	e0:SetOperation(s.feqop)
 	c:RegisterEffect(e0)
@@ -36,7 +36,7 @@ function s.feqfilter(c, e, tp)
 	if c==e:GetHandler() or not c:IsFaceup() then return false end
 	if c:GetEquipTarget() and c:GetEquipTarget()==e:GetHandler() then return false end
     if c:IsControler(1-tp) and not c:IsAbleToChangeControler() then return false end
-	return (c:CheckEquipTarget(e:GetHandler()) or not c:IsType(TYPE_EQUIP))
+	return (c:CheckEquipTarget(e:GetHandler()) or not c:IsType(TYPE_EQUIP)) and c:CheckUniqueOnField(tp)
 end
 function s.feqtgt(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
 	if chkc then return true end
