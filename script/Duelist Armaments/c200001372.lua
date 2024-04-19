@@ -1,6 +1,6 @@
 --Duelist Armaments - Violet Armor
 local s, id=GetID()
-function initial_effect(c)
+function s.initial_effect(c)
     --Summon Restrictions
 	c:SetUniqueOnField(1, 0, s.armfusfilter, LOCATION_MZONE, c)
 	c:EnableReviveLimit()
