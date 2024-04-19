@@ -133,7 +133,7 @@ end
 function s.negcon(e, tp, eg, ep, ev, re, r, rp)
 	local c=e:GetHandler()
 	if c:IsStatus(STATUS_BATTLE_DESTROYED) or not Duel.IsChainNegatable(ev) then return false end
-	if not (rp==1-tp and re:IsHasProperty(EFFECT_FLAG_CARD_TARGET)) then return false end
+	if not (rp==1-tp and re:IsHasProperty(EFFECT_FLAG_CARD_TARGET) and eg:GetFirst():IsMonster()) then return false end
 	local tg=Duel.GetChainInfo(ev,CHAININFO_TARGET_CARDS)
 	if not (tg and tg:IsExists(s.tfilter,1,nil,tp) and Duel.IsChainDisablable(ev)) then return false end
 	return (c:IsLocation(LOCATION_SZONE) and c:GetEquipTarget()) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
