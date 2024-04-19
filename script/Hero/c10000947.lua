@@ -1,12 +1,12 @@
--- Evil Domination!!!
 local s, id = GetID()
 
 function s.initial_effect(c)
-    -- Activate
+    -- Activate (Quick Effect to Special Summon Fusion Monster ignoring conditions)
     local e1 = Effect.CreateEffect(c)
     e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
     e1:SetType(EFFECT_TYPE_QUICK_O)
     e1:SetCode(EVENT_FREE_CHAIN)
+    e1:SetRange(LOCATION_HAND + LOCATION_MZONE)
     e1:SetCost(s.cost)
     e1:SetTarget(s.target)
     e1:SetOperation(s.activate)
@@ -58,30 +58,27 @@ end
 
 function s.target(e, tp, eg, ep, ev, re, r, rp, chk)
     if chk == 0 then
-        return Duel.IsExistingMatchingCard(s.filterFusion, tp, LOCATION_EXTRA, 0, 1, nil, e, tp)
+        return Duel.GetLocationCount(tp, LOCATION_MZONE) > 0
+            and Duel.IsExistingMatchingCard(s.filterFusion, tp, LOCATION_EXTRA, 0, 1, nil, e, tp)
     end
     Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, nil, 1, tp, LOCATION_EXTRA)
 end
 
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
-    -- Special Summon from Extra Deck
-    local g = Duel.SelectMatchingCard(tp, s.filterFusion, tp, LOCATION_EXTRA, 0, 1, 1, nil, e, tp)
-    if #g > 0 then
-        local tc = g:GetFirst()
-        if Duel.SpecialSummon(tc, SUMMON_TYPE_FUSION, tp, tp, false, false, POS_FACEUP) then
-            -- Manually apply the Fusion Summon effect
-            local e1 = Effect.CreateEffect(e:GetHandler())
-            e1:SetType(EFFECT_TYPE_SINGLE)
-            e1:SetCode(EFFECT_FUSION_SUMMON)
-            e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-            e1:SetReset(RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD+RESET_PHASE+PHASE_END,1)
-            tc:RegisterEffect(e1,true)
-        end
+    if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
+    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+    local g=Duel.SelectMatchingCard(tp,s.filterFusion,tp,LOCATION_EXTRA,0,1,1,nil,e,tp)
+    local tc=g:GetFirst()
+    if tc and Duel.SpecialSummon(tc,SUMMON_TYPE_FUSION,tp,tp,true,false,POS_FACEUP)~=0 then
+        tc:CompleteProcedure()
+        -- Move the card from the hand to the Graveyard
+        Duel.SendtoGrave(e:GetHandler(),REASON_EFFECT)
     end
 end
 
+
 function s.thfilter(c)
-    return c:IsSetCard(0x6008) and c:IsType(TYPE_MONSTER) or (c:IsSetCard(0x6008) and c:IsType(TYPE_SPELL))
+    return c:IsSetCard(0x6008) and (c:IsType(TYPE_MONSTER) or c:IsType(TYPE_SPELL)) and c:IsAbleToHand()
 end
 
 function s.thtg(e, tp, eg, ep, ev, re, r, rp, chk)
@@ -94,7 +91,7 @@ end
 function s.thop(e, tp, eg, ep, ev, re, r, rp)
     Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_ATOHAND)
     local g = Duel.SelectMatchingCard(tp, s.thfilter, tp, LOCATION_DECK, 0, 1, 1, nil)
-    if #g > 0 then
+    if g:GetCount() > 0 then
         Duel.SendtoHand(g, nil, REASON_EFFECT)
         Duel.ConfirmCards(1 - tp, g)
     end
