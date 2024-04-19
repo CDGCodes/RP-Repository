@@ -88,12 +88,13 @@ function s.drawOperation(e, tp, eg, ep, ev, re, r, rp)
     Duel.Draw(p, 2, REASON_EFFECT)
 end
 
--- Material condition
+-- Material condition adjusted for Fusion Summon only
 function s.materialCondition(e, tp, eg, ep, ev, re, r, rp)
     local c = e:GetHandler()
     local rc = c:GetReasonCard()
-    return rc and (rc:IsSetCard(0x8) or rc:IsSetCard(0x1f)) and rc:IsType(TYPE_MONSTER)
+    return rc and rc:IsType(TYPE_FUSION) and rc:IsSetCard(0x8)  -- Check if the reason card is a Fusion Monster from HERO archetype
 end
+
 
 -- Material target
 function s.materialTarget(e, tp, eg, ep, ev, re, r, rp, chk)
