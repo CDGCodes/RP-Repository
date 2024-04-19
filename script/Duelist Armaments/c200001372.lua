@@ -8,7 +8,6 @@ function s.initial_effect(c)
 	c:SetSPSummonOnce(id)
     --Equip card on field
 	local e0=Effect.CreateEffect(c)
-	e0:SetDescription(aux.Stringid(id, 0))
 	e0:SetCategory(CATEGORY_EQUIP)
 	e0:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e0:SetCode(EVENT_SPSUMMON_SUCCESS)
@@ -18,6 +17,19 @@ function s.initial_effect(c)
 	e0:SetOperation(s.feqop)
 	c:RegisterEffect(e0)
 	aux.AddEREquipLimit(c, nil, aux.True, function(c, e, tp, tc) c:EquipByEffectAndLimitRegister(e, tp, tc, id, true) end, e0)
+    --Negate and Destroy/Equip
+    local e1=Effect.CreateEffect(c)
+    e1:SetCategory(CATEGORY_DISABLE+CATEGORY_EQUIP)
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_QUICK_O)
+    e1:SetCode(EVENT_CHAINING)
+    e1:SetRange(LOCATION_MZONE)
+    e1:SetCountLimit(1, {id, 0})
+    e1:SetCondition(s.negcon)
+    e1:SetCost(s.negcost)
+    e1:SetTarget(s.negtgt)
+    e1:SetOperation(s.negop)
+    c:RegisterEffect(e1)
+    aux.AddEREquipLimit(c, nil, aux.True, function(c, e, tp, tc) c:EquipByEffectAndLimitRegister(e, tp, tc, id, true) end, e1)
     --Equip card from grave
 	local e2=Effect.CreateEffect(c)
 	e2:SetCategory(CATEGORY_EQUIP)
@@ -77,7 +89,50 @@ function s.feqop(e, tp, eg, ep, ev, re, r, rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) then
+		if tc:IsType(TYPE_EQUIP) and tc:IsControler(1-tp) then
+			Duel.MoveToField(tc, tp, tp, LOCATION_SZONE, POS_FACEUP, true)
+		end
 		c:EquipByEffectAndLimitRegister(e, tp, tc, id)
+	end
+end
+
+function s.negcon(e, tp, eg, ep, ev, re, r, rp)
+	local c=e:GetHandler()
+	if re:GetHandlerPlayer()==tp then return false end
+	return not c:IsStatus(STATUS_BATTLE_DESTROYED) and Duel.IsChainNegatable(ev)
+end
+function s.negcostfilter(c)
+	return c:IsSpell() and c:GetEquipTarget() and c:IsAbleToGraveAsCost()
+end
+function s.negcost(e, tp, eg, ep, ev, re, r, rp, chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.negcostfilter, tp, LOCATION_ONFIELD, 0, 1, nil) end
+	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_TOGRAVE)
+	local g=Duel.GetMatchingGroup(s.negcostfilter, tp, LOCATION_ONFIELD, 0, nil)
+	local tc=g:Select(tp, 1, 1, nil)
+	Duel.SendtoGrave(tc, REASON_COST)
+end
+function s.negtgt(e, tp, eg, ep, ev, re, r, rp, chk)
+	if chk==0 then return true end
+	Duel.SetOperationInfo(0, CATEGORY_DISABLE, eg, 1, 0, 0)
+	local rc=re:GetHandler()
+	if rc:IsDestructable() and rc:IsRelateToEffect(re) then
+		Duel.SetOperationInfo(0, CATEGORY_DESTROY, eg, 1, 0, 0)
+	end
+	if (rc:IsMonster() or rc:IsType(TYPE_EQUIP)) and rc:IsAbleToChangeControler() and rc:IsLocation(LOCATION_ONFIELD) then
+		Duel.SetPossibleOperationInfo(0, CATEGORY_EQUIP, rc, 1, 0, 0)
+	end
+end
+function s.negop(e, tp, eg, ep, ev, re, r, rp)
+	local rc=re:GetHandler()
+	if Duel.NegateEffect(ev) and rc:IsRelateToEffect(re) then
+		if (rc:IsMonster() or rc:IsType(TYPE_EQUIP)) and rc:IsAbleToChangeControler() and rc:IsOnField() and rc:CheckUniqueOnField(tp) and Duel.GetLocationCount(tp, LOCATION_SZONE)>0 and Duel.SelectYesNo(tp, aux.Stringid(id, 0)) then
+			if rc:IsType(TYPE_EQUIP) then
+				Duel.MoveToField(rc, tp, tp, LOCATION_SZONE, POS_FACEUP, true)
+			end
+			e:GetHandler():EquipByEffectAndLimitRegister(e, tp, rc, id)
+		else
+			Duel.Destroy(eg, REASON_EFFECT)
+		end
 	end
 end
 
