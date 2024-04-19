@@ -1,7 +1,8 @@
 local s, id = GetID()
+
 function s.initial_effect(c)
     -- Special Summon condition from hand
-    local e1=Effect.CreateEffect(c)
+    local e1 = Effect.CreateEffect(c)
     e1:SetType(EFFECT_TYPE_FIELD)
     e1:SetCode(EFFECT_SPSUMMON_PROC)
     e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
@@ -11,13 +12,13 @@ function s.initial_effect(c)
     c:RegisterEffect(e1)
 
     -- Quick effect to Special Summon Fusion Monster ignoring conditions
-    local e2=Effect.CreateEffect(c)
+    local e2 = Effect.CreateEffect(c)
     e2:SetDescription(aux.Stringid(id, 0))
     e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
     e2:SetType(EFFECT_TYPE_QUICK_O)
     e2:SetCode(EVENT_FREE_CHAIN)
     e2:SetRange(LOCATION_MZONE)
-    e2:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_END_PHASE)
+    e2:SetHintTiming(0, TIMINGS_CHECK_MONSTER + TIMING_END_PHASE)
     e2:SetCountLimit(1)
     e2:SetCost(s.fuscost)
     e2:SetTarget(s.fustg)
@@ -34,7 +35,7 @@ function s.spcon(e, c)
 end
 
 function s.filter(c)
-    return c:IsSetCard(0x8) and c:IsAbleToDeck() and not c:IsCode(id)
+    return c:IsSetCard(0x6008) and c:IsAbleToDeck() and not c:IsCode(id)
 end
 
 function s.spop(e, tp, eg, ep, ev, re, r, rp, c)
@@ -42,14 +43,14 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp, c)
     Duel.SendtoDeck(tg, nil, 2, REASON_COST)
 end
 
+function s.banfilter(c)
+    return c:IsSetCard(0x8) and c:IsAbleToRemoveAsCost() and not c:IsCode(id)
+end
+
 function s.fuscost(e, tp, eg, ep, ev, re, r, rp, chk)
     if chk == 0 then return Duel.IsExistingMatchingCard(s.banfilter, tp, LOCATION_GRAVE, 0, 1, nil) end
     local g = Duel.SelectMatchingCard(tp, s.banfilter, tp, LOCATION_GRAVE, 0, 1, 1, nil)
     Duel.Remove(g, POS_FACEUP, REASON_COST)
-end
-
-function s.banfilter(c)
-    return c:IsSetCard(0x8) and c:IsAbleToRemoveAsCost() and not c:IsCode(id)
 end
 
 function s.fustg(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
@@ -74,6 +75,23 @@ function s.fusop(e, tp, eg, ep, ev, re, r, rp)
             e2:SetCode(EFFECT_DISABLE_EFFECT)
             e2:SetReset(RESET_EVENT+RESETS_STANDARD)
             tc:RegisterEffect(e2)
+            local e3 = Effect.CreateEffect(e:GetHandler())
+            e3:SetType(EFFECT_TYPE_SINGLE)
+            e3:SetCode(EFFECT_CANNOT_ATTACK_ANNOUNCE)
+            e3:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+            tc:RegisterEffect(e3)
+            local e4 = Effect.CreateEffect(e:GetHandler())
+            e4:SetType(EFFECT_TYPE_FIELD)
+            e4:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+            e4:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+            e4:SetTargetRange(1, 0)
+            e4:SetTarget(s.sumlimit)
+            e4:SetReset(RESET_PHASE+PHASE_END)
+            Duel.RegisterEffect(e4, tp)
         end
     end
+end
+
+function s.sumlimit(e, c, sumtype, tp)
+    return c:IsLocation(LOCATION_EXTRA) and not c:IsSetCard(0x6008)
 end
