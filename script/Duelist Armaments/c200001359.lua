@@ -58,7 +58,7 @@ function s.armfusfilter(c)
 end
 
 function s.ffilter(c,fc,sumtype,tp)
-	return c:IsSetCard(0xFEDC,fc,sumtype,tp) and c:IsOnField()
+	return c:IsType(TYPE_SPELL,fc,sumtype,tp) and c:IsOnField()
 end
 
 function s.sumcon(e, c)
