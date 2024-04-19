@@ -4,7 +4,7 @@ function s.initial_effect(c)
     --Summon Restrictions
 	c:SetUniqueOnField(1, 0, s.armfusfilter, LOCATION_MZONE, c)
 	c:EnableReviveLimit()
-	Fusion.AddProcMixN(c, true, true, s.ffilter2, 1, s.ffilter, 2)
+	Fusion.AddProcMix(c, true, true, s.ffilter2, s.ffilter, s.ffilter)
 	c:SetSPSummonOnce(id)
     --Equip card on field
 	local e0=Effect.CreateEffect(c)
@@ -28,7 +28,7 @@ function s.ffilter(c, fc, sumtype, tp)
 	return c:IsType(TYPE_SPELL,fc,sumtype,tp) and c:IsOnField()
 end
 function s.ffilter2(c, fc, sumtype, tp)
-    return c:IsCode(200001369, fc, sumtype, tp) and c:IsOnField()
+    return c:IsCode(200001369) and c:IsOnField()
 end
 
 function s.feqfilter(c, e, tp)
