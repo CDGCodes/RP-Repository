@@ -32,7 +32,7 @@
  end
  function s.spop(e, tp, eg, ep, ev, re, r, rp)
  	local c=e:GetHandler()
- 	if not c:IsCanBeSpecialSummoned(e, 0, tp, false, false) then return false end
+ 	if not c:IsCanBeSpecialSummoned(e, 0, tp, false, false) or not c:IsRelateToEffect(e) then return false end
  	Duel.SpecialSummon(c, 0, tp, tp, false, false, POS_FACEUP)
  end
  
