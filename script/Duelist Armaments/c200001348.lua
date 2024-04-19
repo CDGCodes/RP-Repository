@@ -44,12 +44,11 @@ function s.initial_effect(c)
 	e8:SetValue(1)
 	e8:SetCondition(s.dircon)
 	c:RegisterEffect(e8)
-	--Negate activated effect
+	--Negate activated effect/attack
 	local e9=Effect.CreateEffect(c)
-	e9:SetCategory(CATEGORY_NEGATE+CATEGORY_DESTROY)
+	e9:SetCategory(CATEGORY_NEGATE+CATEGORY_POSITION)
 	e9:SetType(EFFECT_TYPE_QUICK_O)
 	e9:SetCode(EVENT_CHAINING)
-	e9:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
 	e9:SetCountLimit(1, {id, 1})
 	e9:SetRange(LOCATION_ONFIELD)
 	e9:SetCost(s.negcost)
@@ -57,6 +56,17 @@ function s.initial_effect(c)
 	e9:SetTarget(s.negtgt)
 	e9:SetOperation(s.negop)
 	c:RegisterEffect(e9)
+	local e10=Effect.CreateEffect(c)
+	e10:SetCategory(CATEGORY_POSITION)
+	e10:SetType(EFFECT_TYPE_QUICK_O)
+	e10:SetCode(EVENT_ATTACK_ANNOUNCE)
+	e10:SetCountLimit(1, {id, 1})
+	e10:SetRange(LOCATION_ONFIELD)
+	e10:SetCost(s.negcost)
+	e10:SetCondition(s.atknegcon)
+	e10:SetTarget(s.atknegtgt)
+	e10:SetOperation(s.atknegop)
+	c:RegisterEffect(e10)
 end
 
 function s.spchkfilter(c, e)
@@ -104,26 +114,59 @@ function s.dircon(e)
 	return e:GetHandler():IsAttackPos() and s.effcon(e)
 end
 
+function s.costfilter(c, e)
+	local ec=e:GetHandler()
+	if ec:GetEquipTarget() then
+		if c==ec:GetEquipTarget() then return false end
+	end
+	return c:IsSpell() and c:IsAbleToGraveAsCost() and not c:IsRelateToEffect(e)
+end
 function s.negcost(e, tp, eg, ep, ev, re, r, rp, chk)
-	local c=e:GetHandler()
-	if chk==0 then return (c:GetEquipTarget() or c:IsType(TYPE_EFFECT)) and c:IsAbleToGraveAsCost() end
-	Duel.SendtoGrave(c, REASON_COST)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.costfilter, tp, LOCATION_HAND+LOCATION_ONFIELD, 0, 1, nil, e) end
+	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_TOGRAVE)
+	local g=Duel.SelectMatchingCard(tp, s.costfilter, tp, LOCATION_HAND+LOCATION_ONFIELD, 0, 1, 1, nil, e)
+	Duel.SendtoGrave(g, REASON_COST)
+end
+function s.tfilter(c,tp)
+	return c:IsOnField() and c:IsControler(tp)
 end
 function s.negcon(e, tp, eg, ep, ev, re, r, rp)
 	local c=e:GetHandler()
 	if c:IsStatus(STATUS_BATTLE_DESTROYED) or not Duel.IsChainNegatable(ev) then return false end
+	if not (rp==1-tp and re:IsHasProperty(EFFECT_FLAG_CARD_TARGET)) then return false end
+	local tg=Duel.GetChainInfo(ev,CHAININFO_TARGET_CARDS)
+	if not (tg and tg:IsExists(s.tfilter,1,nil,tp) and Duel.IsChainDisablable(ev)) then return false end
 	return (c:IsLocation(LOCATION_SZONE) and c:GetEquipTarget()) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
 end
 function s.negtgt(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return true end
-	Duel.SetOperationInfo(0, CATEGORY_NEGATE, eg, 1, 0, 0)
+	Duel.SetOperationInfo(0, CATEGORY_DISABLE, eg, 1, 0, 0)
 	if re:GetHandler():IsDestructable() and re:GetHandler():IsRelateToEffect(re) then
-		Duel.SetOperationInfo(0, CATEGORY_DESTROY, eg, 1, 0, 0)
+		Duel.SetPossibleOperationInfo(0, CATEGORY_POSITION, eg, 1, 0, 0)
 	end
 end
+function s.setfilter(c)
+	return c:IsFaceup() and c:IsCanTurnSet()
+end
 function s.negop(e, tp, eg, ep, ev, re, r, rp)
-	if Duel.NegateActivation(ev) and re:GetHandler():IsRelateToEffect(re) then
-		Duel.Destroy(eg, REASON_EFFECT)
+	if Duel.NegateEffect(ev) and re:GetHandler():IsRelateToEffect(re) and s.setfilter(eg:GetFirst()) and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
+		Duel.ChangePosition(eg, POS_FACEDOWN_DEFENSE)
 	end
-	e:GetHandler():RegisterFlagEffect(id, RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END, 0, 0)
+end
+function s.atknegcon(e, tp, eg, ep, ev, re, r, rp)
+	local c=e:GetHandler()
+	local a=Duel.GetAttacker()
+	if a:IsControler(tp) then return false end
+	return (c:IsLocation(LOCATION_SZONE) and c:GetEquipTarget()) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
+end
+function s.atknegtgt(e, tp, eg, ep, ev, re, r, rp, chk)
+	if chk==0 then return true end
+	local a=Duel.GetAttacker()
+	Duel.SetPossibleOperationInfo(0, CATEGORY_POSITION, a, 1, 0, 0)
+end
+function s.atknegop(e, tp, eg, ep, ev, re, r, rp)
+	local a=Duel.GetAttacker()
+	if Duel.NegateAttack() and s.setfilter(a) and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
+		Duel.ChangePosition(a, POS_FACEDOWN_DEFENSE)
+	end
 end
