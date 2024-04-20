@@ -116,7 +116,7 @@ function s.desaltcost(e, tp, eg, ep, ev, re, r, rp, chk)
 	local c=e:GetHandler()
     if chk==0 then return c:GetEquipGroup():IsExists(s.cfilter, 1, nil) or c:CheckRemoveOverlayCard(tp, 1, REASON_COST) end
 	if c:CheckRemoveOverlayCard(tp, 1, REASON_COST) then
-		if c:GetEquipGroup():IsExists(s.cfilter, 1, nil) and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
+		if c:GetEquipGroup():IsExists(s.cfilter, 1, nil) and Duel.SelectYesNo(tp, aux.Stringid(id, 3)) then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 			local g=c:GetEquipGroup():FilterSelect(tp,s.cfilter,1,1,nil)
 			Duel.SendtoGrave(g,REASON_COST)
