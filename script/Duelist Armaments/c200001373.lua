@@ -15,6 +15,20 @@ function s.initial_effect(c)
 	e0:SetTarget(s.ovtgt)
 	e0:SetOperation(s.ovop)
 	c:RegisterEffect(e0)
+	--Target and destroy, or attach if Spell/Trap
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetCategory(CATEGORY_DESTROY)
+	e1:SetType(EFFECT_TYPE_QUICK_O)
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetRange(LOCATION_MZONE)
+	e1:SetCountLimit(1, {id, 0})
+	e1:SetHintTiming(0, TIMINGS_CHECK_MONSTER_E)
+	e1:SetCost(s.desaltcost)
+	e1:SetTarget(s.destg)
+	e1:SetOperation(s.desop)
+	c:RegisterEffect(e1,false,REGISTER_FLAG_DETACH_XMAT)
 	--Equip card from grave
 	local e2=Effect.CreateEffect(c)
 	e2:SetCategory(CATEGORY_EQUIP)
@@ -66,7 +80,54 @@ function s.ovop(e, tp, eg, ep, ev, re, r, rp)
 		local g=Duel.GetMatchingGroup(Card.IsSpellTrap, tp, LOCATION_HAND+LOCATION_ONFIELD, LOCATION_ONFIELD, nil)
 		local tc=g:Select(tp, 1, 1, nil)
 		Duel.Overlay(c, tc, true)
+		if tc:GetEquipTarget() then
+			Duel.Equip(tp, tc, nil)
+		end
 	end
+end
+
+function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsOnField() and chkc:IsFaceup() end
+	if chk==0 then return Duel.IsExistingTarget(aux.True,tp,0,LOCATION_ONFIELD,1,nil) end
+	Duel.Hint(HINT_OPSELECTED,1-tp,e:GetDescription())
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+	local g=Duel.SelectTarget(tp,aux.True,tp,0,LOCATION_ONFIELD,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
+end
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local tc=Duel.GetFirstTarget()
+	if tc:IsRelateToEffect(e) then
+		if tc:IsSpellTrap() and not tc:IsImmuneToEffect(e) and Duel.SelectYesNo(tp, aux.Stringid(id, 0)) then
+			Duel.Overlay(c, tc, true)
+			if tc:GetEquipTarget() then
+				Duel.Equip(tp, tc, nil)
+			end
+		else
+			Duel.Destroy(tc,REASON_EFFECT)
+		end
+	end
+end
+function s.cfilter(c)
+	return c:IsSpell() and c:IsAbleToGraveAsCost()
+end
+function s.desaltcost(e, tp, eg, ep, ev, re, r, rp, chk)
+	local c=e:GetHandler()
+    if chk==0 then return c:GetEquipGroup():IsExists(s.cfilter, 1, nil) or c:CheckRemoveOverlayCard(tp, 1, REASON_COST) end
+	if c:CheckRemoveOverlayCard(tp, 1, REASON_COST) then
+		if c:GetEquipGroup():IsExists(s.cfilter, 1, nil) and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+			local g=c:GetEquipGroup():FilterSelect(tp,s.cfilter,1,1,nil)
+			Duel.SendtoGrave(g,REASON_COST)
+			return
+		else
+			c:RemoveOverlayCard(tp,1,1,REASON_COST)
+			return
+		end
+	end
+    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local g=c:GetEquipGroup():FilterSelect(tp,s.cfilter,1,1,nil)
+	Duel.SendtoGrave(g,REASON_COST)
 end
 
 function s.geqcon(e, tp, eg, ep, ev, re, r, rp)
