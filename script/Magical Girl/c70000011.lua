@@ -12,6 +12,7 @@ function s.initial_effect(c)
 	
 		--lvchange
 	local e2=Effect.CreateEffect(c)
+	e2:SetCountLimit(1,{id,0})
 	e2:SetDescription(aux.Stringid(id,0))
 	e2:SetCategory(CATEGORY_LVCHANGE)
 	e2:SetType(EFFECT_TYPE_IGNITION)
@@ -27,6 +28,9 @@ function s.initial_effect(c)
 	local tp=c:GetControler()
 	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)<Duel.GetFieldGroupCount(tp,0,LOCATION_MZONE)
+end
+function s.lvfilter(c,lv)
+	return c:IsFaceup() and c:GetLevel()~=lv
 end
 
 function s.lvtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)

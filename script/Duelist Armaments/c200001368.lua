@@ -52,6 +52,7 @@ function s.initial_effect(c)
 	e9:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e9:SetCountLimit(1, {id, 1})
 	e9:SetCondition(s.bnccon)
+	e9:SetCost(s.bnccost)
 	e9:SetTarget(s.bnctg)
 	e9:SetOperation(s.bncop)
 	c:RegisterEffect(e9)
@@ -116,6 +117,11 @@ function s.bnccon(e, tp, eg)
 	local dc=e:GetHandler()
 	return (dc:IsLocation(LOCATION_SZONE) and dc:GetEquipTarget()) or (dc:IsLocation(LOCATION_MZONE) and dc:IsType(TYPE_EFFECT))
 end
+function s.bnccost(e, tp, eg, ep, ev, re, r, rp, chk)
+	local c=e:GetHandler()
+	if chk==0 then return (c:GetEquipTarget() or c:IsType(TYPE_EFFECT)) and c:IsAbleToGraveAsCost() end
+	Duel.SendtoGrave(c, REASON_COST)
+end
 function s.bncfilter(c)
 	return c:IsType(TYPE_MONSTER) and c:IsAbleToHand()
 end
@@ -124,13 +130,10 @@ function s.bnctg(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return Duel.IsExistingTarget(s.bncfilter,tp,0,LOCATION_ONFIELD,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
 	local g=Duel.SelectTarget(tp,s.bncfilter,tp,0,LOCATION_ONFIELD,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
 end
 function s.bncop(e, tp, eg, ep, ev, re, r, rp)
-	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) and c:IsRelateToEffect(e) then
+	if tc:IsRelateToEffect(e) then
 		Duel.SendtoHand(tc, nil, REASON_EFFECT)
-		Duel.SendtoHand(e:GetHandler(), nil, REASON_EFFECT)
 	end
 end
