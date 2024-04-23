@@ -18,7 +18,7 @@ function s.eqfilter(c, tp, ec)
 	return c:IsSetCard(0xFEDC) and c:IsType(TYPE_EQUIP) and c:CheckEquipTarget(ec) and c:CheckUniqueOnField(tp)
 end
 function s.splimit(e, c, sump, sumtype, sumpos, targetp, se)
-	if se:GetHandler():IsSpell() then return false end
+	if c:IsRace(RACE_ILLUSION) and c:IsLevel(2) then return false end
 	return (c:IsLocation(LOCATION_DECK) or c:IsLocation(LOCATION_HAND))
 end
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)

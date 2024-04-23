@@ -80,7 +80,7 @@ function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
 	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, e:GetHandler(), 1, 0, 0)
 end
 function s.splimit(e, c, sump, sumtype, sumpos, targetp, se)
-	if se:GetHandler():IsSpell() then return false end
+	if c:IsRace(RACE_ILLUSION) and c:IsLevel(2) then return false end
 	return (c:IsLocation(LOCATION_DECK) or c:IsLocation(LOCATION_HAND))
 end
 function s.spop(e, tp, eg, ep, ev, re, r, rp)
