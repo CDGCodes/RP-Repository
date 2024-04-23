@@ -99,7 +99,7 @@ function s.bantgt(e, tp, eg, ep, ev, re, r, rp, chk)
 	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_REMOVE)
 	local g=Duel.SelectTarget(tp, s.banfilter, tp, LOCATION_GRAVE, LOCATION_GRAVE, 1, 1, nil)
 	local tc=g:GetFirst()
-	if (tc:IsNormalSpell() or tc:IsNormalTrap() or (tc:IsSpellTrap() and tc:IsType(TYPE_COUNTER+TYPE_QUICKPLAY))) and tc:CheckActivateEffect(false, true, false) and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
+	if e:GetHandler():GetFlagEffect(id)==0 and (tc:IsNormalSpell() or tc:IsNormalTrap() or (tc:IsSpellTrap() and tc:IsType(TYPE_COUNTER+TYPE_QUICKPLAY))) and tc:CheckActivateEffect(false, true, false) and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
 		local te, ceg, cep, cev, cre, cr, crp=tc:CheckActivateEffect(false, true, true)
 		Duel.ClearTargetCard()
 		g:GetFirst():CreateEffectRelation(e)
@@ -113,6 +113,11 @@ function s.bantgt(e, tp, eg, ep, ev, re, r, rp, chk)
 end
 function s.banop(e, tp, eg, ep, ev, re, r, rp)
 	if e:GetLabelObject() then
+		if e:GetHandler():IsRelateToEffect(e) then
+			local reset=RESET_SELF_TURN
+			if Duel.IsTurnPlayer(tp) then reset=RESET_OPPO_TURN end
+			e:GetHandler():RegisterFlagEffect(id, RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END+reset, EFFECT_FLAG_CLIENT_HINT, 1, 0, aux.Stringid(id, 3))
+		end
 		local te=e:GetLabelObject()
 		if te and te:GetHandler():IsRelateToEffect(e) then
 			e:SetLabelObject(te:GetLabelObject())
