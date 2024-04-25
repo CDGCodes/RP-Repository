@@ -147,7 +147,10 @@ function s.geqcon(e, tp, eg, ep, ev, re, r, rp)
 	return Duel.GetLocationCount(tp, LOCATION_SZONE)>0
 end
 function s.gfeqfilter(c, sc)
-    return sc:CheckEquipTarget(c)
+	if c:IsType(TYPE_EQUIP) then
+    	return sc:CheckEquipTarget(c)
+	end
+	return true
 end
 function s.geqfilter(c, e, tp)
 	if not c:CheckUniqueOnField(tp) then return false end
