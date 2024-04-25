@@ -132,14 +132,7 @@ function s.desop(e, tp, eg, ep, ev, re, r, rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
 	local loc = c:GetLocation()
-	if tc and tc:IsRelateToEffect(e) and Duel.Destroy(tc, REASON_EFFECT)>0 and c:IsRelateToEffect(e) then
-		local g=Duel.GetMatchingGroup(aux.True, tp, 0, loc, nil)
-		if #g>0 and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
-			Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_DESTROY)
-			local sg=g:Select(tp, 1, 1, nil)
-			Duel.HintSelection(sg)
-			local gc=sg:GetFirst()
-			Duel.Destroy(gc, REASON_EFFECT)
-		end
+	if tc and tc:IsRelateToEffect(e) then
+		Duel.Destroy(tc, REASON_EFFECT)
 	end
 end
