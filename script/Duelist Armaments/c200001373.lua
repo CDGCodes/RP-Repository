@@ -165,5 +165,5 @@ function s.atkvalfilter(c)
 	return c:IsOriginalType(TYPE_MONSTER)
 end
 function s.atkval(e, c)
-	return e:GetHandler():GetEquipGroup():Filter(s.atkvalfilter, nil):GetSum(Card.GetTextAttack)/2
+	return e:GetHandler():GetEquipGroup():Filter(s.atkvalfilter, nil):GetSum(Card.GetTextAttack)
 end
