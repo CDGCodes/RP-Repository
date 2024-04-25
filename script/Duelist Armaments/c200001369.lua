@@ -83,7 +83,7 @@ function s.stage2(e,tc,tp,mg,chk)
 end
 
 function s.xsfilter(c, tp)
-	return c:IsSetCard(0xFEDC) and c:IsType(TYPE_EQUIP) and Duel.IsPlayerCanSpecialSummonMonster(tp, c:GetCode(), 0xFEDC, 0x21, 1000, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT) and c:IsFaceup()
+	return c:IsSetCard(0xEDC) and c:IsType(TYPE_EQUIP) and Duel.IsPlayerCanSpecialSummonMonster(tp, c:GetCode(), 0xEDC, 0x21, 1000, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT) and c:IsFaceup()
 end
 function s.xstarget(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.xsfilter, tp, LOCATION_SZONE, 0, 1, nil, tp) end
@@ -108,7 +108,7 @@ function s.xsop(e, tp, eg, ep, ev, re, r, rp)
 	if (#g>1 and Duel.IsPlayerAffectedByEffect(tp, CARD_BLUEEYES_SPIRIT)) or #g>Duel.GetLocationCount(tp, LOCATION_MZONE) then return end
 	if #g>0 then
 		for tc in aux.Next(g) do
-			if tc:IsRelateToEffect(e) and Duel.IsPlayerCanSpecialSummonMonster(tp, tc:GetCode(), 0xFEDC, 0x21, 1500, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT) then
+			if tc:IsRelateToEffect(e) and Duel.IsPlayerCanSpecialSummonMonster(tp, tc:GetCode(), 0xEDC, 0x21, 1500, 1000, 2, RACE_ILLUSION, ATTRIBUTE_LIGHT) then
 				tc:AddMonsterAttribute(TYPE_EFFECT+TYPE_SPELL+TYPE_TRAPMONSTER)
 				Duel.SpecialSummonStep(tc, 0, tp, tp, true, false, POS_FACEUP)
 				tc:AddMonsterAttributeComplete()
