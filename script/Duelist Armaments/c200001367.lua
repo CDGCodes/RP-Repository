@@ -33,6 +33,7 @@ function s.initial_effect(c)
 	e5:SetRange(LOCATION_GRAVE)
 	e5:SetCode(EVENT_FREE_CHAIN)
 	e5:SetCountLimit(1, {id, 1})
+	e5:SetCondition(s.rtcon)
 	e5:SetCost(s.rtcost)
 	e5:SetTarget(s.rttg)
 	e5:SetOperation(s.rtop)
@@ -107,6 +108,9 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
 	Duel.RegisterEffect(e1, tp)
 end
 
+function s.rtcon(e, tp, eg, ep, ev, re, r, rp)
+	return not Duel.IsExistingMatchingCard(aux.True, tp, LOCATION_ONFIELD, 0, 1, nil)
+end
 function s.rtfilter(c, e)
 	return c:IsSpell() and c:IsAbleToRemoveAsCost() and c~=e:GetHandler()
 end
