@@ -77,7 +77,7 @@ function s.feqfilter(c, e, tp)
 	if c==e:GetHandler() or not c:IsFaceup() then return false end
 	if c:GetEquipTarget() and c:GetEquipTarget()==e:GetHandler() then return false end
     if c:IsControler(1-tp) and not c:IsAbleToChangeControler() then return false end
-	return (c:CheckEquipTarget(e:GetHandler()) or not c:IsType(TYPE_EQUIP)) and c:CheckUniqueOnField(tp)
+	return (c:CheckEquipTarget(e:GetHandler()) or c:IsType(TYPE_MONSTER)) and c:CheckUniqueOnField(tp)
 end
 function s.feqtgt(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
 	if chkc then return true end
@@ -140,7 +140,10 @@ function s.geqcon(e, tp, eg, ep, ev, re, r, rp)
 	return Duel.GetLocationCount(tp, LOCATION_SZONE)>0
 end
 function s.gfeqfilter(c, sc)
-    return sc:CheckEquipTarget(c)
+	if c:IsType(TYPE_EQUIP) then
+    	return sc:CheckEquipTarget(c)
+	end
+	return true
 end
 function s.geqfilter(c, e, tp)
 	if not c:CheckUniqueOnField(tp) then return false end
@@ -167,5 +170,5 @@ function s.atkvalfilter(c)
 	return c:IsOriginalType(TYPE_MONSTER)
 end
 function s.atkval(e, c)
-	return e:GetHandler():GetEquipGroup():Filter(s.atkvalfilter, nil):GetSum(Card.GetTextAttack)
+	return e:GetHandler():GetEquipGroup():Filter(s.atkvalfilter, nil):GetSum(Card.GetTextAttack)/2
 end
