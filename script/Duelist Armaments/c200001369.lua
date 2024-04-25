@@ -57,7 +57,7 @@ function s.initial_effect(c)
 end
 
 function s.splimit(e, c, sump, sumtype, sumpos, targetp, se)
-	return not (se:GetHandler():IsSpell() or c:IsSetCard(0xFEDC))
+	return not c:IsSetCard(0xEDC)
 end
 function s.checkmat(tp,sg,fc)
 	return fc:IsSetCard(0xFEDC) or not sg:IsExists(Card.IsLocation,1,nil,LOCATION_SZONE)

@@ -18,7 +18,7 @@ function s.eqfilter(c, tp, ec)
 	return c:IsSetCard(0xFEDC) and c:IsType(TYPE_EQUIP) and c:CheckEquipTarget(ec) and c:CheckUniqueOnField(tp)
 end
 function s.splimit(e, c, sump, sumtype, sumpos, targetp, se)
-	if se:GetHandler():IsSpell() then return false end
+	if c:IsRace(RACE_ILLUSION) and c:IsLevel(2) then return false end
 	return (c:IsLocation(LOCATION_DECK) or c:IsLocation(LOCATION_HAND))
 end
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
@@ -58,7 +58,7 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
 		e4:SetValue(2)
 		gc:RegisterEffect(e4)
 		Duel.SpecialSummonComplete()
-		if Duel.IsExistingMatchingCard(s.eqfilter, tp, LOCATION_HAND|LOCATION_DECK|LOCATION_GRAVE, 0, 1, nil, tp, gc) and Duel.GetLocationCount(tp, LOCATION_SZONE)>0 and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
+		if gc:IsLocation(LOCATION_MZONE) and Duel.IsExistingMatchingCard(s.eqfilter, tp, LOCATION_HAND|LOCATION_DECK|LOCATION_GRAVE, 0, 1, nil, tp, gc) and Duel.GetLocationCount(tp, LOCATION_SZONE)>0 and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
 			local eg=Duel.SelectMatchingCard(tp, aux.NecroValleyFilter(s.eqfilter), tp, LOCATION_HAND|LOCATION_DECK|LOCATION_GRAVE, 0, 1, 1, nil, tp, gc)
 			local egc=eg:GetFirst()
 			Duel.Equip(tp, egc, gc)
