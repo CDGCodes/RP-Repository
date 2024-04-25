@@ -38,22 +38,6 @@ function s.initial_effect(c)
 	e4:SetTarget(s.xstarget)
 	e4:SetOperation(s.xsop)
 	c:RegisterEffect(e4)
-	--Copy Equip Effects as Effect Monster
-	local e5=e1:Clone()
-	e5:SetType(EFFECT_TYPE_SINGLE)
-	c:RegisterEffect(e5)
-	local e6=e2:Clone()
-	e6:SetType(EFFECT_TYPE_SINGLE)
-	c:RegisterEffect(e6)
-	--Allow direct attacks
-	local e7=Effect.CreateEffect(c)
-	e7:SetType(EFFECT_TYPE_SINGLE)
-	e7:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-	e7:SetCode(EFFECT_IGNORE_BATTLE_TARGET)
-	e7:SetRange(LOCATION_MZONE)
-	e7:SetValue(1)
-	e7:SetCondition(s.dircon)
-	c:RegisterEffect(e7)
 end
 
 function s.splimit(e, c, sump, sumtype, sumpos, targetp, se)
