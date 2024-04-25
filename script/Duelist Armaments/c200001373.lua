@@ -37,11 +37,12 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e2:SetCountLimit(1, {id, 1})
+	e2:SetCountLimit(1, {id, 0})
 	e2:SetCondition(s.geqcon)
+	e2:SetCost(s.desaltcost)
 	e2:SetTarget(s.geqtgt)
 	e2:SetOperation(s.geqop)
-	c:RegisterEffect(e2)
+	c:RegisterEffect(e2,false,REGISTER_FLAG_DETACH_XMAT)
 	aux.AddEREquipLimit(c, nil, aux.True, function(c, e, tp, tc) c:EquipByEffectAndLimitRegister(e, tp, tc, id, true) end, e2)
     --Gains ATK equal to ATK of equipped monsters
 	local e3=Effect.CreateEffect(c)
@@ -51,14 +52,6 @@ function s.initial_effect(c)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetValue(s.atkval)
 	c:RegisterEffect(e3)
-	--Return to Extra Deck is it leaves the field
-	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_SINGLE)
-	e4:SetCode(EFFECT_LEAVE_FIELD_REDIRECT)
-	e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e4:SetCondition(function(e)return e:GetHandler():IsFaceup()end)
-	e4:SetValue(LOCATION_DECKBOT)
-	c:RegisterEffect(e4)
 end
 
 function s.armfusfilter(c)
@@ -80,9 +73,10 @@ function s.ovop(e, tp, eg, ep, ev, re, r, rp)
 	if c:IsRelateToEffect(e) then
 		local g=Duel.GetMatchingGroup(Card.IsSpellTrap, tp, LOCATION_HAND+LOCATION_ONFIELD, LOCATION_ONFIELD, nil)
 		local tc=g:Select(tp, 1, 1, nil)
+		tc:GetFirst():CancelToGrave()
 		Duel.Overlay(c, tc, true)
-		if tc:GetEquipTarget() then
-			Duel.Equip(tp, tc, nil)
+		if tc:GetFirst():GetEquipTarget() then
+			Duel.Equip(tp, tc:GetFirst(), nil)
 		end
 	end
 end
@@ -98,15 +92,8 @@ end
 function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then
-		if tc:IsSpellTrap() and not tc:IsImmuneToEffect(e) and Duel.SelectYesNo(tp, aux.Stringid(id, 0)) then
-			Duel.Overlay(c, tc, true)
-			if tc:GetEquipTarget() then
-				Duel.Equip(tp, tc, nil)
-			end
-		else
-			Duel.Destroy(tc,REASON_EFFECT)
-		end
+	if tc:IsRelateToEffect(e) and Duel.Destroy(tc,REASON_EFFECT)~=0 and tc:IsLocation(LOCATION_GRAVE) and tc:IsSpellTrap() and not tc:IsImmuneToEffect(e) and Duel.SelectYesNo(tp, aux.Stringid(id, 0)) then
+		Duel.Overlay(c, tc, true)
 	end
 end
 function s.cfilter(c)

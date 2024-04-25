@@ -37,8 +37,9 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e2:SetCountLimit(1, {id, 1})
+	e2:SetCountLimit(1, {id, 0})
 	e2:SetCondition(s.geqcon)
+	e2:SetCost(s.geqcost)
 	e2:SetTarget(s.geqtgt)
 	e2:SetOperation(s.geqop)
 	c:RegisterEffect(e2)
@@ -51,14 +52,6 @@ function s.initial_effect(c)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetValue(s.atkval)
 	c:RegisterEffect(e3)
-	--Return to Extra Deck is it leaves the field
-	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_SINGLE)
-	e4:SetCode(EFFECT_LEAVE_FIELD_REDIRECT)
-	e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e4:SetCondition(function(e)return e:GetHandler():IsFaceup()end)
-	e4:SetValue(LOCATION_DECKBOT)
-	c:RegisterEffect(e4)
 end
 
 function s.armfusfilter(c)
@@ -95,9 +88,9 @@ function s.banfilter(c)
 	return c:IsAbleToRemove()
 end
 function s.bantgt(e, tp, eg, ep, ev, re, r, rp, chk)
-	if chk==0 then return Duel.IsExistingTarget(s.banfilter, tp, LOCATION_GRAVE, LOCATION_GRAVE, 1, nil) end
+	if chk==0 then return Duel.IsExistingTarget(s.banfilter, tp, 0, LOCATION_GRAVE, 1, nil) end
 	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_REMOVE)
-	local g=Duel.SelectTarget(tp, s.banfilter, tp, LOCATION_GRAVE, LOCATION_GRAVE, 1, 1, nil)
+	local g=Duel.SelectTarget(tp, s.banfilter, tp, 0, LOCATION_GRAVE, 1, 1, nil)
 	local tc=g:GetFirst()
 	if e:GetHandler():GetFlagEffect(id)==0 and (tc:IsNormalSpell() or tc:IsNormalTrap() or (tc:IsSpellTrap() and tc:IsType(TYPE_COUNTER+TYPE_QUICKPLAY))) and tc:CheckActivateEffect(false, true, false) and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
 		local te, ceg, cep, cev, cre, cr, crp=tc:CheckActivateEffect(false, true, true)
@@ -143,6 +136,13 @@ function s.syncheck(g, sc, tp)
     return g:IsExists(s.syncfilter, 1, nil)
 end
 
+function s.geqcost(e, tp, eg, ep, ev, re, r, rp, chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.bancostfilter, tp, LOCATION_ONFIELD|LOCATION_HAND, 0, 1, nil) end
+	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_TOGRAVE)
+	local g=Duel.GetMatchingGroup(s.bancostfilter, tp, LOCATION_ONFIELD|LOCATION_HAND, 0, nil)
+	local tc=g:Select(tp, 1, 1, nil)
+	Duel.SendtoGrave(tc, REASON_COST)
+end
 function s.geqcon(e, tp, eg, ep, ev, re, r, rp)
 	return Duel.GetLocationCount(tp, LOCATION_SZONE)>0
 end

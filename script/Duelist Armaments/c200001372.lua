@@ -37,8 +37,9 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e2:SetCountLimit(1, {id, 1})
+	e2:SetCountLimit(1, {id, 0})
 	e2:SetCondition(s.geqcon)
+	e2:SetCost(s.negcost)
 	e2:SetTarget(s.geqtgt)
 	e2:SetOperation(s.geqop)
 	c:RegisterEffect(e2)
@@ -51,14 +52,6 @@ function s.initial_effect(c)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetValue(s.atkval)
 	c:RegisterEffect(e3)
-	--Return to Extra Deck is it leaves the field
-	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_SINGLE)
-	e4:SetCode(EFFECT_LEAVE_FIELD_REDIRECT)
-	e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e4:SetCondition(function(e)return e:GetHandler():IsFaceup()end)
-	e4:SetValue(LOCATION_DECKBOT)
-	c:RegisterEffect(e4)
 end
 
 function s.armfusfilter(c)
@@ -124,15 +117,9 @@ function s.negtgt(e, tp, eg, ep, ev, re, r, rp, chk)
 end
 function s.negop(e, tp, eg, ep, ev, re, r, rp)
 	local rc=re:GetHandler()
-	if Duel.NegateEffect(ev) and rc:IsRelateToEffect(re) then
-		if (rc:IsMonster() or rc:IsType(TYPE_EQUIP)) and rc:IsAbleToChangeControler() and rc:IsOnField() and rc:CheckUniqueOnField(tp) and Duel.GetLocationCount(tp, LOCATION_SZONE)>0 and Duel.SelectYesNo(tp, aux.Stringid(id, 0)) then
-			if rc:IsType(TYPE_EQUIP) then
-				Duel.MoveToField(rc, tp, tp, LOCATION_SZONE, POS_FACEUP, true)
-			end
-			e:GetHandler():EquipByEffectAndLimitRegister(e, tp, rc, id)
-		else
-			Duel.Destroy(eg, REASON_EFFECT)
-		end
+	if Duel.NegateEffect(ev) and rc:IsRelateToEffect(re) and Duel.Destroy(eg, REASON_EFFECT)~=0 
+	and (rc:IsMonster() or rc:IsType(TYPE_EQUIP)) and rc:IsAbleToChangeControler() and rc:IsLocation(LOCATION_GRAVE) and rc:CheckUniqueOnField(tp) and Duel.GetLocationCount(tp, LOCATION_SZONE)>0 and Duel.SelectYesNo(tp, aux.Stringid(id, 0)) then
+		e:GetHandler():EquipByEffectAndLimitRegister(e, tp, rc, id)
 	end
 end
 

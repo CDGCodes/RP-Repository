@@ -22,40 +22,18 @@ function s.initial_effect(c)
 	e4:SetTarget(s.sptg)
 	e4:SetOperation(s.spop)
 	c:RegisterEffect(e4)
-	--Copy Equip effects as monster
-	local e6=e2:Clone()
-	e6:SetType(EFFECT_TYPE_SINGLE)
-	e6:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-	e6:SetRange(LOCATION_MZONE)
-	e6:SetCondition(s.effcon)
-	c:RegisterEffect(e6)
-	local e7=e3:Clone()
-	e7:SetType(EFFECT_TYPE_SINGLE)
-	e7:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-	e7:SetRange(LOCATION_MZONE)
-	e7:SetCondition(s.effcon)
-	c:RegisterEffect(e7)
-	--Allow direct attacks
-	local e8=Effect.CreateEffect(c)
-	e8:SetType(EFFECT_TYPE_SINGLE)
-	e8:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-	e8:SetCode(EFFECT_IGNORE_BATTLE_TARGET)
-	e8:SetRange(LOCATION_MZONE)
-	e8:SetValue(1)
-	e8:SetCondition(s.dircon)
-	c:RegisterEffect(e8)
-	--Negate
+	--Destroy
 	local e9=Effect.CreateEffect(c)
-	e9:SetCategory(CATEGORY_DISABLE)
-	e9:SetType(EFFECT_TYPE_IGNITION)
+	e9:SetCategory(CATEGORY_DESTROY)
+	e9:SetType(EFFECT_TYPE_QUICK_O)
 	e9:SetCode(EVENT_FREE_CHAIN)
 	e9:SetRange(LOCATION_ONFIELD)
 	e9:SetCountLimit(1, {id, 1})
 	e9:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e9:SetCost(s.negcost)
-	e9:SetCondition(s.negcon)
-	e9:SetTarget(s.negtgt)
-	e9:SetOperation(s.negop)
+	e9:SetCost(s.descost)
+	e9:SetCondition(s.descon)
+	e9:SetTarget(s.destgt)
+	e9:SetOperation(s.desop)
 	c:RegisterEffect(e9)
 end
 
@@ -100,9 +78,6 @@ end
 function s.effcon(e)
 	return e:GetHandler():IsType(TYPE_EFFECT)
 end
-function s.dircon(e)
-	return e:GetHandler():IsAttackPos() and s.effcon(e)
-end
 
 function s.costfilter(c, e)
 	local ec=e:GetHandler()
@@ -111,59 +86,28 @@ function s.costfilter(c, e)
 	end
 	return c:IsSpell() and c:IsAbleToGraveAsCost() and not c:IsRelateToEffect(e)
 end
-function s.negcost(e, tp, eg, ep, ev, re, r, rp, chk)
+function s.descost(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.costfilter, tp, LOCATION_HAND+LOCATION_ONFIELD, 0, 1, nil, e) end
 	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_TOGRAVE)
 	local g=Duel.SelectMatchingCard(tp, s.costfilter, tp, LOCATION_HAND+LOCATION_ONFIELD, 0, 1, 1, nil, e)
 	Duel.SendtoGrave(g, REASON_COST)
 end
-function s.negcon(e, tp, eg, ep, ev, re, r, rp)
+function s.descon(e, tp, eg, ep, ev, re, r, rp)
 	local c=e:GetHandler()
-	return (c:IsLocation(LOCATION_SZONE) and c:IsType(TYPE_EQUIP)) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
+	return (c:IsLocation(LOCATION_SZONE) and c:GetEquipTarget()) or (c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_EFFECT))
 end
-function s.negtgt(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
-	if chkc then return chkc:IsControler(1-tp) and chkc:IsNegatable() end
-	if chk==0 then return Duel.IsExistingTarget(Card.IsNegatable, tp, 0, LOCATION_ONFIELD, 1, nil) end
-	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_NEGATE)
-	local g=Duel.SelectTarget(tp, Card.IsNegatable, tp, 0, LOCATION_ONFIELD, 1, 1, nil)
-	Duel.SetOperationInfo(0, CATEGORY_DISABLE, g, 1, 0, 0)
+function s.destgt(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
+	if chkc then return chkc:IsControler(1-tp) end
+	if chk==0 then return Duel.IsExistingTarget(Card.IsSpellTrap, tp, 0, LOCATION_ONFIELD, 1, nil) end
+	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_DESTROY)
+	local g=Duel.SelectTarget(tp, Card.IsSpellTrap, tp, 0, LOCATION_ONFIELD, 1, 1, nil)
+	Duel.SetOperationInfo(0, CATEGORY_DESTROY, g, 1, 0, 0)
 end
-function s.negop(e, tp, eg, ep, ev, re, r, rp)
+function s.desop(e, tp, eg, ep, ev, re, r, rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if tc:IsFaceup() and tc:IsRelateToEffect(e) and tc:IsNegatable() then
-		Duel.NegateRelatedChain(tc, RESET_TURN_SET)
-		local e1=Effect.CreateEffect(c)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_DISABLE)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-		tc:RegisterEffect(e1)
-		local e2=Effect.CreateEffect(c)
-		e2:SetType(EFFECT_TYPE_SINGLE)
-		e2:SetCode(EFFECT_DISABLE_EFFECT)
-		e2:SetValue(RESET_TURN_SET)
-		e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-		tc:RegisterEffect(e2)
-		local loc = c:GetLocation()
-		local g=Duel.GetMatchingGroup(Card.IsNegatable, tp, 0, loc, nil)
-		if tc then g:RemoveCard(tc) end
-		if not tc:IsImmuneToEffect(e1) and not tc:IsImmuneToEffect(e2) and #g>0 and c:IsRelateToEffect(e) and Duel.SelectYesNo(tp, aux.Stringid(id, 2)) then
-				Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_NEGATE)
-				local sg=g:Select(tp, 1, 1, nil)
-				Duel.HintSelection(sg)
-				local gc=sg:GetFirst()
-				Duel.NegateRelatedChain(gc, RESET_TURN_SET)
-				local e3=Effect.CreateEffect(c)
-				e3:SetType(EFFECT_TYPE_SINGLE)
-				e3:SetCode(EFFECT_DISABLE)
-				e3:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-				gc:RegisterEffect(e3)
-				local e4=Effect.CreateEffect(c)
-				e4:SetType(EFFECT_TYPE_SINGLE)
-				e4:SetCode(EFFECT_DISABLE_EFFECT)
-				e4:SetValue(RESET_TURN_SET)
-				e4:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-				gc:RegisterEffect(e4)
-		end
+	local loc = c:GetLocation()
+	if tc and tc:IsRelateToEffect(e) then
+		Duel.Destroy(tc, REASON_EFFECT)
 	end
 end
