@@ -81,9 +81,10 @@ function s.ovop(e, tp, eg, ep, ev, re, r, rp)
 	if c:IsRelateToEffect(e) then
 		local g=Duel.GetMatchingGroup(Card.IsSpellTrap, tp, LOCATION_HAND+LOCATION_ONFIELD, LOCATION_ONFIELD, nil)
 		local tc=g:Select(tp, 1, 1, nil)
+		tc:GetFirst():CancelToGrave()
 		Duel.Overlay(c, tc, true)
-		if tc:GetEquipTarget() then
-			Duel.Equip(tp, tc, nil)
+		if tc:GetFirst():GetEquipTarget() then
+			Duel.Equip(tp, tc:GetFirst(), nil)
 		end
 	end
 end
@@ -99,15 +100,8 @@ end
 function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then
-		if tc:IsSpellTrap() and not tc:IsImmuneToEffect(e) and Duel.SelectYesNo(tp, aux.Stringid(id, 0)) then
-			Duel.Overlay(c, tc, true)
-			if tc:GetEquipTarget() then
-				Duel.Equip(tp, tc, nil)
-			end
-		else
-			Duel.Destroy(tc,REASON_EFFECT)
-		end
+	if tc:IsRelateToEffect(e) and Duel.Destroy(tc,REASON_EFFECT)~=0 and tc:IsLocation(LOCATION_GRAVE) and tc:IsSpellTrap() and not tc:IsImmuneToEffect(e) and Duel.SelectYesNo(tp, aux.Stringid(id, 0)) then
+		Duel.Overlay(c, tc, true)
 	end
 end
 function s.cfilter(c)

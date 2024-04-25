@@ -125,15 +125,9 @@ function s.negtgt(e, tp, eg, ep, ev, re, r, rp, chk)
 end
 function s.negop(e, tp, eg, ep, ev, re, r, rp)
 	local rc=re:GetHandler()
-	if Duel.NegateEffect(ev) and rc:IsRelateToEffect(re) then
-		if (rc:IsMonster() or rc:IsType(TYPE_EQUIP)) and rc:IsAbleToChangeControler() and rc:IsOnField() and rc:CheckUniqueOnField(tp) and Duel.GetLocationCount(tp, LOCATION_SZONE)>0 and Duel.SelectYesNo(tp, aux.Stringid(id, 0)) then
-			if rc:IsType(TYPE_EQUIP) then
-				Duel.MoveToField(rc, tp, tp, LOCATION_SZONE, POS_FACEUP, true)
-			end
-			e:GetHandler():EquipByEffectAndLimitRegister(e, tp, rc, id)
-		else
-			Duel.Destroy(eg, REASON_EFFECT)
-		end
+	if Duel.NegateEffect(ev) and rc:IsRelateToEffect(re) and Duel.Destroy(eg, REASON_EFFECT)~=0 
+	and (rc:IsMonster() or rc:IsType(TYPE_EQUIP)) and rc:IsAbleToChangeControler() and rc:IsLocation(LOCATION_GRAVE) and rc:CheckUniqueOnField(tp) and Duel.GetLocationCount(tp, LOCATION_SZONE)>0 and Duel.SelectYesNo(tp, aux.Stringid(id, 0)) then
+		e:GetHandler():EquipByEffectAndLimitRegister(e, tp, rc, id)
 	end
 end
 
