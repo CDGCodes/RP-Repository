@@ -62,8 +62,11 @@ end
 function s.checkmat(tp,sg,fc)
 	return fc:IsSetCard(0xFEDC) or not sg:IsExists(Card.IsLocation,1,nil,LOCATION_SZONE)
 end
+function s.fexmat(c)
+	return c:IsSpell() and c:GetEquipTarget() and c:IsAbleToGrave()
+end
 function s.fextra(e,tp,mg)
-	return Duel.GetMatchingGroup(Card.IsAbleToGrave,tp,LOCATION_SZONE,0,nil),s.checkmat
+	return Duel.GetMatchingGroup(s.fexmat, tp, LOCATION_SZONE, 0, nil),s.checkmat
 end
 function s.stage2(e,tc,tp,mg,chk)
 	if chk==2 then
