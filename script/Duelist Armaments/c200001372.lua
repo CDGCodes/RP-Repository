@@ -52,14 +52,6 @@ function s.initial_effect(c)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetValue(s.atkval)
 	c:RegisterEffect(e3)
-	--Return to Extra Deck is it leaves the field
-	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_SINGLE)
-	e4:SetCode(EFFECT_LEAVE_FIELD_REDIRECT)
-	e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e4:SetCondition(function(e)return e:GetHandler():IsFaceup()end)
-	e4:SetValue(LOCATION_DECKBOT)
-	c:RegisterEffect(e4)
 end
 
 function s.armfusfilter(c)
