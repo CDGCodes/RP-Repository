@@ -13,7 +13,7 @@ function s.initial_effect(c)
     e1:SetOperation(s.fop)
     c:RegisterEffect(e1)
     local e2=Effect.CreateEffect(c)
-    e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_QUICK_O)
+    e2:SetType(EFFECT_TYPE_QUICK_O)
     e2:SetCode(EVENT_CHAINING)
     e2:SetRange(LOCATION_MZONE)
     e2:SetCountLimit(1,{id,1})
@@ -44,7 +44,7 @@ function s.spfilter(c,e,tp)
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
     local tg=Duel.GetChainInfo(ev)
-    return re:IsHasType(EFFECT_TYPE_ACTIVATE) and tg and tg:IsContains(c) and re:GetHandler():IsType(TYPE_FIELD) and Duel.IsChainDisablable(ev)
+    return re:IsHasType(EFFECT_TYPE_ACTIVATE) and re:GetHandler():IsType(TYPE_FIELD)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return Duel.GetLocationCount(tp, LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(s.spfilter, tp, LOCATION_HAND|LOCATION_GRAVE, 0, 1, nil, e, tp) end
