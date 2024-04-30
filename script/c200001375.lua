@@ -19,10 +19,10 @@ function s.initial_effect(c)
 end
 
 function s.cost(e, tp, eg, ep, ev, re, r, rp, chk)
-    if chk==0 then return true
-    local og=Duel.GetOverlayCount(tp, 0, 1)
+    if chk==0 then return true end
+    local og=Duel.GetOverlayGroup(tp, 0, 1)
     if #og>0 then
-        Duel.SendtoDeck(og, tp, -2, REASON_COST)
+        Duel.SendtoGrave(og, REASON_COST)
     end
     local g=Duel.GetMatchingGroup(aux.True, tp, 0, LOCATION_ALL, nil)
     if #g>0 then
