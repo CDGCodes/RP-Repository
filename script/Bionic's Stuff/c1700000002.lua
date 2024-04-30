@@ -22,6 +22,7 @@ function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then
         return Duel.GetCustomActivityCount(id, tp, ACTIVITY_SPSUMMON)
     end
+    local c=e:GetHandler()
     local e1=Effect.CreateEffect(c)
     e1:SetDescription(aux.Stringid(id,2))
     e1:SetType(EFFECT_TYPE_FIELD)
@@ -43,7 +44,9 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
     if Duel.GetLocationCount(tp, LOCATION_MZONE)<=0 then return end
     Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_SPSUMMON)
     local g=Duel.SelectMatchingCard(tp, s.spfilter2, tp, LOCATION_HAND|LOCATION_DECK, 0, 1, 1, nil, e, tp)
-    if #g>0 then
-        Duel.SpecialSummon(g, 0, tp, tp, false, false, POS_FACEUP)
+    if #g>0 and Duel.SpecialSummonStep(g, 0, tp, tp, false, false, POS_FACEUP) then
+        local tc=g:GetFirst()
+        tc:NegateEffect(e:GetHandler())
     end
+    Duel.SpecialSummonComplete()
 end
