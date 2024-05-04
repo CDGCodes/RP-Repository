@@ -4,8 +4,14 @@ function s.initial_effect(c)
     --Summon Restrictions
 	c:SetUniqueOnField(1, 0, s.armfusfilter, LOCATION_MZONE, c)
 	c:EnableReviveLimit()
-	Fusion.AddProcMixN(c, true, true, s.ffilter2, 1, s.ffilter, 2)
+	Fusion.AddProcMixN(c, false, false, s.ffilter2, 1, s.ffilter, 2)
 	c:SetSPSummonOnce(id)
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_SINGLE)
+	e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+	e4:SetCode(EFFECT_SPSUMMON_CONDITION)
+	e4:SetValue(s.splimit)
+	c:RegisterEffect(e4)
     --Equip card on field
 	local e0=Effect.CreateEffect(c)
 	e0:SetCategory(CATEGORY_EQUIP)
@@ -52,6 +58,10 @@ function s.initial_effect(c)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetValue(s.atkval)
 	c:RegisterEffect(e3)
+end
+
+function s.splimit(e,se,sp,st)
+	return not e:GetHandler():IsLocation(LOCATION_EXTRA) or (st&SUMMON_TYPE_FUSION)==SUMMON_TYPE_FUSION
 end
 
 function s.armfusfilter(c)
