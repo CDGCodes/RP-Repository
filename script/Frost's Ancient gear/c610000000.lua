@@ -26,6 +26,16 @@ function s.initial_effect(c)
 	e1:SetOperation(s.operation)
 	c:RegisterEffect(e1)
 
+	--Negate Attacks and if "Geartown" on field destroy attacking monster
+	local e2=Effect.CreateEffect(c)
+	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e2:SetType(EFFECT_TYPE_ACTIVATE)
+	e2:SetCode(EVENT_ATTACK_ANNOUNCE)
+	e2:SetCondition(Necrofear.condition)
+	e2:SetTarget(n.target)
+	e2:SetOperation(n.activate)
+	c:RegisterEffect(e2)
+
 	--If this fusion summoned card is destroyed special summon this card
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,1))
@@ -57,6 +67,24 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetTargetCards(e)
 	Duel.Destroy(g,REASON_EFFECT)
 end
+
+--Negate Attacks and if "Geartown" on field destroy attacking monster
+function n.condition(e,tp,eg,ep,ev,re,r,rp)
+	return tp~=Duel.GetTurnPlayer()
+end
+function n.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	local tg=Duel.GetAttacker()
+	if chkc then return chkc==tg end
+	if chk==0 then return tg:IsOnField() and tg:IsCanBeEffectTarget(e) end
+	Duel.SetTargetCard(tg)
+end
+function n.activate(e,tp,eg,ep,ev,re,r,rp)
+	local tc=Duel.GetAttacker()
+	if tc:IsRelateToEffect(e) and Duel.NegateAttack() then
+		
+	end
+end
+
 
 --If this fusion summoned card is destroyed special summon this card
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
