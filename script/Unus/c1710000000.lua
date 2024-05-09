@@ -28,17 +28,47 @@ function s.initial_effect(c)
     e2:SetTarget(s.sptgt)
     e2:SetOperation(s.spop)
     c:RegisterEffect(e2)
+    local e3=Effect.CreateEffect(c)
+    e3:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_TODECK)
+    e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+    e3:SetCode(EVENT_DRAW)
+    e3:SetProperty(EFFECT_FLAG_DELAY)
+    e3:SetRange(LOCATION_HAND)
+    e3:SetCondition(s.spcon2)
+    e3:SetTarget(s.sptgt2)
+    e3:SetOperation(s.spop2)
+    c:RegisterEffect(e3)
+    --Cycle Summon
+    local e4=Effect.CreateEffect(c)
+    e4:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_TODECK)
+    e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+    e4:SetCode(EVENT_SUMMON_SUCCESS)
+    e4:SetProperty(EFFECT_FLAG_DELAY)
+    e4:SetRange(LOCATION_MZONE)
+    e4:SetTarget(s.sptgt3)
+    e4:SetOperation(s.spop3)
+    c:RegisterEffect(e4)
+    local e5=e4:Clone()
+    e5:SetCode(EVENT_SPSUMMON_SUCCESS)
+    c:RegisterEffect(e5)
+    local e6=e4:Clone()
+    e6:SetCode(EVENT_FLIP_SUMMON_SUCCESS)
+    c:RegisterEffect(e6)
 end
 
 function s.spcon(e, tp, eg, ep, ev, re, r, rp)
     return tp==Duel.GetTurnPlayer() and Duel.GetDrawCount(tp)>0 and Duel.GetFieldGroupCount(tp, LOCATION_DECK, 0)>0
+end
+function s.spcon2(e, tp, eg, ep, ev, re, r, rp)
+    return tp==Duel.GetTurnPlayer() and Duel.GetCurrentPhase()==PHASE_DRAW
 end
 function s.spfilter(c, e, tp)
     if c:GetControler()~=tp and Duel.GetLocationCount(tp, LOCATION_MZONE, 0)<=0 then return false end
     return c:IsAbleToDeck() and (c:IsAttribute(e:GetHandler():GetAttribute()) or c:IsLevel(e:GetHandler():GetLevel()) or c:IsRank(e:GetHandler():GetLevel()) or c:IsLink(e:GetHandler():GetLevel()))
 end
 function s.sptgt(e, tp, eg, ep, ev, re, r, rp, chk)
-    if chk==0 then return Duel.IsExistingMatchingCard(s.spfilter, tp, LOCATION_MZONE, LOCATION_MZONE, 1, nil, e, tp) end
+    if chk==0 then return Duel.IsExistingMatchingCard(s.spfilter, tp, LOCATION_MZONE, LOCATION_MZONE, 1, nil, e, tp)
+        and e:GetHandler():IsCanBeSpecialSummoned(e, 0, tp, false, false) end
     local dt=Duel.GetDrawCount(tp)
     if dt~=0 then
 		_replace_count=0
@@ -55,16 +85,52 @@ function s.sptgt(e, tp, eg, ep, ev, re, r, rp, chk)
     Duel.SetOperationInfo(0, CATEGORY_TODECK, nil, 1, 0, 0)
     Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, e:GetHandler(), 1, 0, 0)
 end
+function s.sptgt2(e, tp, eg, ep, ev, re, r, rp, chk)
+    if chk==0 then return Duel.IsExistingMatchingCard(s.spfilter, tp, LOCATION_MZONE, LOCATION_MZONE, 1, nil, e, tp)
+        and e:GetHandler():IsCanBeSpecialSummoned(e, 0, tp, false, false) end
+    Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, e:GetHandler(), 1, 0, 0)
+end
 function s.spop(e, tp, eg, ep, ev, re, r, rp)
     local c=e:GetHandler()
     _replace_count=_replace_count+1
     if _replace_count<=_replace_max and c:IsRelateToEffect(e) then
         local g=Duel.SelectMatchingCard(tp, s.spfilter, tp, LOCATION_MZONE, LOCATION_MZONE, 1, 1, nil, e, tp)
         if Duel.SendtoDeck(g, nil, 1, REASON_EFFECT)~=0 then
-            if Duel.SpecialSummon(c, 0, tp, tp, false, false, POS_FACEUP)~0 and Duel.GetFieldGroupCount(tp, LOCATION_HAND, 0)==0 then
+            if Duel.SpecialSummon(c, 0, tp, tp, false, false, POS_FACEUP)~0 and Duel.GetFieldGroupCount(tp, LOCATION_HAND, 0) then
                 Duel.BreakEffect()
                 Duel.Win(tp, 0x900)
             end
+        end
+    end
+end
+function s.spop2(e, tp, eg, ep, ev, re, r, rp)
+    local c=e:GetHandler()
+    if c:IsRelateToEffect(e) then
+        local g=Duel.SelectMatchingCard(tp, s.spfilter, tp, LOCATION_MZONE, LOCATION_MZONE, 1, 1, nil, e, tp)
+        if Duel.SendtoDeck(g, nil, 1, REASON_EFFECT)~=0 then
+            if Duel.SpecialSummon(c, 0, tp, tp, false, false, POS_FACEUP)~0 and Duel.GetFieldGroupCount(tp, LOCATION_HAND, 0) then
+                Duel.BreakEffect()
+                Duel.Win(tp, 0x900)
+            end
+        end
+    end
+end
+
+function s.spfilter2(c, e, tp)
+    return c:IsCode(id) and c:IsCanBeSpecialSummoned(e, 0, tp, false, false)
+end
+function s.sptgt3(e, tp, eg, ep, ev, re, r, rp, chk)
+    if chk==0 then return e:GetHandler():IsAbleToDeck() and Duel.IsExistingMatchingCard(s.spfilter2, tp, LOCATION_HAND, 0, 1, nil, e, tp) end
+    Duel.SetOperationInfo(0, CATEGORY_TODECK, nil, 1, 0, 0)
+    Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, e:GetHandler(), 1, 0, 0)
+end
+function s.spop3(e, tp, eg, ep, ev, re, r, rp)
+    local c=e:GetHandler()
+    if c:IsRelateToEffect(e) and Duel.SendtoDeck(c, nil, 1, REASON_EFFECT)~=0 then
+        local g=Duel.SelectMatchingCard(tp, s.spfilter2, tp, LOCATION_HAND, 0, 1, 1, nil, e, tp)
+        if Duel.SpecialSummon(g, 0, tp, tp, false, false, POS_FACEUP)~0 and Duel.GetFieldGroupCount(tp, LOCATION_HAND, 0) then
+            Duel.BreakEffect()
+            Duel.Win(tp, 0x900)
         end
     end
 end
