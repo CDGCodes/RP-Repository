@@ -125,7 +125,7 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
     if _replace_count<=_replace_max and c:IsRelateToEffect(e) then
         local g=Duel.SelectMatchingCard(tp, s.spfilter, tp, LOCATION_MZONE, LOCATION_MZONE, 1, 1, nil, e, tp)
         if Duel.SendtoDeck(g, nil, 1, REASON_EFFECT)~=0 then
-            if Duel.SpecialSummon(c, 0, tp, tp, false, false, POS_FACEUP)~0 and Duel.GetFieldGroupCount(tp, LOCATION_HAND, 0) then
+            if Duel.SpecialSummon(c, 0, tp, tp, false, false, POS_FACEUP)~0 and Duel.GetFieldGroupCount(tp, LOCATION_HAND, 0)==0 then
                 Duel.BreakEffect()
                 Duel.Win(tp, 0x900)
             end
@@ -137,7 +137,7 @@ function s.spop2(e, tp, eg, ep, ev, re, r, rp)
     if c:IsRelateToEffect(e) then
         local g=Duel.SelectMatchingCard(tp, s.spfilter, tp, LOCATION_MZONE, LOCATION_MZONE, 1, 1, nil, e, tp)
         if Duel.SendtoDeck(g, nil, 1, REASON_EFFECT)~=0 then
-            if Duel.SpecialSummon(c, 0, tp, tp, false, false, POS_FACEUP)~0 and Duel.GetFieldGroupCount(tp, LOCATION_HAND, 0) then
+            if Duel.SpecialSummon(c, 0, tp, tp, false, false, POS_FACEUP)~0 and Duel.GetFieldGroupCount(tp, LOCATION_HAND, 0)==0 then
                 Duel.BreakEffect()
                 Duel.Win(tp, 0x900)
             end
