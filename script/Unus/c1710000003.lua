@@ -134,7 +134,7 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
         if Duel.SendtoDeck(g, nil, 1, REASON_EFFECT)~=0 then
             if Duel.SpecialSummon(c, 0, tp, tp, false, false, POS_FACEUP)~0 and Duel.GetFieldGroupCount(tp, LOCATION_HAND, 0)==0 then
                 Duel.BreakEffect()
-                Duel.Win(tp, 0x900)
+                Duel.Win(tp, 0x90)
             end
         end
     end
@@ -146,7 +146,7 @@ function s.spop2(e, tp, eg, ep, ev, re, r, rp)
         if Duel.SendtoDeck(g, nil, 1, REASON_EFFECT)~=0 then
             if Duel.SpecialSummon(c, 0, tp, tp, false, false, POS_FACEUP)~0 and Duel.GetFieldGroupCount(tp, LOCATION_HAND, 0)==0 then
                 Duel.BreakEffect()
-                Duel.Win(tp, 0x900)
+                Duel.Win(tp, 0x90)
             end
         end
     end
@@ -166,7 +166,7 @@ function s.spop3(e, tp, eg, ep, ev, re, r, rp)
         local g=Duel.SelectMatchingCard(tp, s.spfilter2, tp, LOCATION_HAND, 0, 1, 1, nil, e, tp)
         if Duel.SpecialSummon(g, 0, tp, tp, false, false, POS_FACEUP)~0 and Duel.GetFieldGroupCount(tp, LOCATION_HAND, 0)==0 then
             Duel.BreakEffect()
-            Duel.Win(tp, 0x900)
+            Duel.Win(tp, 0x90)
         end
     end
 end
