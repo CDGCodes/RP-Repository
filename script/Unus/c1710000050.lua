@@ -16,7 +16,7 @@ function s.initial_effect(c)
 	e1:SetCode(EFFECT_CANNOT_SSET)
 	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
 	e1:SetRange(LOCATION_MZONE)
-	e1:SetTargetRange(1, 1)
+	e1:SetTargetRange(1, 0)
 	c:RegisterEffect(e1)
     --Summon
     local e2=Effect.CreateEffect(c)
