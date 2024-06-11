@@ -15,6 +15,7 @@ function s.initial_effect(c)
 	--Special Summon
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id, 0))
+	e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e4:SetType(EFFECT_TYPE_ACTIVATE)
 	e4:SetCode(EVENT_FREE_CHAIN)
 	e4:SetCountLimit(1, id, EFFECT_COUNT_CODE_OATH)
