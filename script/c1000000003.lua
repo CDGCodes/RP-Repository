@@ -1,43 +1,49 @@
+--クリボー
+--Kuriboh
 local s,id=GetID()
-
 function s.initial_effect(c)
-    -- Special Summon Ritual Monster from GY when discarded during opponent's attack
-    local e1=Effect.CreateEffect(c)
-    e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
-    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-    e1:SetCode(EVENT_ATTACK_ANNOUNCE)
-    e1:SetRange(LOCATION_HAND)
-    e1:SetCondition(s.spcon)
-    e1:SetCost(s.spcost)
-    e1:SetTarget(s.sptg)
-    e1:SetOperation(s.spop)
-    c:RegisterEffect(e1)
+	--no damage
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetType(EFFECT_TYPE_QUICK_O)
+	e1:SetRange(LOCATION_HAND)
+	e1:SetCode(EVENT_PRE_DAMAGE_CALCULATE)
+	e1:SetCondition(s.con)
+	e1:SetCost(s.cost)
+	e1:SetOperation(s.op)
+	c:RegisterEffect(e1)
+	--summon ritual monster from graveyard
+	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(id,1))
+	e2:SetType(EFFECT_TYPE_IGNITION)
+	e2:SetRange(LOCATION_GRAVE)
+	e2:SetCondition(s.ritualcon)
+	e2:SetTarget(s.ritualtg)
+	e2:SetOperation(s.ritualop)
+	c:RegisterEffect(e2)
 end
-
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-    return Duel.GetTurnPlayer()~=tp
+function s.con(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.GetTurnPlayer()~=tp and Duel.GetBattleDamage(tp)>0
 end
-
-function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
-    if chk==0 then return e:GetHandler():IsDiscardable() end
-    Duel.SendtoGrave(e:GetHandler(),REASON_COST+REASON_DISCARD)
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():IsDiscardable() end
+	Duel.SendtoGrave(e:GetHandler(),REASON_COST+REASON_DISCARD)
 end
-
-function s.spfilter(c,e,tp)
-    return c:IsType(TYPE_RITUAL) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+	local e1=Effect.CreateEffect(e:GetHandler())
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e1:SetTargetRange(1,0)
+	e1:SetReset(RESET_PHASE+PHASE_DAMAGE)
+	Duel.RegisterEffect(e1,tp)
 end
-
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-    if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-        and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp) end
-    Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE)
+function s.ritualcon(e,tp,eg,ep,ev,re,r,rp)
+	--condition for the ritual summon from the graveyard
 end
-
-function s.spop(e,tp,eg,ep,ev,re,r,rp)
-    if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
-    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-    local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
-    if g:GetCount()>0 then
-        Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
-    end
+function s.ritualtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	--targeting
+end
+function s.ritualop(e,tp,eg,ep,ev,re,r,rp)
+	--operation to summon the ritual monster
 end
