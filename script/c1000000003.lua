@@ -1,49 +1,33 @@
---クリボー
---Kuriboh
 local s,id=GetID()
+
 function s.initial_effect(c)
-	--no damage
-	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetType(EFFECT_TYPE_QUICK_O)
-	e1:SetRange(LOCATION_HAND)
-	e1:SetCode(EVENT_PRE_DAMAGE_CALCULATE)
-	e1:SetCondition(s.con)
-	e1:SetCost(s.cost)
-	e1:SetOperation(s.op)
-	c:RegisterEffect(e1)
-	--summon ritual monster from graveyard
-	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(id,1))
-	e2:SetType(EFFECT_TYPE_IGNITION)
-	e2:SetRange(LOCATION_GRAVE)
-	e2:SetCondition(s.ritualcon)
-	e2:SetTarget(s.ritualtg)
-	e2:SetOperation(s.ritualop)
-	c:RegisterEffect(e2)
+    -- When this card is discarded to the GY, add 1 Ritual Monster and Ritual Spell from your Deck or GY to your hand
+    local e1=Effect.CreateEffect(c)
+    e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+    e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+    e1:SetCode(EVENT_DISCARD)
+    e1:SetProperty(EFFECT_FLAG_DELAY)
+    e1:SetCountLimit(1,id)
+    e1:SetTarget(s.thtg)
+    e1:SetOperation(s.thop)
+    c:RegisterEffect(e1)
+    
 end
-function s.con(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnPlayer()~=tp and Duel.GetBattleDamage(tp)>0
+
+function s.thfilter(c)
+    return c:IsType(TYPE_RITUAL) and c:IsAbleToHand()
 end
-function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsDiscardable() end
-	Duel.SendtoGrave(e:GetHandler(),REASON_COST+REASON_DISCARD)
+
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil) end
+    Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK+LOCATION_GRAVE)
 end
-function s.op(e,tp,eg,ep,ev,re,r,rp)
-	local e1=Effect.CreateEffect(e:GetHandler())
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
-	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-	e1:SetTargetRange(1,0)
-	e1:SetReset(RESET_PHASE+PHASE_DAMAGE)
-	Duel.RegisterEffect(e1,tp)
-end
-function s.ritualcon(e,tp,eg,ep,ev,re,r,rp)
-	--condition for the ritual summon from the graveyard
-end
-function s.ritualtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	--targeting
-end
-function s.ritualop(e,tp,eg,ep,ev,re,r,rp)
-	--operation to summon the ritual monster
+
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+    local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,1,nil)
+    if #g>0 then
+        Duel.SendtoHand(g,nil,REASON_EFFECT)
+        Duel.ConfirmCards(1-tp,g)
+    end
 end
