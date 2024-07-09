@@ -34,8 +34,8 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_ATTACK_ANNOUNCE)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCountLimit(1,{id,1})
+	e2:SetCondition(s.condition)
 	e2:SetCost(s.Discard)
-	e2:SetTarget(s.target)
 	e2:SetOperation(s.operation)
 	c:RegisterEffect(e2)
 
@@ -72,12 +72,9 @@ function s.Desoperation(e,tp,eg,ep,ev,re,r,rp)
 end
 
 --Negate Attacks and if "Geartown" on field destroy attacking monster
-
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
+function s.condition(e,tp,eg,ep,ev,re,r,rp,chk)
+	local a=Duel.GetAttacker()
+	return a:IsControler(1-tp)
 end
 function s.desfilter(c)
 	return c:IsFaceup() and c:IsCode(37694547)
