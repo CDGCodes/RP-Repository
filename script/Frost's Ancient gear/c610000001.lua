@@ -23,6 +23,7 @@ function s.initial_effect(c)
  e1:SetCountLimit(1)
  e1:SetTarget(s.eqtg)
  e1:SetOperation(s.eqop)
+ e1:SetDescription(aux.Stringid(id,2))
  c:RegisterEffect(e1)
 
  --Discard 1 Destroy 2
