@@ -21,19 +21,22 @@ function s.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetRange(LOCATION_MZONE)
-	e1:SetCountLimit(1,id)
-	e1:SetTarget(s.target)
-	e1:SetOperation(s.operation)
+	e1:SetCountLimit(1,{id,0})
+	e1:SetTarget(s.Destarget)
+	e1:SetOperation(s.Desoperation)
 	c:RegisterEffect(e1)
 
 	--Negate Attacks and if "Geartown" on field destroy attacking monster
 	local e2=Effect.CreateEffect(c)
-	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e2:SetType(EFFECT_TYPE_ACTIVATE)
+	e2:SetDescription(aux.Stringid(id,0))
+	e2:SetCategory(CATEGORY_DESTROY)
+	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_ATTACK_ANNOUNCE)
-	e2:SetCondition(Necrofear.condition)
-	e2:SetTarget(n.target)
-	e2:SetOperation(n.activate)
+	e2:SetRange(LOCATION_MZONE)
+	e2:SetCountLimit(1,{id,1})
+	e2:SetCost(s.Discard)
+	e2:SetTarget(s.target)
+	e2:SetOperation(s.operation)
 	c:RegisterEffect(e2)
 
 	--If this fusion summoned card is destroyed special summon this card
@@ -43,7 +46,7 @@ function s.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetCode(EVENT_DESTROYED)
-	e3:SetCountLimit(1,{id,1})
+	e3:SetCountLimit(1,{id,2})
 	e3:SetCondition(s.spcon)
 	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
@@ -51,7 +54,7 @@ function s.initial_effect(c)
 	
 end
 	--Destroy 1 card from each side of the field
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+function s.Destarget(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
 	if chk==0 then return Duel.IsExistingTarget(nil,tp,LOCATION_ONFIELD,0,1,nil)
 		and Duel.IsExistingTarget(nil,tp,0,LOCATION_ONFIELD,1,nil) end
@@ -62,26 +65,36 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	g1:Merge(g2)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g1,2,0,0)
 end
-function s.operation(e,tp,eg,ep,ev,re,r,rp)
+function s.Desoperation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local g=Duel.GetTargetCards(e)
 	Duel.Destroy(g,REASON_EFFECT)
 end
 
 --Negate Attacks and if "Geartown" on field destroy attacking monster
-function n.condition(e,tp,eg,ep,ev,re,r,rp)
-	return tp~=Duel.GetTurnPlayer()
+
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
 end
-function n.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	local tg=Duel.GetAttacker()
-	if chkc then return chkc==tg end
-	if chk==0 then return tg:IsOnField() and tg:IsCanBeEffectTarget(e) end
-	Duel.SetTargetCard(tg)
+function s.desfilter(c)
+	return c:IsFaceup() and c:IsCode(37694547)
 end
-function n.activate(e,tp,eg,ep,ev,re,r,rp)
-	local tc=Duel.GetAttacker()
-	if tc:IsRelateToEffect(e) and Duel.NegateAttack() then
-		
+function s.Discard(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.CheckLPCost(tp,1000)
+		and Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,nil) end
+	Duel.DiscardHand(tp,Card.IsDiscardable,1,1,REASON_COST+REASON_DISCARD)
+end
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local at=Duel.GetAttacker()
+	if c:IsRelateToEffect(e)
+		and Duel.NegateAttack() and at:IsRelateToBattle()
+		and Duel.IsExistingMatchingCard(s.desfilter,tp,LOCATION_ONFIELD,0,1,nil)
+		and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
+		Duel.Destroy(at,REASON_EFFECT)
 	end
 end
 
