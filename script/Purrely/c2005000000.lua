@@ -11,7 +11,6 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
     --Return to hand
     local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(id,0))
 	e2:SetCategory(CATEGORY_TOHAND)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_SUMMON_SUCCESS)
@@ -30,6 +29,28 @@ function s.initial_effect(c)
 	e4:SetCode(EVENT_BE_BATTLE_TARGET)
 	e4:SetCondition(s.thcon2)
 	c:RegisterEffect(e4)
+	--Xyz Summon
+	local e5=Effect.CreateEffect(c)
+	e5:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e5:SetType(EFFECT_TYPE_IGNITION)
+	e5:SetRange(LOCATION_MZONE)
+	e5:SetCountLimit(1)
+	e5:SetTarget(s.sptg)
+	e5:SetOperation(s.spop)
+	c:RegisterEffect(e5)
+    --Cannot be targeted or destroyed
+	local e6=Effect.CreateEffect(c)
+	e6:SetType(EFFECT_TYPE_XMATERIAL)
+	e6:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
+	e6:SetRange(LOCATION_MZONE)
+	e6:SetCondition(function(e) return e:GetHandler():IsSetCard(SET_PURRELY) or e:GetHandler():IsSetCard(SET_MELFFY) end)
+	e6:SetValue(s.indesfilter)
+	c:RegisterEffect(e6)
+	local e7=e6:Clone()
+	e7:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
+	e7:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
+	e7:SetValue(s.tgfilter)
+	c:RegisterEffect(e7)
 end
 
 s.listed_names={id}
@@ -57,8 +78,8 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) and Duel.SendtoHand(c,nil,REASON_EFFECT)>0 then
 		Duel.ConfirmCards(1-tp,c)
-		local g=Duel.GetMatchingGroup(aux.NecroValleyFilter(s.thfilter),tp,LOCATION_DECK|LOCATION_GRAVE,0,nil)
-		if #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+		local g=Duel.GetMatchingGroup(aux.NecroValleyFilter(s.thfilter),tp,LOCATION_DECK|LOCATION_GRAVE,0,nil,tp)
+		if #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id, 0)) then
 			Duel.BreakEffect()
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 			local sg=g:Select(tp,1,1,nil)
@@ -67,10 +88,75 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
                 Duel.ConfirmCards(1-tp, sg)
             else
                 aux.ToHandOrElse(sg, tp, aux.TRUE,function()
-                    local x=Duel.SelectMatchingCard(tp, s.thfilter2, tp, LOCATION_MZONE, 0, 1, 1)
-                    Duel.Overlay(x, sg)
-                end,aux.Stringid(id,0))
+                    local xg=Duel.SelectMatchingCard(tp, s.thfilter2, tp, LOCATION_MZONE, 0, 1, 1, nil)
+					local s=sg:GetFirst()
+					local x=xg:GetFirst()
+                    Duel.Overlay(x, s)
+                end,aux.Stringid(id, 3))
             end
 		end
 	end
+end
+
+function s.spcfilter(c)
+	return (c:IsSetCard(SET_PURRELY) or c:IsSetCard(SET_MELFFY)) and (c:IsType(TYPE_SPELL) or c:IsType(TYPE_TRAP)) and not c:IsPublic()
+end
+function s.spfilter(c,e,tp,mc)
+	return c:IsRank(2) and (c:IsSetCard(SET_PURRELY) or c:IsSetCard(SET_MELFFY)) and c:IsType(TYPE_XYZ,c,SUMMON_TYPE_XYZ,tp) and mc:IsCanBeXyzMaterial(c,tp)
+		and Duel.GetLocationCountFromEx(tp,tp,mc,c)>0 and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false)
+end
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then
+		local c=e:GetHandler()
+		local pg=aux.GetMustBeMaterialGroup(tp,Group.FromCards(c),tp,nil,nil,REASON_XYZ)
+		return (#pg<=0 or (#pg==1 and pg:IsContains(c))) and Duel.IsExistingMatchingCard(s.spcfilter,tp,LOCATION_HAND,0,1,nil) and Duel.IsExistingMatchingCard(s.spfilter, tp, LOCATION_EXTRA, 0, 1, nil, e, tp, c)
+	end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
+end
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsFacedown() or not c:IsRelateToEffect(e) or c:IsControler(1-tp) or c:IsImmuneToEffect(e) then return end
+	local pg=aux.GetMustBeMaterialGroup(tp,Group.FromCards(c),tp,nil,nil,REASON_XYZ)
+	if #pg>1 or (#pg==1 and not pg:IsContains(c)) then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CONFIRM)
+	local rc=Duel.SelectMatchingCard(tp,s.spcfilter,tp,LOCATION_HAND,0,1,1,nil):GetFirst()
+	if not rc then return end
+	Duel.ConfirmCards(1-tp,rc)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local sc=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,c):GetFirst()
+	if sc then
+		sc:SetMaterial(c)
+		Duel.Overlay(sc,c)
+		if Duel.SpecialSummon(sc,SUMMON_TYPE_XYZ,tp,tp,false,false,POS_FACEUP)>0 then
+			sc:CompleteProcedure()
+			Duel.Overlay(sc,rc)
+			if not sc:IsSetCard(SET_PURRELY) then
+				local e1=Effect.CreateEffect(c)
+				e1:SetDescription(aux.Stringid(id, 1))
+				e1:SetProperty(EFFECT_FLAG_CLIENT_HINT)
+				e1:SetType(EFFECT_TYPE_SINGLE)
+				e1:SetCode(EFFECT_ADD_SETCODE)
+				e1:SetValue(SET_PURRELY)
+				e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+				sc:RegisterEffect(e1)
+			end
+			if not sc:IsSetCard(SET_MELFFY) then
+				local e1=Effect.CreateEffect(c)
+				e1:SetDescription(aux.Stringid(id, 2))
+				e1:SetProperty(EFFECT_FLAG_CLIENT_HINT)
+				e1:SetType(EFFECT_TYPE_SINGLE)
+				e1:SetCode(EFFECT_ADD_SETCODE)
+				e1:SetValue(SET_MELFFY)
+				e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+				sc:RegisterEffect(e1)
+			end
+		end
+	end
+end
+
+function s.indesfilter(e,re,rp)
+	return rp==1-e:GetHandlerPlayer()
+end
+function s.tgfilter(e,te)
+	return te:GetHandlerPlayer()~=e:GetHandlerPlayer()
 end
