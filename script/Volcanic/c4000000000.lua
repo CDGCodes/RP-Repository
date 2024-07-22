@@ -36,7 +36,7 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
     local tc = Duel.GetFirstTarget()
     if tc:IsRelateToEffect(e) then
         local numPyroMonsters = Duel.GetMatchingGroupCount(s.filter, tp, LOCATION_MZONE, LOCATION_MZONE, nil)
-        local numToDestroy = math.min(numPyroMonsters, 1)  -- Only destroy up to 1 Spell/Trap
+        local numToDestroy = math.min(numPyroMonsters, Duel.GetLocationCount(tp, LOCATION_ONFIELD))
         for i = 1, numToDestroy do
             Duel.Destroy(tc, REASON_EFFECT)
         end
