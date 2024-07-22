@@ -1,44 +1,42 @@
 -- Matchstick (Enhanced Effect)
 -- Created by ScareTheVoices
 local s, id = GetID()
-
 function s.initial_effect(c)
     -- Activate
     local e1 = Effect.CreateEffect(c)
     e1:SetCategory(CATEGORY_DESTROY)
-    e1:SetType(EFFECT_TYPE_ACTIVATE)
+    e1:SetType(EFFECT_TYPE_QUICK_O)
     e1:SetCode(EVENT_FREE_CHAIN)
-    e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
-    e1:SetCountLimit(1, id + EFFECT_COUNT_CODE_OATH)
+    e1:SetRange(LOCATION_HAND + LOCATION_GRAVE)
+    e1:SetCountLimit(1, id)
+    e1:SetCost(s.cost)
     e1:SetTarget(s.target)
-    e1:SetOperation(s.activate)  -- Updated operation
+    e1:SetOperation(s.operation)
     c:RegisterEffect(e1)
 end
 
-function s.filter(c)
-    return c:IsFaceup() and c:IsRace(RACE_PYRO)
+function s.cost(e, tp, eg, ep, ev, re, r, rp, chk)
+    if chk == 0 then return Duel.CheckReleaseGroup(tp, Card.IsType, 1, nil, TYPE_MONSTER) end
+    local g = Duel.SelectReleaseGroup(tp, Card.IsType, 1, 1, nil, TYPE_MONSTER)
+    Duel.Release(g, REASON_COST)
 end
 
-function s.target(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
-    if chkc then
-        return chkc:IsOnField() and chkc:IsControler(1 - tp) and chkc:IsType(TYPE_SPELL + TYPE_TRAP)
-    end
-    if chk == 0 then
-        return Duel.IsExistingTarget(Card.IsType, tp, 0, LOCATION_ONFIELD, 1, nil, TYPE_SPELL + TYPE_TRAP)
-            and Duel.IsExistingMatchingCard(s.filter, tp, LOCATION_MZONE, LOCATION_MZONE, 1, nil)
-    end
-    Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_DESTROY)
-    local g = Duel.SelectTarget(tp, Card.IsType, tp, 0, LOCATION_ONFIELD, 1, 1, nil, TYPE_SPELL + TYPE_TRAP)
+function s.target(e, tp, eg, ep, ev, re, r, rp, chk)
+    if chk == 0 then return Duel.IsExistingMatchingCard(Card.IsType, tp, LOCATION_ONFIELD, LOCATION_ONFIELD, 1, nil, TYPE_SPELL + TYPE_TRAP) end
+    local g = Duel.GetMatchingGroup(Card.IsType, tp, LOCATION_ONFIELD, LOCATION_ONFIELD, nil, TYPE_SPELL + TYPE_TRAP)
     Duel.SetOperationInfo(0, CATEGORY_DESTROY, g, 1, 0, 0)
 end
 
-function s.activate(e, tp, eg, ep, ev, re, r, rp)
-    local tc = Duel.GetFirstTarget()
-    if tc:IsRelateToEffect(e) then
-        local numPyroMonsters = Duel.GetMatchingGroupCount(s.filter, tp, LOCATION_MZONE, LOCATION_MZONE, nil)
-        local numToDestroy = math.min(numPyroMonsters, Duel.GetLocationCount(tp, LOCATION_ONFIELD))
-        for i = 1, numToDestroy do
-            Duel.Destroy(tc, REASON_EFFECT)
-        end
+function s.operation(e, tp, eg, ep, ev, re, r, rp)
+    local g = Duel.SelectMatchingCard(tp, Card.IsType, tp, LOCATION_ONFIELD, LOCATION_ONFIELD, 1, 1, nil, TYPE_SPELL + TYPE_TRAP)
+    if #g > 0 then
+        Duel.Destroy(g, REASON_EFFECT)
+    end
+    -- Destroy a Pyro monster you control
+    local pyroMonsters = Duel.GetMatchingGroup(Card.IsType, tp, LOCATION_MZONE, LOCATION_MZONE, nil, TYPE_MONSTER)
+    if #pyroMonsters > 0 then
+        Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_DESTROY)
+        local selectedMonster = pyroMonsters:Select(tp, 1, 1, nil)
+        Duel.Destroy(selectedMonster, REASON_EFFECT)
     end
 end
