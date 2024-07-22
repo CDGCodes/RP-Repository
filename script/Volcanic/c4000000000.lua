@@ -1,4 +1,4 @@
--- Matchstick
+-- Matchstick (Enhanced Effect)
 -- Created by ScareTheVoices
 local s, id = GetID()
 
@@ -11,7 +11,7 @@ function s.initial_effect(c)
     e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
     e1:SetCountLimit(1, id + EFFECT_COUNT_CODE_OATH)
     e1:SetTarget(s.target)
-    e1:SetOperation(s.activate)
+    e1:SetOperation(s.activate)  -- Updated operation
     c:RegisterEffect(e1)
 end
 
@@ -35,6 +35,10 @@ end
 function s.activate(e, tp, eg, ep, ev, re, r, rp)
     local tc = Duel.GetFirstTarget()
     if tc:IsRelateToEffect(e) then
-        Duel.Destroy(tc, REASON_EFFECT)
+        local numPyroMonsters = Duel.GetMatchingGroupCount(s.filter, tp, LOCATION_MZONE, LOCATION_MZONE, nil)
+        local numToDestroy = math.min(numPyroMonsters, 1)  -- Only destroy up to 1 Spell/Trap
+        for i = 1, numToDestroy do
+            Duel.Destroy(tc, REASON_EFFECT)
+        end
     end
 end
