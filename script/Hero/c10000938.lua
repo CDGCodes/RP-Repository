@@ -1,4 +1,3 @@
--- Evil Hero Granite Goliath
 local s, id = GetID()
 
 function s.initial_effect(c)
@@ -41,12 +40,12 @@ end
 -- Change battle positions of opponent's face-up monsters
 function s.changePositionTarget(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
     if chk == 0 then return true end
-    local g = Duel.GetMatchingGroup(aux.TRUE, tp, 0,LOCATION_MZONE, nil)
-    Duel.SetOperationInfo(0, CATEGORY_POSITION, g, g:GetCount(), 0, 0)
+    local g = Duel.GetMatchingGroup(aux.TRUE, tp, 0, LOCATION_MZONE, nil)
+    Duel.SetOperationInfo(0, CATEGORY_POSITION, g, #g, 0, 0)
 end
 
 function s.changePositionOperation(e, tp, eg, ep, ev, re, r, rp)
-    local g = Duel.GetMatchingGroup(aux.TRUE, tp, 0,LOCATION_MZONE, nil)
+    local g = Duel.GetMatchingGroup(aux.TRUE, tp, 0, LOCATION_MZONE, nil)
     if #g > 0 then
         for tc in aux.Next(g) do
             Duel.ChangePosition(tc, POS_FACEUP_DEFENSE, POS_FACEDOWN_DEFENSE, POS_FACEUP_ATTACK, POS_FACEUP_ATTACK)
@@ -56,8 +55,8 @@ end
 
 -- Negate attack and decrease ATK/DEF of attacking monster
 function s.negateAttackCondition(e, tp, eg, ep, ev, re, r, rp)
-    local atk = Duel.GetAttacker()
-    return atk and atk:IsControler(1 - tp) and atk:IsFaceup() and atk:IsRelateToBattle()
+    local c = e:GetHandler()
+    return Duel.GetAttackTarget() == c
 end
 
 function s.negateAttackOperation(e, tp, eg, ep, ev, re, r, rp)
@@ -66,7 +65,7 @@ function s.negateAttackOperation(e, tp, eg, ep, ev, re, r, rp)
     if atk:IsRelateToBattle() then
         Duel.NegateAttack()
         if c:IsRelateToEffect(e) and c:IsFaceup() then
-            Duel.ChangePosition(c, POS_FACEUP_DEFENSE)
+            Duel.ChangePosition(c, POS_FACEUP_DEFENSE)  -- Change this card's position
             local e1 = Effect.CreateEffect(c)
             e1:SetType(EFFECT_TYPE_SINGLE)
             e1:SetCode(EFFECT_UPDATE_ATTACK)
