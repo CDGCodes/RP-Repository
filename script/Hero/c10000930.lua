@@ -2,7 +2,7 @@ local s, id = GetID()
 function s.initial_effect(c)
     -- Fusion Materials
     c:EnableReviveLimit()
-    Fusion.AddProcMixN(c, true, true, s.ffilter, 2)
+    Fusion.AddProcMix(c, true, true, 79979666, 84327329)
     
     -- Special Summon Condition
     local e0=Effect.CreateEffect(c)
@@ -14,18 +14,15 @@ function s.initial_effect(c)
     e0:SetOperation(s.spop)
     c:RegisterEffect(e0)
 
-    -- Cannot be targeted or destroyed by opponent's card effects
+    -- Cannot be targeted by opponent's card effects while you control another "HERO" monster
     local e1=Effect.CreateEffect(c)
     e1:SetType(EFFECT_TYPE_SINGLE)
     e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
     e1:SetRange(LOCATION_MZONE)
     e1:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
+    e1:SetCondition(s.indcon)
     e1:SetValue(aux.tgoval)
     c:RegisterEffect(e1)
-    local e2=e1:Clone()
-    e2:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
-    e2:SetValue(1)
-    c:RegisterEffect(e2)
 
     -- Draw Cards
     local e3=Effect.CreateEffect(c)
@@ -33,12 +30,11 @@ function s.initial_effect(c)
     e3:SetType(EFFECT_TYPE_IGNITION)
     e3:SetRange(LOCATION_MZONE)
     e3:SetCountLimit(1, id)
-    e3:SetCondition(s.drcon)
     e3:SetTarget(s.drtg)
     e3:SetOperation(s.drop)
     c:RegisterEffect(e3)
 
-    -- Special Summon from GY or hand when leaves field
+    -- Special Summon from Deck or hand when leaves field
     local e4=Effect.CreateEffect(c)
     e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
     e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
@@ -58,7 +54,7 @@ function s.initial_effect(c)
 
     -- DEF gain per HERO monster in the GY
     local e7=Effect.CreateEffect(c)
-    e7:SetType(EFFECT_TYPE_SINGLE)  -- Applied only to itself
+    e7:SetType(EFFECT_TYPE_SINGLE)
     e7:SetCode(EFFECT_UPDATE_DEFENSE)
     e7:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
     e7:SetRange(LOCATION_MZONE)
@@ -86,16 +82,16 @@ function s.spfilter(c)
     return c:IsCode(79979666, 84327329) and c:IsType(TYPE_MONSTER) and c:IsAbleToDeckOrExtraAsCost()
 end
 
-function s.drcon(e)
-    return Duel.IsTurnPlayer(e:GetHandlerPlayer())
+function s.indcon(e)
+    return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard, 0x8), e:GetHandlerPlayer(), LOCATION_MZONE, 0, 1, e:GetHandler())
 end
 
 function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
-    local ct=Duel.GetMatchingGroupCount(Auxiliary.FaceupFilter(Card.IsSetCard,0x8),tp,LOCATION_MZONE,0,nil)
-    if chk==0 then return ct>0 and Duel.IsPlayerCanDraw(tp,ct) end
+    local ct=Duel.GetMatchingGroupCount(aux.FaceupFilter(Card.IsSetCard,0x8),tp,LOCATION_MZONE,0,nil)
+    if chk==0 then return ct>0 and Duel.IsPlayerCanDraw(tp,math.min(2,ct)) end
     Duel.SetTargetPlayer(tp)
-    Duel.SetTargetParam(ct)
-    Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,ct)
+    Duel.SetTargetParam(math.min(2,ct))
+    Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,math.min(2,ct))
 end
 
 function s.drop(e,tp,eg,ep,ev,re,r,rp)
@@ -113,8 +109,8 @@ end
 
 function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and
-        Duel.IsExistingMatchingCard(s.spfilter2,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,nil,e,tp) end
-    Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND+LOCATION_GRAVE)
+        Duel.IsExistingMatchingCard(s.spfilter2,tp,LOCATION_HAND+LOCATION_DECK,0,1,nil,e,tp) end
+    Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND+LOCATION_DECK)
 end
 
 function s.spfilter2(c,e,tp)
@@ -124,12 +120,12 @@ end
 function s.spop2(e,tp,eg,ep,ev,re,r,rp)
     if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-    local g=Duel.SelectMatchingCard(tp,s.spfilter2,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,1,nil,e,tp)
+    local g=Duel.SelectMatchingCard(tp,s.spfilter2,tp,LOCATION_HAND+LOCATION_DECK,0,1,1,nil,e,tp)
     if #g>0 then
         Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
     end
 end
 
 function s.defval(e,c)
-    return Duel.GetMatchingGroupCount(Auxiliary.FaceupFilter(Card.IsSetCard,0x8),e:GetHandlerPlayer(),LOCATION_GRAVE,0,nil)*200
+    return Duel.GetMatchingGroupCount(aux.FaceupFilter(Card.IsSetCard,0x8),e:GetHandlerPlayer(),LOCATION_GRAVE,0,nil)*200
 end
