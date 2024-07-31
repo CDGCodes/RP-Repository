@@ -2,48 +2,54 @@
 local s, id = GetID()
 
 function s.initial_effect(c)
-    --Increase ATK
+    --Activate
     local e1 = Effect.CreateEffect(c)
-    e1:SetType(EFFECT_TYPE_FIELD + EFFECT_TYPE_CONTINUOUS)
-    e1:SetCode(EVENT_PRE_DAMAGE_CALCULATE)
-    e1:SetRange(LOCATION_FZONE)
-    e1:SetCondition(s.atkcon)
-    e1:SetOperation(s.atkop)
+    e1:SetType(EFFECT_TYPE_ACTIVATE)
+    e1:SetCode(EVENT_FREE_CHAIN)
     c:RegisterEffect(e1)
-
-    --Add Polymerization or Fusion Spell Card
+    
+    --Increase ATK
     local e2 = Effect.CreateEffect(c)
-    e2:SetDescription(aux.Stringid(id, 0))
-    e2:SetCategory(CATEGORY_TOHAND + CATEGORY_SEARCH)
-    e2:SetType(EFFECT_TYPE_IGNITION)
+    e2:SetType(EFFECT_TYPE_FIELD + EFFECT_TYPE_CONTINUOUS)
+    e2:SetCode(EVENT_PRE_DAMAGE_CALCULATE)
     e2:SetRange(LOCATION_FZONE)
-    e2:SetCountLimit(1)
-    e2:SetCondition(s.thcon)
-    e2:SetTarget(s.thtg)
-    e2:SetOperation(s.thop)
+    e2:SetCondition(s.atkcon)
+    e2:SetOperation(s.atkop)
     c:RegisterEffect(e2)
 
-    --Special Summon Level 4 or lower "Elemental HERO"
+    --Add Polymerization or Fusion Spell Card
     local e3 = Effect.CreateEffect(c)
-    e3:SetDescription(aux.Stringid(id, 1))
-    e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
-    e3:SetType(EFFECT_TYPE_FIELD + EFFECT_TYPE_TRIGGER_O)
-    e3:SetCode(EVENT_DESTROYED)
+    e3:SetDescription(aux.Stringid(id, 0))
+    e3:SetCategory(CATEGORY_TOHAND + CATEGORY_SEARCH)
+    e3:SetType(EFFECT_TYPE_IGNITION)
     e3:SetRange(LOCATION_FZONE)
-    e3:SetCondition(s.spcon)
-    e3:SetTarget(s.sptg)
-    e3:SetOperation(s.spop)
+    e3:SetCountLimit(1)
+    e3:SetCondition(s.thcon)
+    e3:SetTarget(s.thtg)
+    e3:SetOperation(s.thop)
     c:RegisterEffect(e3)
 
-    --Banish from GY to increase ATK
+    --Special Summon Level 4 or lower "Elemental HERO"
     local e4 = Effect.CreateEffect(c)
-    e4:SetDescription(aux.Stringid(id, 2))
-    e4:SetType(EFFECT_TYPE_IGNITION)
-    e4:SetRange(LOCATION_GRAVE)
-    e4:SetCondition(aux.exccon)
-    e4:SetCost(s.atkcost)
-    e4:SetOperation(s.atkop2)
+    e4:SetDescription(aux.Stringid(id, 1))
+    e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
+    e4:SetType(EFFECT_TYPE_FIELD + EFFECT_TYPE_TRIGGER_O)
+    e4:SetCode(EVENT_DESTROYED)
+    e4:SetRange(LOCATION_FZONE)
+    e4:SetCondition(s.spcon)
+    e4:SetTarget(s.sptg)
+    e4:SetOperation(s.spop)
     c:RegisterEffect(e4)
+
+    --Banish from GY to increase ATK
+    local e5 = Effect.CreateEffect(c)
+    e5:SetDescription(aux.Stringid(id, 2))
+    e5:SetType(EFFECT_TYPE_IGNITION)
+    e5:SetRange(LOCATION_GRAVE)
+    e5:SetCondition(aux.exccon)
+    e5:SetCost(s.atkcost)
+    e5:SetOperation(s.atkop2)
+    c:RegisterEffect(e5)
 end
 
 function s.atkcon(e, tp, eg, ep, ev, re, r, rp)
@@ -64,7 +70,7 @@ function s.atkop(e, tp, eg, ep, ev, re, r, rp)
 end
 
 function s.thcon(e, tp, eg, ep, ev, re, r, rp)
-    return Duel.IsExistingMatchingCard(aux.FilterFaceupFunction(Card.IsSetCard, 0x8), tp, LOCATION_MZONE, 0, 1, nil)
+    return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard, 0x8), tp, LOCATION_MZONE, 0, 1, nil)
 end
 
 function s.thfilter(c)
@@ -118,7 +124,7 @@ function s.atkcost(e, tp, eg, ep, ev, re, r, rp, chk)
 end
 
 function s.atkop2(e, tp, eg, ep, ev, re, r, rp)
-    local g = Duel.GetMatchingGroup(aux.FilterFaceupFunction(Card.IsSetCard, 0x8), tp, LOCATION_MZONE, 0, nil)
+    local g = Duel.GetMatchingGroup(aux.FaceupFilter(Card.IsSetCard, 0x8), tp, LOCATION_MZONE, 0, nil)
     local tc = g:GetFirst()
     for tc in aux.Next(g) do
         local e1 = Effect.CreateEffect(e:GetHandler())
