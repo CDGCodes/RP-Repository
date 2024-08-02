@@ -32,9 +32,11 @@ function s.initial_effect(c)
 	--Xyz Summon
 	local e5=Effect.CreateEffect(c)
 	e5:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e5:SetType(EFFECT_TYPE_IGNITION)
+	e5:SetType(EFFECT_TYPE_QUICK_O)
 	e5:SetRange(LOCATION_MZONE)
+	e5:SetCode(EVENT_CHAINING)
 	e5:SetCountLimit(1)
+	e5:SetCondition(s.spcon)
 	e5:SetTarget(s.sptg)
 	e5:SetOperation(s.spop)
 	c:RegisterEffect(e5)
@@ -70,9 +72,7 @@ function s.thfilter2(c)
     return c:IsType(TYPE_XYZ)
 end
 function s.thfilter(c, tp)
-	if not (c:IsSetCard(0x18d) or c:IsSetCard(0x147)) and (c:IsType(TYPE_SPELL) or c:IsType(TYPE_TRAP)) then return false end
-    if Duel.IsExistingMatchingCard(s.thfilter2, tp, LOCATION_MZONE, 0, 1, nil) then return true end
-    return c:IsAbleToHand()
+	return (c:IsSetCard(SET_PURRELY) and c:IsType(TYPE_QUICKPLAY)) or (c:IsSetCard(SET_MELFFY) and c:IsType(TYPE_MONSTER)) and c:IsAbleToHand()
 end
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -98,18 +98,20 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
-function s.spcfilter(c)
-	return (c:IsSetCard(SET_PURRELY) or c:IsSetCard(SET_MELFFY)) and (c:IsType(TYPE_SPELL) or c:IsType(TYPE_TRAP)) and not c:IsPublic()
-end
-function s.spfilter(c,e,tp,mc)
-	return c:IsRank(2) and (c:IsSetCard(SET_PURRELY) or c:IsSetCard(SET_MELFFY)) and c:IsType(TYPE_XYZ,c,SUMMON_TYPE_XYZ,tp) and mc:IsCanBeXyzMaterial(c,tp)
+function s.spfilter(c,e,tp,mc,sc)
+	return c:IsType(TYPE_XYZ,c,SUMMON_TYPE_XYZ,tp) and c:ListsCode(sc:GetCode()) and mc:IsCanBeXyzMaterial(c,tp)
 		and Duel.GetLocationCountFromEx(tp,tp,mc,c)>0 and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false)
+end
+function s.spcon(e, tp, eg, ep, ev, re, r, rp)
+	return not e:GetHandler():IsStatus(STATUS_BATTLE_DESTROYED)
+		and re:IsActiveType(TYPE_QUICKPLAY) and re:IsHasType(EFFECT_TYPE_ACTIVATE) and re:GetHandler():IsSetCard(SET_PURRELY)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		local c=e:GetHandler()
 		local pg=aux.GetMustBeMaterialGroup(tp,Group.FromCards(c),tp,nil,nil,REASON_XYZ)
-		return (#pg<=0 or (#pg==1 and pg:IsContains(c))) and Duel.IsExistingMatchingCard(s.spcfilter,tp,LOCATION_HAND,0,1,nil) and Duel.IsExistingMatchingCard(s.spfilter, tp, LOCATION_EXTRA, 0, 1, nil, e, tp, c)
+		local rc=re:GetHandler()
+		return (#pg<=0 or (#pg==1 and pg:IsContains(c))) and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,c,rc)
 	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
@@ -119,37 +121,18 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local pg=aux.GetMustBeMaterialGroup(tp,Group.FromCards(c),tp,nil,nil,REASON_XYZ)
 	if #pg>1 or (#pg==1 and not pg:IsContains(c)) then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CONFIRM)
-	local rc=Duel.SelectMatchingCard(tp,s.spcfilter,tp,LOCATION_HAND,0,1,1,nil):GetFirst()
-	if not rc then return end
+	local rc=re:GetHandler()
+	if not rc:IsRelateToEffect(re) then return end
 	Duel.ConfirmCards(1-tp,rc)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local sc=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,c):GetFirst()
+	local sc=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,c,rc):GetFirst()
 	if sc then
+		rc:CancelToGrave()
 		sc:SetMaterial(c)
 		Duel.Overlay(sc,c)
 		if Duel.SpecialSummon(sc,SUMMON_TYPE_XYZ,tp,tp,false,false,POS_FACEUP)>0 then
 			sc:CompleteProcedure()
 			Duel.Overlay(sc,rc)
-			if not sc:IsSetCard(SET_PURRELY) then
-				local e1=Effect.CreateEffect(c)
-				e1:SetDescription(aux.Stringid(id, 1))
-				e1:SetProperty(EFFECT_FLAG_CLIENT_HINT)
-				e1:SetType(EFFECT_TYPE_SINGLE)
-				e1:SetCode(EFFECT_ADD_SETCODE)
-				e1:SetValue(SET_PURRELY)
-				e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-				sc:RegisterEffect(e1)
-			end
-			if not sc:IsSetCard(SET_MELFFY) then
-				local e1=Effect.CreateEffect(c)
-				e1:SetDescription(aux.Stringid(id, 2))
-				e1:SetProperty(EFFECT_FLAG_CLIENT_HINT)
-				e1:SetType(EFFECT_TYPE_SINGLE)
-				e1:SetCode(EFFECT_ADD_SETCODE)
-				e1:SetValue(SET_MELFFY)
-				e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-				sc:RegisterEffect(e1)
-			end
 		end
 	end
 end
