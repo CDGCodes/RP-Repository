@@ -15,6 +15,7 @@ function s.initial_effect(c)
 	--Special Summon
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id, 0))
+	e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e4:SetType(EFFECT_TYPE_ACTIVATE)
 	e4:SetCode(EVENT_FREE_CHAIN)
 	e4:SetCountLimit(1, id, EFFECT_COUNT_CODE_OATH)
@@ -97,7 +98,7 @@ function s.costfilter(c, e)
 	if ec:GetEquipTarget() then
 		if c==ec:GetEquipTarget() then return false end
 	end
-	return c:IsSpell() and c:IsAbleToGraveAsCost() and not c:IsRelateToEffect(e)
+	return c:IsSpell() and c:IsAbleToGraveAsCost() and c~=ec and not c:IsRelateToEffect(e)
 end
 function s.negcost(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.costfilter, tp, LOCATION_HAND+LOCATION_ONFIELD, 0, 1, nil, e) end

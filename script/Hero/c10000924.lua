@@ -9,92 +9,90 @@ function s.initial_effect(c)
 	e1:SetValue(58932615)  -- Code of "Elemental HERO Burstinatrix"
 	c:RegisterEffect(e1)
 
-	-- Special Summon from hand or GY when a "HERO" monster you control is destroyed
-	local e2 = Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(id, 0))
-	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e2:SetType(EFFECT_TYPE_FIELD + EFFECT_TYPE_TRIGGER_O)
-	e2:SetCode(EVENT_DESTROYED)
-	e2:SetProperty(EFFECT_FLAG_DAMAGE_STEP + EFFECT_FLAG_DELAY)
-	e2:SetRange(LOCATION_HAND + LOCATION_GRAVE)
-	e2:SetCountLimit(1, id)
-	e2:SetCondition(s.spSummonCondition)
-	e2:SetTarget(s.spSummonTarget)
-	e2:SetOperation(s.spSummonOperation)
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DAMAGE_STEP)
+	e1:SetType(EFFECT_TYPE_TRIGGER_O+EFFECT_TYPE_SINGLE)
+	e1:SetCode(EVENT_SUMMON_SUCCESS)
+	e1:SetCountLimit(1,id)
+	e1:SetTarget(s.tg)
+	e1:SetOperation(s.op)
+	c:RegisterEffect(e1)
+	local e2=e1:Clone()
+	e2:SetCode(EVENT_FLIP_SUMMON_SUCCESS)
+	e2:SetCountLimit(1,id)
 	c:RegisterEffect(e2)
-
-	-- Shuffle into the Deck when this card leaves the field
-	local e3 = Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_SINGLE + EFFECT_TYPE_CONTINUOUS)
-	e3:SetCode(EVENT_LEAVE_FIELD)
-	e3:SetOperation(s.shuffleOperation)
+	local e3=e1:Clone()
+	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e3:SetCountLimit(1,id)
 	c:RegisterEffect(e3)
 
-	-- Add a "Polymerization" Spell, "Fusion" Spell, or "HERO" monster from GY to hand upon Summon
-	local e4 = Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(id, 1))
-	e4:SetCategory(CATEGORY_TOHAND)
-	e4:SetType(EFFECT_TYPE_SINGLE + EFFECT_TYPE_TRIGGER_O)
-	e4:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e4:SetProperty(EFFECT_FLAG_DAMAGE_STEP + EFFECT_FLAG_DELAY)
-	e4:SetCountLimit(1, id + 100)
-	e4:SetTarget(s.addToHandTarget)
-	e4:SetOperation(s.addToHandOperation)
+
+
+ --special summon
+	local e4=Effect.CreateEffect(c)
+	e4:SetDescription(aux.Stringid(id,0))
+	e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e4:SetCode(EVENT_DESTROYED)
+	e4:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DELAY)
+	e4:SetRange(LOCATION_GRAVE+LOCATION_HAND)
+	e4:SetCountLimit(1,{id,1})
+	e4:SetCondition(s.spcon)
+	e4:SetTarget(s.sptg)
+	e4:SetOperation(s.spop)
 	c:RegisterEffect(e4)
 end
 
--- Always treat this card as "Elemental HERO Burstinatrix" in hand, deck, and graveyard
-function s.alwaysBurstinatrix(e, c)
-	return c:IsCode(58932615)  -- Code of "Elemental HERO Burstinatrix"
-end
+s.listed_series={0x8,0x46,0xa5}
 
--- Utility functions
-function s.isHeroMonster(c)
-	return c:IsFaceup() and c:IsSetCard(0x8) and c:IsType(TYPE_MONSTER)
+--effect 1
+function s.filter(c)
+	return ((c:IsSetCard(0x8) and c:IsType(TYPE_MONSTER)) or c:IsCode(27847700,24094653,74335036,07614732,48130397,76647978)) and c:IsAbleToHand()
 end
-
-function s.spSummonCondition(e, tp, eg, ep, ev, re, r, rp)
-	local destroyed = eg:GetFirst()
-	return destroyed and destroyed:IsControler(tp) and destroyed:IsType(TYPE_MONSTER) and destroyed:IsSetCard(0x8)
+function s.tg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.filter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_GRAVE,0,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_GRAVE,0,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
 end
-
-function s.spSummonTarget(e, tp, eg, ep, ev, re, r, rp, chk)
-	if chk == 0 then
-		return e:GetHandler():IsCanBeSpecialSummoned(e, 0, tp, false, false)
-	end
-	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, e:GetHandler(), 1, tp, LOCATION_HAND + LOCATION_GRAVE)
-end
-
-function s.spSummonOperation(e, tp, eg, ep, ev, re, r, rp)
-	local c = e:GetHandler()
-	if c:IsRelateToEffect(e) then
-		Duel.SpecialSummon(c, 0, tp, tp, false, false, POS_FACEUP)
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+	local tc=Duel.GetFirstTarget()
+	if tc and tc:IsRelateToEffect(e) then
+		Duel.SendtoHand(tc,nil,REASON_EFFECT)
+		Duel.ConfirmCards(1-tp,tc)
 	end
 end
 
-function s.shuffleOperation(e, tp, eg, ep, ev, re, r, rp)
-	local c = e:GetHandler()
-	if c:IsLocation(LOCATION_ONFIELD + LOCATION_GRAVE) then
-		Duel.SendtoDeck(c, nil, -1, REASON_EFFECT)
-	end
-end
 
-function s.addToHandTarget(e, tp, eg, ep, ev, re, r, rp, chk)
-	if chk == 0 then
-		return Duel.IsExistingMatchingCard(s.addToHandFilter, tp, LOCATION_GRAVE, 0, 1, nil)
-	end
-	Duel.SetOperationInfo(0, CATEGORY_TOHAND, nil, 1, tp, LOCATION_GRAVE)
-end
 
-function s.addToHandOperation(e, tp, eg, ep, ev, re, r, rp)
-	-- Select and add a "Polymerization" Spell, "Fusion" Spell, or "HERO" monster from GY to hand
-	local g = Duel.SelectMatchingCard(tp, s.addToHandFilter, tp, LOCATION_GRAVE, 0, 1, 1, nil)
-	if #g > 0 then
-		Duel.SendtoHand(g, nil, REASON_EFFECT)
-	end
+--effect 2
+function s.spcfilter(c,tp)
+	return c:IsReason(REASON_BATTLE+REASON_EFFECT)
+		and c:IsPreviousControler(tp) and c:IsPreviousLocation(LOCATION_MZONE)
+		and c:IsPreviousPosition(POS_FACEUP) and c:IsSetCard(0x8)
 end
-
-function s.addToHandFilter(c)
-	return c:IsType(TYPE_SPELL) and (c:IsCode(24094653) or c:IsSetCard(0x46))
-		or (c:IsType(TYPE_MONSTER) and c:IsSetCard(0x8))
+function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+	return eg:IsExists(s.spcfilter,1,e:GetHandler(),tp)
+end
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,LOCATION_GRAVE)
+end
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)>0 then
+		--Banish it if it leaves the field
+		local e1=Effect.CreateEffect(c)
+		e1:SetDescription(aux.Stringid(id,0))
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_LEAVE_FIELD_REDIRECT)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CLIENT_HINT)
+		e1:SetReset(RESET_EVENT+RESETS_REDIRECT)
+		e1:SetValue(LOCATION_DECK)
+		c:RegisterEffect(e1,true)
+	end
 end

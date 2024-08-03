@@ -1,4 +1,3 @@
--- Skilled HERO Kid
 local s,id=GetID()
 function s.initial_effect(c)
     -- Card should always be treated as "HERO Kid"
@@ -46,7 +45,7 @@ function s.initial_effect(c)
 end
 
 function s.filter1(c)
-    return c:IsSetCard(0x8) and c:IsType(TYPE_MONSTER) and c:IsAbleToRemoveAsCost()
+    return c:IsSetCard(0x8) and c:IsType(TYPE_MONSTER) and c:IsAbleToRemoveAsCost() and not c:IsCode(id)
 end
 
 function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -110,7 +109,6 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
         Duel.SpecialSummonComplete()
     end
 end
-
 
 function s.spcon3(e,tp,eg,ep,ev,re,r,rp)
     return (r&REASON_BATTLE+REASON_EFFECT)~=0 and e:GetHandler():IsPreviousLocation(LOCATION_MZONE)

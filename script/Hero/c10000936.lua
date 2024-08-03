@@ -5,12 +5,11 @@
 local s, id = GetID()
 
 function s.initial_effect(c)
-    -- Name treated as Elemental HERO Sparkman while on field or in GY
+    -- Name treated as Elemental HERO Sparkman
     local e1 = Effect.CreateEffect(c)
     e1:SetType(EFFECT_TYPE_SINGLE)
-    e1:SetCode(EFFECT_CHANGE_CODE)
-    e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE + EFFECT_FLAG_UNCOPYABLE)
-    e1:SetValue(20721928) -- Elemental HERO Sparkman's card ID
+    e1:SetCode(EFFECT_ADD_CODE)
+    e1:SetValue(20721928)  -- Code of "Elemental HERO Sparkman"
     c:RegisterEffect(e1)
 
     -- Special Summon an "Evil HERO" monster from hand or Deck when "Evil HERO Sinister Shocker" is Summoned.

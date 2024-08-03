@@ -50,10 +50,10 @@ function s.initial_effect(c)
 end
 
 function s.ffilter(c, fc, sumtype, tp, sub, mg, sg)
-    return c:IsLevelAbove(0) and (not sg or not sg:IsExists(s.fusfilter, 1, c, c:GetLevel(), fc, sumtype, tp))
+    return c:IsSetCard(0x8) and c:IsType(TYPE_MONSTER) and (not sg or not sg:IsExists(s.fusfilter, 1, c, c:GetLevel()))
 end
 
-function s.fusfilter(c, lv, fc, sumtype, tp)
+function s.fusfilter(c, lv)
     return c:GetLevel() == lv
 end
 
