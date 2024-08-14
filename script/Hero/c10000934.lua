@@ -47,16 +47,19 @@ function s.spcon(e, c)
     if c == nil then return true end
     local tp = c:GetControler()
     return Duel.GetLocationCount(tp, LOCATION_MZONE) > 0
-        and Duel.IsExistingMatchingCard(s.spfilter, tp, LOCATION_ONFIELD + LOCATION_GRAVE, 0, 2, nil)
+        and Duel.IsExistingMatchingCard(s.spfilter, tp, LOCATION_ONFIELD + LOCATION_GRAVE, 0, 1, nil, 20721928)
+        and Duel.IsExistingMatchingCard(s.spfilter, tp, LOCATION_ONFIELD + LOCATION_GRAVE, 0, 1, nil, 84327329)
 end
 
 function s.spop(e, tp, eg, ep, ev, re, r, rp, c)
-    local g = Duel.SelectMatchingCard(tp, s.spfilter, tp, LOCATION_ONFIELD + LOCATION_GRAVE, 0, 2, 2, nil)
-    Duel.SendtoDeck(g, nil, SEQ_DECKSHUFFLE, REASON_COST)
+    local g1 = Duel.SelectMatchingCard(tp, s.spfilter, tp, LOCATION_ONFIELD + LOCATION_GRAVE, 0, 1, 1, nil, 20721928)
+    local g2 = Duel.SelectMatchingCard(tp, s.spfilter, tp, LOCATION_ONFIELD + LOCATION_GRAVE, 0, 1, 1, nil, 84327329)
+    g1:Merge(g2)
+    Duel.SendtoDeck(g1, nil, SEQ_DECKSHUFFLE, REASON_COST)
 end
 
-function s.spfilter(c)
-    return c:IsCode(20721928, 84327329) and c:IsAbleToDeckOrExtraAsCost()
+function s.spfilter(c, code)
+    return c:IsCode(code) and c:IsAbleToDeckOrExtraAsCost()
 end
 
 function s.descost(e,tp,eg,ep,ev,re,r,rp,chk)
