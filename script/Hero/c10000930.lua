@@ -43,20 +43,23 @@ function s.initial_effect(c)
     c:RegisterEffect(e5)
 end
 
-function s.spfilter(c)
-    return c:IsCode(79979666, 84327329) and c:IsAbleToDeckAsCost()
+function s.spfilter(c, code)
+    return c:IsCode(code) and c:IsAbleToDeckAsCost()
 end
 
 function s.spcon(e, c)
     if c == nil then return true end
     local tp = c:GetControler()
     return Duel.GetLocationCount(tp, LOCATION_MZONE) > 0 and
-           Duel.IsExistingMatchingCard(s.spfilter, tp, LOCATION_ONFIELD + LOCATION_GRAVE, 0, 2, nil)
+           Duel.IsExistingMatchingCard(s.spfilter, tp, LOCATION_ONFIELD + LOCATION_GRAVE, 0, 1, nil, 79979666) and
+           Duel.IsExistingMatchingCard(s.spfilter, tp, LOCATION_ONFIELD + LOCATION_GRAVE, 0, 1, nil, 84327329)
 end
 
 function s.spop(e, tp, eg, ep, ev, re, r, rp, c)
-    local g = Duel.SelectMatchingCard(tp, s.spfilter, tp, LOCATION_ONFIELD + LOCATION_GRAVE, 0, 2, 2, nil)
-    Duel.SendtoDeck(g, nil, 2, REASON_COST)
+    local g1 = Duel.SelectMatchingCard(tp, s.spfilter, tp, LOCATION_ONFIELD + LOCATION_GRAVE, 0, 1, 1, nil, 79979666)
+    local g2 = Duel.SelectMatchingCard(tp, s.spfilter, tp, LOCATION_ONFIELD + LOCATION_GRAVE, 0, 1, 1, nil, 84327329)
+    g1:Merge(g2)
+    Duel.SendtoDeck(g1, nil, 2, REASON_COST)
 end
 
 function s.indcon(e)
