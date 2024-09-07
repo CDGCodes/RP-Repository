@@ -37,6 +37,17 @@ function s.initial_effect(c)
 	e4:SetTarget(s.destg)
 	e4:SetOperation(s.desop)
 	c:RegisterEffect(e4)
+	--damage
+	local e5=Effect.CreateEffect(c)
+	e5:SetDescription(aux.Stringid(id,0))
+	e5:SetCategory(CATEGORY_DAMAGE)
+	e5:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+	e5:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e5:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e5:SetTarget(s.damtg)
+	e5:SetOperation(s.damop)
+	c:RegisterEffect(e5)
+
 end
 s.material_setcode=0x7
 function s.atkop(e,tp,eg,ep,ev,re,r,rp)
@@ -95,4 +106,14 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	if #g>0 then
 		Duel.Destroy(g,REASON_EFFECT)
 	end
+end
+function s.damtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return true end
+	Duel.SetTargetPlayer(1-tp)
+	Duel.SetTargetParam(1200)
+	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,1200)
+end
+function s.damop(e,tp,eg,ep,ev,re,r,rp)
+	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
+	Duel.Damage(p,d,REASON_EFFECT)
 end
