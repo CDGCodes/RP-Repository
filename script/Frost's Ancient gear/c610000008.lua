@@ -36,7 +36,7 @@ function s.initial_effect(c)
 	e4:SetValue(1000)
 	c:RegisterEffect(e4)
 	--Fusion Summon
-	local params={aux.FilterBoolFunction(IsSetCard(0x7))}
+	local params={aux.FilterBoolFunction(Card.IsSetCard(0x7))}
 	local e5=Effect.CreateEffect(c)
 	e5:SetDescription(aux.Stringid(id,0))
 	e5:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
