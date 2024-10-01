@@ -35,20 +35,7 @@ function s.initial_effect(c)
 	e4:SetTarget(aux.NOT(aux.TargetBoolFunction(Card.IsRace,RACE_REPTILE)))
 	e4:SetValue(1000)
 	c:RegisterEffect(e4)
-	--Fusion Summon
-	local params={aux.FilterBoolFunction(Card.IsSetCard(0x7))}
-	local e5=Effect.CreateEffect(c)
-	e5:SetDescription(aux.Stringid(id,0))
-	e5:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
-	e5:SetType(EFFECT_TYPE_IGNITION)
-	e5:SetRange(LOCATION_FZONE)
-	e5:SetCountLimit(1,id)
-	e5:SetTarget(Fusion.SummonEffTG(table.unpack(params)))
-	e5:SetOperation(function(e,tp,eg,ep,ev,re,r,rp)
-						if not e:GetHandler():IsRelateToEffect(e) then return end
-						Fusion.SummonEffOP(table.unpack(params))(e,tp,eg,ep,ev,re,r,rp)
-					end)
-	c:RegisterEffect(e5)
+	
 end
 s.listed_series={0x7}
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
@@ -69,4 +56,8 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
 		Duel.ShuffleDeck(tp)
 	end
+end
+function s.initial_effect(c)
+	local e1=Fusion.CreateSummonEff(c,aux.FilterBoolFunction(Card.IsSetCard,0x7),nil,s.fextra,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,s.extratg)
+	c:RegisterEffect(e1)
 end
