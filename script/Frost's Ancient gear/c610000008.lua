@@ -57,7 +57,3 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.ShuffleDeck(tp)
 	end
 end
-function s.initial_effect(c)
-	local e1=Fusion.CreateSummonEff(c,aux.FilterBoolFunction(Card.IsSetCard,0x7),nil,s.fextra,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,s.extratg)
-	c:RegisterEffect(e1)
-end
