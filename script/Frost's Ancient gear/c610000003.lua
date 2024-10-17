@@ -47,6 +47,7 @@ function s.initial_effect(c)
 	e5:SetCountLimit(1,0)
 	e5:SetTarget(s.damtg)
 	e5:SetOperation(s.damop)
+	e5:SetCondition(s.damcon)
 	c:RegisterEffect(e5)
 
 end
@@ -107,6 +108,9 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	if #g>0 then
 		Duel.Destroy(g,REASON_EFFECT)
 	end
+end
+function s.damcon(e,tp,eg,ep,ev,re,r,rp)
+	return (e:GetHandler():GetSummonType()&SUMMON_TYPE_FUSION)==SUMMON_TYPE_FUSION
 end
 function s.damtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
