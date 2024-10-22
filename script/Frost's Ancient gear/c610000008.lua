@@ -35,7 +35,20 @@ function s.initial_effect(c)
 	e4:SetTarget(aux.NOT(aux.TargetBoolFunction(Card.IsRace,RACE_REPTILE)))
 	e4:SetValue(1000)
 	c:RegisterEffect(e4)
-	
+	--Fusion Summon
+	local params={aux.FilterBoolFunction(Card.IsSetCard, 0x7)}
+	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(id,0))
+	e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
+	e2:SetType(EFFECT_TYPE_IGNITION)
+	e2:SetRange(LOCATION_FZONE)
+	e2:SetCountLimit(1,id)
+	e2:SetTarget(Fusion.SummonEffTG(table.unpack(params)))
+	e2:SetOperation(function(e,tp,eg,ep,ev,re,r,rp)
+						if not e:GetHandler():IsRelateToEffect(e) then return end
+						Fusion.SummonEffOP(table.unpack(params))(e,tp,eg,ep,ev,re,r,rp)
+					end)
+	c:RegisterEffect(e2)
 end
 s.listed_series={0x7}
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
