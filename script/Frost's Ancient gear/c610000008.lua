@@ -32,11 +32,11 @@ function s.initial_effect(c)
 	e4:SetCode(EFFECT_UPDATE_ATTACK)
 	e4:SetRange(LOCATION_FZONE)
 	e4:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
-	e4:SetTarget(aux.NOT(aux.TargetBoolFunction(Card.IsRace,RACE_REPTILE)))
+	e4:SetTarget(aux.TargetBoolFunction(Card.IsSetCard,0x7))
 	e4:SetValue(1000)
 	c:RegisterEffect(e4)
 	--Fusion Summon
-	local params={aux.FilterBoolFunction(Card.IsSetCard, 0x7)}
+	local params={aux.FilterBoolFunction(Card.IsSetCard,0x7)}
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,0))
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
