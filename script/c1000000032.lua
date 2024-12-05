@@ -1,8 +1,8 @@
 --Number 109: Black Luster Soldier - Cosmic Soldier
 local s,id=GetID()
 function s.initial_effect(c)
-  --xyz summon
-  Xyz.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsLevel,8),2,nil,nil,99)
+	--Xyz Summon
+	Xyz.AddProcedure(c,nil,8,2)
   c:EnableReviveLimit()
   
   --Once per turn: Banish opponent's card
@@ -20,12 +20,11 @@ function s.initial_effect(c)
   --Additional effects if used "Black Luster Soldier" monster as material
   local e2=Effect.CreateEffect(c)
   e2:SetType(EFFECT_TYPE_SINGLE)
-  e2:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+  e2:SetProperty(EFFECT_FLAG_SINGLE_RANGE+EFFECT_FLAG_IGNORE_IMMUNE)
   e2:SetRange(LOCATION_MZONE)
   e2:SetCondition(s.matcon)
-  e2:SetValue(1)
   e2:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
-  e2:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
+  e2:SetValue(aux.tgoval)
   c:RegisterEffect(e2)
   
   local e3=Effect.CreateEffect(c)
