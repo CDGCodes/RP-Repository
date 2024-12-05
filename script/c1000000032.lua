@@ -1,8 +1,8 @@
 --Number 109: Black Luster Soldier - Cosmic Soldier
 local s,id=GetID()
 function s.initial_effect(c)
-	--Xyz Summon
-	Xyz.AddProcedure(c,nil,8,2)
+  --Xyz Summon
+  Xyz.AddProcedure(c,nil,8,2)
   c:EnableReviveLimit()
   
   --Once per turn: Banish opponent's card
@@ -55,5 +55,6 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.matcon(e)
-  return e:GetHandler():IsSetCard(0x10cf)
+  local c=e:GetHandler()
+  return c:IsSummonType(SUMMON_TYPE_XYZ) and c:GetMaterial():IsExists(Card.IsSetCard,1,nil,0x10cf)
 end
