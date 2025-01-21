@@ -40,7 +40,7 @@ function s.ffilter1(c)
 end
 
 function s.ffilter2(c)
-    return c:IsSetCard(0xb9) and c:IsType(TYPE_SPELL + TYPE_TRAP)
+    return c:IsSetCard(0xb9) and c:IsType(TYPE_SPELL + TYPE_TRAP) and c:IsFaceup()
 end
 
 function s.contactfil(tp)
@@ -58,7 +58,6 @@ end
 
 function s.damop(e, tp, eg, ep, ev, re, r, rp)
     local ct = eg:FilterCount(Card.IsControler, nil, tp)
-    ct = ct * eg:FilterCount(Card.IsAttribute, nil, ATTRIBUTE_FIRE)
     Duel.Damage(1 - tp, ct * 500, REASON_EFFECT)
 end
 
@@ -89,7 +88,7 @@ function s.retcost(e, tp, eg, ep, ev, re, r, rp, chk)
 end
 
 function s.retfilter(c)
-    return c:IsType(TYPE_MONSTER) and c:IsRace(RACE_PYRO)
+    return c:IsType(TYPE_MONSTER) and c:IsRace(RACE_PYRO) and not c:IsCode(1040000009)
 end
 
 function s.retop(e, tp, eg, ep, ev, re, r, rp)
