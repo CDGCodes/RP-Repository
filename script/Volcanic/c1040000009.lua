@@ -62,8 +62,12 @@ function s.damop(e, tp, eg, ep, ev, re, r, rp)
 end
 
 function s.atkcost(e, tp, eg, ep, ev, re, r, rp, chk)
-    if chk == 0 then return Duel.IsExistingMatchingCard(Card.IsDiscardable, tp, LOCATION_HAND, 0, 2, nil) end
-    Duel.DiscardHand(tp, Card.IsDiscardable, 2, 2, REASON_COST + REASON_DISCARD)
+    if chk == 0 then return Duel.IsExistingMatchingCard(s.costfilter, tp, LOCATION_HAND, 0, 2, nil) end
+    Duel.DiscardHand(tp, s.costfilter, 2, 2, REASON_COST + REASON_DISCARD)
+end
+
+function s.costfilter(c)
+    return c:IsRace(RACE_PYRO) and c:IsDiscardable()
 end
 
 function s.atkop(e, tp, eg, ep, ev, re, r, rp)
