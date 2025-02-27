@@ -1,4 +1,4 @@
---Custom Yu-Gi-Oh! Monster Script
+--Corrupted wind
 local s,id=GetID()
 
 function s.initial_effect(c)
