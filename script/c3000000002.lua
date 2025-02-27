@@ -1,5 +1,3 @@
---Soul Corruption
---Created by ScareTheVoices
 local s,id=GetID()
 function s.initial_effect(c)
     --Apply effects when activated
@@ -20,9 +18,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
     local attribute=Duel.AnnounceAttribute(tp,1,ATTRIBUTE_ALL)
     
-    -- Register a global effect to ensure the attribute change is persistent
-    Duel.RegisterFlagEffect(tp,id,RESET_PHASE+PHASE_END,0,1,attribute)
-
     -- Change attribute for existing monsters in hand, Deck, and field
     local g=Duel.GetMatchingGroup(Card.IsType,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_MZONE,0,nil,TYPE_MONSTER)
     local tc=g:GetFirst()
@@ -41,27 +36,25 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
     local e2=Effect.CreateEffect(c)
     e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
     e2:SetCode(EVENT_ADJUST)
-    e2:SetOperation(s.adjustop)
+    e2:SetOperation(function(e,tp,eg,ep,ev,re,r,rp)
+        s.adjustop(e,tp,attribute)
+    end)
     Duel.RegisterEffect(e2,tp)
 end
 
-function s.adjustop(e,tp,eg,ep,ev,re,r,rp)
-    local attribute=Duel.GetFlagEffectLabel(tp,id)
-    if attribute then
-        local g=Duel.GetMatchingGroup(Card.IsType,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_MZONE+LOCATION_GRAVE+LOCATION_REMOVED+LOCATION_EXTRA,0,nil,TYPE_MONSTER)
-        local tc=g:GetFirst()
-        while tc do
-            if tc:GetAttribute()~=attribute then
-                local e1=Effect.CreateEffect(e:GetHandler())
-                e1:SetType(EFFECT_TYPE_SINGLE)
-                e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-                e1:SetCode(EFFECT_CHANGE_ATTRIBUTE)
-                e1:SetValue(attribute)
-                e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-                tc:RegisterEffect(e1)
-            end
-            tc=g:GetNext()
+function s.adjustop(e,tp,attribute)
+    local g=Duel.GetMatchingGroup(Card.IsType,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_MZONE+LOCATION_GRAVE+LOCATION_REMOVED+LOCATION_EXTRA,0,nil,TYPE_MONSTER)
+    local tc=g:GetFirst()
+    while tc do
+        if tc:GetAttribute()~=attribute then
+            local e1=Effect.CreateEffect(e:GetHandler())
+            e1:SetType(EFFECT_TYPE_SINGLE)
+            e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+            e1:SetCode(EFFECT_CHANGE_ATTRIBUTE)
+            e1:SetValue(attribute)
+            e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+            tc:RegisterEffect(e1)
         end
+        tc=g:GetNext()
     end
 end
-
