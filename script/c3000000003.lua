@@ -45,7 +45,7 @@ end
 
 --filter to check the specific card ID
 function s.spfilter(c)
-    return c:IsCode(9000000000)
+    return c:IsCode(3000000002)
 end
 
 --special summon cost function
