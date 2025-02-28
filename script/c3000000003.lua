@@ -14,6 +14,14 @@ function s.initial_effect(c)
     e1:SetOperation(s.spop)
     c:RegisterEffect(e1)
     
+    --Cannot be special summoned by other ways
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_SINGLE)
+    e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+    e2:SetCode(EFFECT_SPSUMMON_CONDITION)
+    e2:SetValue(aux.FALSE)
+    c:RegisterEffect(e2)
+
     --Track activation of the card with ID 3000000002 and WIND attribute choice
     if not s.global_check then
         s.global_check=true
@@ -25,27 +33,27 @@ function s.initial_effect(c)
     end
 
     --Special summon a WIND attribute monster from the graveyard once per turn during the end phase
-    local e2=Effect.CreateEffect(c)
-    e2:SetDescription(aux.Stringid(id, 0)) -- Adding description
-    e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-    e2:SetCode(EVENT_PHASE+PHASE_END)
-    e2:SetRange(LOCATION_MZONE)
-    e2:SetCountLimit(1)
-    e2:SetCondition(s.epcon)
-    e2:SetTarget(s.sptg)
-    e2:SetOperation(s.spop2)
-    c:RegisterEffect(e2)
-
-    --Quick effect: Move a WIND monster to the spell and trap zone or vice versa
     local e3=Effect.CreateEffect(c)
-    e3:SetDescription(aux.Stringid(id, 1)) -- Adding description
-    e3:SetType(EFFECT_TYPE_QUICK_O)
-    e3:SetCode(EVENT_FREE_CHAIN)
+    e3:SetDescription(aux.Stringid(id, 0)) -- Adding description
+    e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+    e3:SetCode(EVENT_PHASE+PHASE_END)
     e3:SetRange(LOCATION_MZONE)
     e3:SetCountLimit(1)
-    e3:SetTarget(s.stztg)
-    e3:SetOperation(s.stzop)
+    e3:SetCondition(s.epcon)
+    e3:SetTarget(s.sptg)
+    e3:SetOperation(s.spop2)
     c:RegisterEffect(e3)
+
+    --Quick effect: Move a WIND monster to the spell and trap zone or vice versa
+    local e4=Effect.CreateEffect(c)
+    e4:SetDescription(aux.Stringid(id, 1)) -- Adding description
+    e4:SetType(EFFECT_TYPE_QUICK_O)
+    e4:SetCode(EVENT_FREE_CHAIN)
+    e4:SetRange(LOCATION_MZONE)
+    e4:SetCountLimit(1)
+    e4:SetTarget(s.stztg)
+    e4:SetOperation(s.stzop)
+    c:RegisterEffect(e4)
 end
 
 function s.checkop(e,tp,eg,ep,ev,re,r,rp)
