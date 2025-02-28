@@ -26,18 +26,19 @@ function s.initial_effect(c)
 
     --Special summon a WIND attribute monster from the graveyard once per turn during the end phase
     local e2=Effect.CreateEffect(c)
-    e2:SetDescription(aux.Stringid(id, 0)) 
+    e2:SetDescription(aux.Stringid(id, 0)) -- Adding description
     e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
     e2:SetCode(EVENT_PHASE+PHASE_END)
     e2:SetRange(LOCATION_MZONE)
     e2:SetCountLimit(1)
+    e2:SetCondition(s.epcon)
     e2:SetTarget(s.sptg)
     e2:SetOperation(s.spop2)
     c:RegisterEffect(e2)
 
     --Quick effect: Move a WIND monster to the spell and trap zone or vice versa
     local e3=Effect.CreateEffect(c)
-    e3:SetDescription(aux.Stringid(id, 1))
+    e3:SetDescription(aux.Stringid(id, 1)) -- Adding description
     e3:SetType(EFFECT_TYPE_QUICK_O)
     e3:SetCode(EVENT_FREE_CHAIN)
     e3:SetRange(LOCATION_MZONE)
@@ -72,6 +73,11 @@ end
 --Filter to check WIND attribute monsters on the field, excluding this card
 function s.spcostfilter(c)
     return c:IsAttribute(ATTRIBUTE_WIND) and c:IsDestructable() and not c:IsCode(id)
+end
+
+--Condition to check if it's the controller's end phase
+function s.epcon(e,tp,eg,ep,ev,re,r,rp)
+    return tp==Duel.GetTurnPlayer()
 end
 
 --Target function for special summoning WIND attribute monster from the graveyard
