@@ -17,7 +17,6 @@ end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
     local attribute=Duel.AnnounceAttribute(tp,1,ATTRIBUTE_ALL)
-    
     -- Change attribute for existing monsters in hand, Deck, and field
     local g=Duel.GetMatchingGroup(Card.IsType,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_MZONE,0,nil,TYPE_MONSTER)
     local tc=g:GetFirst()
@@ -40,6 +39,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
         s.adjustop(e,tp,attribute)
     end)
     Duel.RegisterEffect(e2,tp)
+    Duel.RegisterFlagEffect(1,id,0,0,0,attribute)
 end
 
 function s.adjustop(e,tp,attribute)

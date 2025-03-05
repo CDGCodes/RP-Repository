@@ -11,7 +11,7 @@ function s.initial_effect(c)
     e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
     e1:SetRange(LOCATION_HAND)
     e1:SetCondition(s.spcon)
-    e1:SetOperation(s.spop)
+    --e1:SetOperation(s.spop)
     c:RegisterEffect(e1)
     
     --Cannot be special summoned by other ways
@@ -23,14 +23,21 @@ function s.initial_effect(c)
     c:RegisterEffect(e2)
 
     --Track activation of the card with ID 3000000002 and WIND attribute choice
-    if not s.global_check then
-        s.global_check=true
-        local ge1=Effect.CreateEffect(c)
-        ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-        ge1:SetCode(EVENT_CHAINING)
-        ge1:SetOperation(s.checkop)
-        Duel.RegisterEffect(ge1,0)
-    end
+    aux.GlobalCheck(s,function()
+		local ge1=Effect.CreateEffect(c)
+		ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+		ge1:SetCode(EVENT_CHAIN_SOLVED)
+		ge1:SetOperation(s.checkop)
+		Duel.RegisterEffect(ge1,0)
+	end)
+    --if not s.global_check then
+    --    s.global_check=true
+    --    local ge1=Effect.CreateEffect(c)
+    --    ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    --    ge1:SetCode(EVENT_CHAINING)
+    --    ge1:SetOperation(s.checkop)
+    --    Duel.RegisterEffect(ge1,0)
+    --end
 
     --Special summon a WIND attribute monster from the graveyard once per turn during the end phase
     local e3=Effect.CreateEffect(c)
@@ -57,18 +64,22 @@ function s.initial_effect(c)
 end
 
 function s.checkop(e,tp,eg,ep,ev,re,r,rp)
-    if re:GetHandler():IsCode(3000000002) and re:IsHasType(EFFECT_TYPE_ACTIVATE) then
-        Duel.RegisterFlagEffect(ep,3000000002,RESET_PHASE+PHASE_END+RESET_OPPO_TURN,0,2,ATTRIBUTE_WIND)
+    if re:GetHandler():IsCode(3000000002) then
+        --Debug.Message(Duel.GetFlagEffectLabel(1, 3000000002))
+        Duel.RegisterFlagEffect(rp,id,0,0,0,Duel.GetFlagEffectLabel(1, 3000000002))
     end
 end
 
 --Special summon condition function
 function s.spcon(e,c)
-    if c==nil then return true end
-    local tp=e:GetHandlerPlayer()
-    return Duel.GetFlagEffect(tp,3000000002)>0
-        and Duel.GetFlagEffectLabel(tp,3000000002)==ATTRIBUTE_WIND
-        and Duel.IsExistingMatchingCard(s.spcostfilter,tp,LOCATION_MZONE,0,2,nil)
+	if c==nil then return true end
+	local tp=c:GetControler()
+	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and (Duel.HasFlagEffect(tp,id) and Duel.GetFlagEffectLabel(tp, id)==ATTRIBUTE_WIND) or (Duel.HasFlagEffect(1-tp, id) and Duel.GetFlagEffectLabel(1-tp, id)==ATTRIBUTE_WIND)
+    --if c==nil then return true end
+    --local tp=e:GetHandlerPlayer()
+    --return Duel.GetFlagEffect(tp,3000000002)>0
+    --    and Duel.GetFlagEffectLabel(tp,3000000002)==ATTRIBUTE_WIND
+    --    and Duel.IsExistingMatchingCard(s.spcostfilter,tp,LOCATION_MZONE,0,2,nil)
 end
 
 --Special summon operation function
