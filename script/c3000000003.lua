@@ -3,24 +3,26 @@ local s,id=GetID()
 function s.initial_effect(c)
     --Cannot be normal summoned/set
     c:EnableUnsummonable()
-    
+    c:AddMustBeSpecialSummonedByCardEffect()
     --Special summon condition
-    local e1=Effect.CreateEffect(c)
-    e1:SetType(EFFECT_TYPE_FIELD)
-    e1:SetCode(EFFECT_SPSUMMON_PROC)
-    e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
-    e1:SetRange(LOCATION_HAND)
-    e1:SetCondition(s.spcon)
-    --e1:SetOperation(s.spop)
-    c:RegisterEffect(e1)
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e1:SetType(EFFECT_TYPE_IGNITION)
+	e1:SetRange(LOCATION_HAND|LOCATION_GRAVE)
+	e1:SetCountLimit(1,id)
+	e1:SetCondition(s.spcon)
+	e1:SetTarget(s.sptg)
+	e1:SetOperation(s.spop)
+	c:RegisterEffect(e1)
     
     --Cannot be special summoned by other ways
-    local e2=Effect.CreateEffect(c)
-    e2:SetType(EFFECT_TYPE_SINGLE)
-    e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-    e2:SetCode(EFFECT_SPSUMMON_CONDITION)
-    e2:SetValue(aux.FALSE)
-    c:RegisterEffect(e2)
+    --local e2=Effect.CreateEffect(c)
+    --e2:SetType(EFFECT_TYPE_SINGLE)
+    --e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+    --e2:SetCode(EFFECT_SPSUMMON_CONDITION)
+    --e2:SetValue(aux.FALSE)
+    --c:RegisterEffect(e2)
 
     --Track activation of the card with ID 3000000002 and WIND attribute choice
     aux.GlobalCheck(s,function()
@@ -47,7 +49,7 @@ function s.initial_effect(c)
     e3:SetRange(LOCATION_MZONE)
     e3:SetCountLimit(1)
     e3:SetCondition(s.epcon)
-    e3:SetTarget(s.sptg)
+    e3:SetTarget(s.sptg2)
     e3:SetOperation(s.spop2)
     c:RegisterEffect(e3)
 
@@ -71,7 +73,8 @@ function s.checkop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 --Special summon condition function
-function s.spcon(e,c)
+function s.spcon(e)
+    local c=e:GetHandler()
 	if c==nil then return true end
 	local tp=c:GetControler()
 	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and (Duel.HasFlagEffect(tp,id) and Duel.GetFlagEffectLabel(tp, id)==ATTRIBUTE_WIND) or (Duel.HasFlagEffect(1-tp, id) and Duel.GetFlagEffectLabel(1-tp, id)==ATTRIBUTE_WIND)
@@ -83,10 +86,15 @@ function s.spcon(e,c)
 end
 
 --Special summon operation function
-function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
-    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-    local g=Duel.SelectMatchingCard(tp,s.spcostfilter,tp,LOCATION_MZONE,0,2,2,nil)
-    Duel.Destroy(g,REASON_COST)
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,tp,0)
+end
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) then Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP) end
 end
 
 --Filter to check WIND attribute monsters on the field, excluding this card
@@ -100,7 +108,7 @@ function s.epcon(e,tp,eg,ep,ev,re,r,rp)
 end
 
 --Target function for special summoning WIND attribute monster from the graveyard
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
         and Duel.IsExistingTarget(Card.IsAttribute,tp,LOCATION_GRAVE,0,1,nil,ATTRIBUTE_WIND) end
     Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE)
