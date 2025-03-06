@@ -18,7 +18,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
     local attribute=Duel.AnnounceAttribute(tp,1,ATTRIBUTE_ALL)
     -- Change attribute for existing monsters in hand, Deck, and field
-    local g=Duel.GetMatchingGroup(Card.IsType,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_MZONE,0,nil,TYPE_MONSTER)
+    local g=Duel.GetMatchingGroup(Card.IsMonsterCard,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_ONFIELD,0,nil)
     local tc=g:GetFirst()
     while tc do
         local e1=Effect.CreateEffect(c)
@@ -43,7 +43,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.adjustop(e,tp,attribute)
-    local g=Duel.GetMatchingGroup(Card.IsType,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_MZONE+LOCATION_GRAVE+LOCATION_REMOVED+LOCATION_EXTRA,0,nil,TYPE_MONSTER)
+    local g=Duel.GetMatchingGroup(Card.IsMonsterCard,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_ONFIELD,0,nil)
     local tc=g:GetFirst()
     while tc do
         if tc:GetAttribute()~=attribute then
