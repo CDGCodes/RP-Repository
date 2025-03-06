@@ -118,25 +118,39 @@ end
 
 --Target function for moving WIND monster to spell and trap zone or vice versa
 function s.stztg(e,tp,eg,ep,ev,re,r,rp,chk)
-    if chk==0 then return Duel.IsExistingMatchingCard(s.stzfilter,tp,LOCATION_MZONE,0,1,nil)
-        or Duel.IsExistingMatchingCard(s.stzfilter,tp,LOCATION_SZONE,0,1,nil) end
+    if chk==0 then return Duel.IsExistingMatchingCard(s.stzfilter,tp,LOCATION_MZONE,0,1,nil, e, tp)
+        or Duel.IsExistingMatchingCard(s.stzfilter,tp,LOCATION_SZONE,0,1,nil, e, tp) end
 end
 
 --Operation function for moving WIND monster to spell and trap zone or vice versa
 function s.stzop(e,tp,eg,ep,ev,re,r,rp)
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOZONE)
-    local g=Duel.SelectMatchingCard(tp,s.stzfilter,tp,LOCATION_MZONE+LOCATION_SZONE,0,1,1,nil)
+    local g=Duel.SelectMatchingCard(tp,s.stzfilter,tp,LOCATION_MZONE+LOCATION_SZONE,0,1,1,nil, e, tp)
     local tc=g:GetFirst()
     if tc then
         if tc:IsLocation(LOCATION_MZONE) then
-            Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
+            if Duel.GetLocationCount(tc:GetOwner(),LOCATION_SZONE)==0 then
+                Duel.SendtoGrave(tc,REASON_RULE,nil,PLAYER_NONE)
+            elseif Duel.MoveToField(tc,tp,tc:GetOwner(),LOCATION_SZONE,POS_FACEUP,tc:IsMonsterCard()) then
+                --Treat it as a Continuous Spell
+                local e1=Effect.CreateEffect(e:GetHandler())
+                e1:SetType(EFFECT_TYPE_SINGLE)
+                e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+                e1:SetCode(EFFECT_CHANGE_TYPE)
+                e1:SetValue(TYPE_SPELL|TYPE_CONTINUOUS)
+                e1:SetReset(RESET_EVENT|(RESETS_STANDARD&~RESET_TURN_SET))
+                tc:RegisterEffect(e1)
+            end
         else
-            Duel.MoveToField(tc,tp,tp,LOCATION_MZONE,POS_FACEUP,true)
+            Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
         end
     end
 end
 
 --Filter for WIND monsters on the field
-function s.stzfilter(c)
-    return c:IsAttribute(ATTRIBUTE_WIND) and (c:IsLocation(LOCATION_MZONE) or c:IsLocation(LOCATION_SZONE))
+function s.stzfilter(c,e,tp)
+    if c:IsAttribute(ATTRIBUTE_WIND) then
+        if c:IsLocation(LOCATION_MZONE) then return true end
+        return c:IsMonsterCard() and c:IsContinuousSpell() and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+    end
 end
