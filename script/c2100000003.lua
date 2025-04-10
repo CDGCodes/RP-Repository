@@ -66,9 +66,9 @@ function s.initial_effect(c)
 end
 
 function s.checkop(e,tp,eg,ep,ev,re,r,rp)
-    if re:GetHandler():IsCode(3000000002) then
+    if re:GetHandler():IsCode(2100000002) then
         --Debug.Message(Duel.GetFlagEffectLabel(1, 3000000002))
-        Duel.RegisterFlagEffect(rp,id,0,0,0,Duel.GetFlagEffectLabel(1, 3000000002))
+        Duel.RegisterFlagEffect(rp,id,0,0,0,Duel.GetFlagEffectLabel(1, 2100000002))
     end
 end
 
