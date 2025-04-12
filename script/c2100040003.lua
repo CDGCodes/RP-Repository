@@ -98,12 +98,10 @@ function s.spcon(e)
     local c=e:GetHandler()
     if c==nil then return true end
     local tp=c:GetControler()
-    return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and (Duel.HasFlagEffect(tp,id) and Duel.GetFlagEffectLabel(tp, id)==ATTRIBUTE_WIND) or (Duel.HasFlagEffect(1-tp, id) and Duel.GetFlagEffectLabel(1-tp, id)==ATTRIBUTE_WIND)
-    --if c==nil then return true end
-    --local tp=e:GetHandlerPlayer()
-    --return Duel.GetFlagEffect(tp,3000000002)>0
-    --    and Duel.GetFlagEffectLabel(tp,3000000002)==ATTRIBUTE_WIND
-    --    and Duel.IsExistingMatchingCard(s.spcostfilter,tp,LOCATION_MZONE,0,2,nil)
+    return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 
+        and Duel.IsExistingMatchingCard(s.spcostfilter,tp,LOCATION_MZONE,0,2,nil)
+        and ((Duel.HasFlagEffect(tp,id) and Duel.GetFlagEffectLabel(tp, id)==ATTRIBUTE_WIND) 
+        or (Duel.HasFlagEffect(1-tp, id) and Duel.GetFlagEffectLabel(1-tp, id)==ATTRIBUTE_WIND))
 end
 
 --Special summon operation function
@@ -113,9 +111,17 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
         and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
     Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,tp,0)
 end
+
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
-    if c:IsRelateToEffect(e) then Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP) end
+    if Duel.IsExistingMatchingCard(s.spcostfilter,tp,LOCATION_MZONE,0,2,nil) then
+        Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+        local g=Duel.SelectMatchingCard(tp,s.spcostfilter,tp,LOCATION_MZONE,0,2,2,nil)
+        if Duel.Destroy(g,REASON_COST)~=2 then return end
+    end
+    if c:IsRelateToEffect(e) then
+        Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+    end
 end
 
 --Filter to check WIND attribute monsters on the field, excluding this card
