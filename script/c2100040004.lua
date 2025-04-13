@@ -26,13 +26,43 @@ function s.initial_effect(c)
         Duel.RegisterEffect(ge1,0)
     end)
 
-    -- Disable field
-    local e2=Effect.CreateEffect(c)
-    e2:SetType(EFFECT_TYPE_FIELD)
-    e2:SetRange(LOCATION_MZONE)
-    e2:SetCode(EFFECT_DISABLE_FIELD)
-    e2:SetOperation(s.disop)
-    c:RegisterEffect(e2)
+    -- Attack in Defense Position
+    local e3=Effect.CreateEffect(c)
+    e3:SetType(EFFECT_TYPE_SINGLE)
+    e3:SetCode(EFFECT_DEFENSE_ATTACK)
+    e3:SetValue(1)
+    c:RegisterEffect(e3)
+
+    -- Flip opponent's monster to face-down Defense Position (Quick Effect)
+    local e4=Effect.CreateEffect(c)
+    e4:SetDescription(aux.Stringid(id,2))
+    e4:SetCategory(CATEGORY_POSITION)
+    e4:SetType(EFFECT_TYPE_QUICK_O)
+    e4:SetCode(EVENT_FREE_CHAIN)
+    e4:SetRange(LOCATION_MZONE)
+    e4:SetCountLimit(1) -- Once per turn
+    e4:SetTarget(s.postg)
+    e4:SetOperation(s.posop)
+    c:RegisterEffect(e4)
+
+    -- Inflict piercing damage
+    local e5=Effect.CreateEffect(c)
+    e5:SetType(EFFECT_TYPE_SINGLE)
+    e5:SetCode(EFFECT_PIERCE)
+    c:RegisterEffect(e5)
+
+    -- Destroy a face-down Defense Position monster and gain Defense Points
+    local e6=Effect.CreateEffect(c)
+    e6:SetDescription(aux.Stringid(id,3)) -- Adjust the string ID as needed
+    e6:SetCategory(CATEGORY_DESTROY+CATEGORY_DEFCHANGE)
+    e6:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
+    e6:SetCode(EVENT_PHASE+PHASE_END)
+    e6:SetRange(LOCATION_MZONE)
+    e6:SetCountLimit(1) -- Once per turn
+    e6:SetCondition(s.descon) -- Add a condition to check the turn
+    e6:SetTarget(s.destg)
+    e6:SetOperation(s.desop)
+    c:RegisterEffect(e6)
 end
 
 -- Track "Soul Corruption" activation and EARTH declaration
@@ -79,14 +109,55 @@ function s.spcostfilter(c)
     return c:IsAttribute(ATTRIBUTE_EARTH) and c:IsDestructable() and not c:IsCode(id)
 end
 
--- Disable field operation
-function s.disop(e,tp)
-    local c=Duel.GetLocationCount(1-tp,LOCATION_MZONE,PLAYER_NONE,0)
-    if c==0 then return end
-    local dis1=Duel.SelectDisableField(tp,1,0,LOCATION_MZONE,0)
-    if c>1 and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
-        local dis2=Duel.SelectDisableField(tp,1,0,LOCATION_MZONE,dis1)
-        dis1=(dis1|dis2)
+-- Target function for flipping a monster
+function s.postg(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return Duel.IsExistingMatchingCard(Card.IsCanTurnSet,tp,0,LOCATION_MZONE,1,nil) end
+    Duel.SetOperationInfo(0,CATEGORY_POSITION,nil,1,0,0)
+end
+
+-- Operation function for flipping a monster
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_POSCHANGE)
+    local g=Duel.SelectMatchingCard(tp,Card.IsCanTurnSet,tp,0,LOCATION_MZONE,1,1,nil)
+    if #g>0 then
+        Duel.ChangePosition(g,POS_FACEDOWN_DEFENSE)
     end
-    return dis1
+end
+
+-- Condition to check if it's the controller's End Phase
+function s.descon(e,tp,eg,ep,ev,re,r,rp)
+    return tp==Duel.GetTurnPlayer() -- Only activate during the controller's turn
+end
+
+-- Target function for destroying a face-down Defense Position monster
+function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return Duel.IsExistingMatchingCard(s.desfilter,tp,0,LOCATION_MZONE,1,nil,tp) end
+    local g=Duel.GetMatchingGroup(s.desfilter,tp,0,LOCATION_MZONE,nil,tp)
+    Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
+end
+
+-- Filter for opponent's face-down Defense Position monsters
+function s.desfilter(c,tp)
+    return c:IsFacedown() and c:IsDefensePos() and c:IsDestructable() and c:IsControler(1-tp)
+end
+
+-- Operation function for destroying a monster and gaining Defense Points
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+    local g=Duel.SelectMatchingCard(tp,s.desfilter,tp,0,LOCATION_MZONE,1,1,nil,tp)
+    if #g>0 and Duel.Destroy(g,REASON_EFFECT)~=0 then
+        local tc=g:GetFirst()
+        if tc and tc:IsLocation(LOCATION_GRAVE) then
+            local def=tc:GetDefense()
+            local c=e:GetHandler()
+            if c:IsFaceup() and c:IsRelateToEffect(e) then
+                local e1=Effect.CreateEffect(c)
+                e1:SetType(EFFECT_TYPE_SINGLE)
+                e1:SetCode(EFFECT_UPDATE_DEFENSE)
+                e1:SetValue(def)
+                e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
+                c:RegisterEffect(e1)
+            end
+        end
+    end
 end
