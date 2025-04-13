@@ -35,7 +35,7 @@ function s.initial_effect(c)
 
     -- Flip opponent's monster to face-down Defense Position (Quick Effect)
     local e4=Effect.CreateEffect(c)
-    e4:SetDescription(aux.Stringid(id,2))
+    e4:SetDescription(aux.Stringid(id,1))
     e4:SetCategory(CATEGORY_POSITION)
     e4:SetType(EFFECT_TYPE_QUICK_O)
     e4:SetCode(EVENT_FREE_CHAIN)
@@ -53,7 +53,7 @@ function s.initial_effect(c)
 
     -- Destroy a face-down Defense Position monster and gain Defense Points
     local e6=Effect.CreateEffect(c)
-    e6:SetDescription(aux.Stringid(id,3)) -- Adjust the string ID as needed
+    e6:SetDescription(aux.Stringid(id,2)) -- Adjust the string ID as needed
     e6:SetCategory(CATEGORY_DESTROY+CATEGORY_DEFCHANGE)
     e6:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
     e6:SetCode(EVENT_PHASE+PHASE_END)
