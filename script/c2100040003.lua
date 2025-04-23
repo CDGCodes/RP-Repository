@@ -5,16 +5,16 @@ function s.initial_effect(c)
     c:EnableUnsummonable()
     c:AddMustBeSpecialSummonedByCardEffect()
     --Special summon condition
-	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e1:SetType(EFFECT_TYPE_IGNITION)
-	e1:SetRange(LOCATION_HAND|LOCATION_GRAVE)
-	e1:SetCountLimit(1,id)
-	e1:SetCondition(s.spcon)
-	e1:SetTarget(s.sptg)
-	e1:SetOperation(s.spop)
-	c:RegisterEffect(e1)
+    local e1=Effect.CreateEffect(c)
+    e1:SetDescription(aux.Stringid(id,0))
+    e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
+    e1:SetType(EFFECT_TYPE_IGNITION)
+    e1:SetRange(LOCATION_HAND|LOCATION_GRAVE)
+    e1:SetCountLimit(1,id)
+    e1:SetCondition(s.spcon)
+    e1:SetTarget(s.sptg)
+    e1:SetOperation(s.spop)
+    c:RegisterEffect(e1)
     
     --Cannot be special summoned by other ways
     --local e2=Effect.CreateEffect(c)
@@ -26,12 +26,12 @@ function s.initial_effect(c)
 
     --Track activation of the card with ID 3000000002 and WIND attribute choice
     aux.GlobalCheck(s,function()
-		local ge1=Effect.CreateEffect(c)
-		ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-		ge1:SetCode(EVENT_CHAIN_SOLVED)
-		ge1:SetOperation(s.checkop)
-		Duel.RegisterEffect(ge1,0)
-	end)
+        local ge1=Effect.CreateEffect(c)
+        ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+        ge1:SetCode(EVENT_CHAIN_SOLVED)
+        ge1:SetOperation(s.checkop)
+        Duel.RegisterEffect(ge1,0)
+    end)
     --if not s.global_check then
     --    s.global_check=true
     --    local ge1=Effect.CreateEffect(c)
@@ -63,6 +63,15 @@ function s.initial_effect(c)
     e4:SetTarget(s.stztg)
     e4:SetOperation(s.stzop)
     c:RegisterEffect(e4)
+
+    --Gain 500 ATK for each monster set as a Continuous Spell
+    local e5=Effect.CreateEffect(c)
+    e5:SetType(EFFECT_TYPE_SINGLE)
+    e5:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+    e5:SetCode(EFFECT_UPDATE_ATTACK)
+    e5:SetRange(LOCATION_MZONE)
+    e5:SetValue(s.atkval)
+    c:RegisterEffect(e5)
 end
 
 function s.checkop(e,tp,eg,ep,ev,re,r,rp)
@@ -72,29 +81,47 @@ function s.checkop(e,tp,eg,ep,ev,re,r,rp)
     end
 end
 
+--Calculate the ATK boost based on the number of monsters set as Continuous Spells
+function s.atkval(e,c)
+    local tp=c:GetControler()
+    local g=Duel.GetMatchingGroup(s.ctfilter,tp,LOCATION_SZONE,0,nil)
+    return g:GetCount() * 500
+end
+
+--Filter for monsters set as Continuous Spells
+function s.ctfilter(c)
+    return c:IsType(TYPE_CONTINUOUS) and c:IsType(TYPE_SPELL) and c:IsOriginalType(TYPE_MONSTER)
+end
+
 --Special summon condition function
 function s.spcon(e)
     local c=e:GetHandler()
-	if c==nil then return true end
-	local tp=c:GetControler()
-	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and (Duel.HasFlagEffect(tp,id) and Duel.GetFlagEffectLabel(tp, id)==ATTRIBUTE_WIND) or (Duel.HasFlagEffect(1-tp, id) and Duel.GetFlagEffectLabel(1-tp, id)==ATTRIBUTE_WIND)
-    --if c==nil then return true end
-    --local tp=e:GetHandlerPlayer()
-    --return Duel.GetFlagEffect(tp,3000000002)>0
-    --    and Duel.GetFlagEffectLabel(tp,3000000002)==ATTRIBUTE_WIND
-    --    and Duel.IsExistingMatchingCard(s.spcostfilter,tp,LOCATION_MZONE,0,2,nil)
+    if c==nil then return true end
+    local tp=c:GetControler()
+    return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 
+        and Duel.IsExistingMatchingCard(s.spcostfilter,tp,LOCATION_MZONE,0,2,nil)
+        and ((Duel.HasFlagEffect(tp,id) and Duel.GetFlagEffectLabel(tp, id)==ATTRIBUTE_WIND) 
+        or (Duel.HasFlagEffect(1-tp, id) and Duel.GetFlagEffectLabel(1-tp, id)==ATTRIBUTE_WIND))
 end
 
 --Special summon operation function
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,tp,0)
+    local c=e:GetHandler()
+    if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+        and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
+    Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,tp,0)
 end
+
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) then Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP) end
+    local c=e:GetHandler()
+    if Duel.IsExistingMatchingCard(s.spcostfilter,tp,LOCATION_MZONE,0,2,nil) then
+        Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+        local g=Duel.SelectMatchingCard(tp,s.spcostfilter,tp,LOCATION_MZONE,0,2,2,nil)
+        if Duel.Destroy(g,REASON_COST)~=2 then return end
+    end
+    if c:IsRelateToEffect(e) then
+        Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+    end
 end
 
 --Filter to check WIND attribute monsters on the field, excluding this card
