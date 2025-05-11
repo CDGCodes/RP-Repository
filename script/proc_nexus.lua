@@ -1,7 +1,8 @@
 NEXUS_IMPORTED = true
 
 -- When making a Nexus Monster, include the following line at the top of your card's file: 
---if not NEXUS_IMPORTED then Duel.LoadScript("proc_nexus.lua") end
+-- if not NEXUS_IMPORTED then Duel.LoadScript("proc_nexus.lua") end
+-- Credits to Secuter, many of these functions are based heavily on their proc_reunion file, as well as proc_link which is included with EDOPro
 
 if not RPCONSTANT_IMPORTED then Duel.LoadScript("RPConstant.lua") end
 
