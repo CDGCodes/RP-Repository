@@ -1,5 +1,8 @@
 NEXUS_IMPORTED = true
 
+-- When making a Nexus Monster, include the following line at the top of your card's file: 
+--if not NEXUS_IMPORTED then Duel.LoadScript("proc_nexus.lua") end
+
 if not RPCONSTANT_IMPORTED then Duel.LoadScript("RPConstant.lua") end
 
 if not aux.NexusProcedure then
