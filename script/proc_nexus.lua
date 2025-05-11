@@ -1,5 +1,7 @@
 NEXUS_IMPORTED = true
 
+if not RPCONSTANT_IMPORTED then Duel.LoadScript("RPConstant.lua") end
+
 if not aux.NexusProcedure then
     aux.NexusProcedure = {}
     Nexus = aux.NexusProcedure
@@ -53,21 +55,23 @@ function Nexus.ConditionFilter(c, def, f, sc, tp)
 	return Nexus.GetNexusCount(c, def, sc)>0 and (not f or f(c,sc,SUMMON_TYPE_SPECIAL,tp))
 end
 function Nexus.GetNexusCount(c, def)
-    if def then
-        if c:GetDefense()>0 then return c:GetDefense()
-    else
-        if c:GetAttack()>0 then return c:GetAttack()
+    if def and c:GetDefense()>0 then
+        return c:GetDefense()
     end
+    if (not def) and c:GetAttack()>0 then
+        return c:GetAttack()
+    end
+    return 0
 end
-function Card.GetNexusCount(c)
-	return Nexus.GetNexusCount(c)
+function Card.GetNexusCount(c, def)
+	return Nexus.GetNexusCount(c, def)
 end
 
 function Nexus.CheckGoal(tp, def, sg, lc, minc, f, specialchk, filt)
     for _,filt in ipairs(filt) do
         if not sg:IsExists(filt[2], 1, nil, filt[3], tp, sg, Group.CreateGroup(), lc, filt[1], 1) then return false end
     end
-    return #sg>=minc and sg:CheckWithSumEqual(Nexus.GetNexusCount, sc:GetNexusCount(def), #sg, #sg, def)
+    return #sg>=minc and sg:CheckWithSumEqual(Nexus.GetNexusCount, lc:GetNexusCount(def), #sg, #sg, def)
         and (not specialchk or specialchk(sg, lc, SUMMON_TYPE_SPECIAL, tp)) and Duel.GetLocationCountFromEx(tp, tp, sg, lc)>0
 end
 
@@ -88,7 +92,7 @@ function Nexus.CheckRecursive(c, tp, def, sg, mg, lc, minc, maxc, f, specialchk,
             return false
         end
     end
-    local res = Nexus.CheckGoal(tp, sg, lc, minc, g, specialchk, filt)
+    local res = Nexus.CheckGoal(tp, def, sg, lc, minc, g, specialchk, filt)
         or (#sg<maxc and mg:IsExists(Nexus.CheckRecursive, 1, sg, tp, def, sg, mg, lc, minc, maxc, f, specialchk, og, emt, {table.unpack(filt)}))
         sg:RemoveCard(c)
         return res
@@ -133,16 +137,16 @@ function Nexus.Condition(f, def, minc, maxc, specialchk)
         if not g then
             g = Duel.GetMatchingGroup(Card.IsFaceup, tp, LOCATION_MZONE, 0, nil)
         end
-        local mg = g:Filter(Nexus.ConditionFilter, nil, f, c, tp)
-        local mustg = Auxilary.GetMustBeMaterialGroup(tp, g, tp, c, mg, REASON_NEXUS)
+        local mg = g:Filter(Nexus.ConditionFilter, nil, def, f, c, tp)
+        local mustg = Auxiliary.GetMustBeMaterialGroup(tp, g, tp, c, mg, REASON_NEXUS)
         if must then mustg:Merge(must) end
         if min and min < minc then return false end
         if max and max > maxc then return false end
         min = min or minc
         max = max or maxc
-        if mustg:IsExists(aux.NOT(Nexus.ConditionFilter), 1, nil, f, c, tp) or #mustg>max then return false end
+        if mustg:IsExists(aux.NOT(Nexus.ConditionFilter), 1, nil, def, f, c, tp) or #mustg>max then return false end
         local emt, tg = aux.GetExtraMaterials(tp, mustg+mg, c, SUMMON_TYPE_NEXUS)
-        tg:Match(Nexus.ConditionFilter, nil, f, c, tp)
+        tg:Match(Nexus.ConditionFilter, nil, def, f, c, tp)
         local mg_tg = mg+tg
         local res = mg_tg:Includes(mustg) and #mustg<=max
         if res then
@@ -169,7 +173,7 @@ function Nexus.Target(f, def, minc, maxc, specialchk)
         min = min or minc
         max = max or maxc
         local mg = g:Filter(Nexus.ConditionFilter, nil, def, f, c, tp)
-        local mustg = Auxilary.GetMustBeMaterialGroup(tp, g, tp, c, mg, REASON_NEXUS)
+        local mustg = Auxiliary.GetMustBeMaterialGroup(tp, g, tp, c, mg, REASON_NEXUS)
         if must then mustg:Merge(must) end
         local emt, tg = aux.GetExtraMaterials(tp, mustg + mg, c, SUMMON_TYPE_NEXUS)
         tg:Match(Nexus.ConditionFilter, nil, def, f, c, tp)
@@ -213,8 +217,7 @@ end
 
 function Nexus.Operation(f, def, minc, maxc, specialchk)
     return function(e, tp, eg, ep, ev, re, r, rp, c, must, g, min, max)
-        local g, filt, emt=e:GetLabelObject():GetTarget()()
-        e:GetLabelObject():Reset()
+        local g, filt, emt=table.unpack(e:GetLabelObject())
         for _,ex in ipairs(filt) do
             if ex[3]:GetValue() then
                 ex[3]:GetValue()(1, SUMMON_TYPE_SPECIAL, ex[3], ex[1]&g, c, tp)

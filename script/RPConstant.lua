@@ -1,3 +1,4 @@
+RPCONSTANT_IMPORTED = true
 --RP Repository Constant File
 
 --Archetype Setcodes
