@@ -29,7 +29,21 @@ function s.initial_effect(c)
     e2:SetTarget(s.speqtg)
     e2:SetOperation(s.speqop)
     c:RegisterEffect(e2)
+    -- ATK up
+    local e3=Effect.CreateEffect(c)
+    e3:SetType(EFFECT_TYPE_EQUIP)
+    e3:SetCode(EFFECT_UPDATE_ATTACK)
+    e3:SetCondition(function(e) return e:GetHandler():GetEquipTarget():IsSetCard(SET_DUELIST_ARMAMENTS) end)
+    e3:SetValue(2000)
+    c:RegisterEffect(e3)
     -- Inherit effect
+    local e4=Effect.CreateEffect(c)
+    e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_GRANT)
+    e4:SetRange(LOCATION_SZONE)
+    e4:SetTargetRange(LOCATION_MZONE, 0)
+    e4:SetTarget(function(e, c) return c==e:GetHandler():GetEquipTarget() and c:IsSetCard(SET_DUELIST_ARMAMENTS) end)
+    e4:SetLabelObject(e2)
+    c:RegisterEffect(e4)
 end
 
 function s.eqcon(e, tp, eg, ep, ev, re, r, rp)
