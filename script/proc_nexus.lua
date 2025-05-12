@@ -233,3 +233,61 @@ function Nexus.Operation(f, def, minc, maxc, specialchk)
         aux.DeleteExtraMaterialGroups(emt)
     end
 end
+
+function Duel.NexusSummon(tp, c, mustg, g, minc, maxc)
+    if minc == nil then minc = 2 end
+    if maxc == nil then maxc = 99 end
+    local mt = c:GetMetatable()
+    local f = mt.nexus_parameters[2]
+    local def = mt.nexus_parameters[3]
+    local minc=mt.nexus_parameters[4]
+	local maxc=mt.nexus_parameters[5]
+	local specialchk=mt.nexus_parameters[6]
+    if not g then
+        g = Duel.GetMatchingGroup(Card.IsFaceup, tp, 1, 0, nil)
+    end
+    local mg = g:Filter(Nexus.ConditionFilter, nil, def, f, c, tp)
+    if min and min < minc then return false end
+    if max and max > maxc then return false end
+    min = min or minc
+    max = max or maxc
+    if not mustg then
+        mustg = Group.CreateGroup()
+    end
+    local emt, tg = aux.GetExtraMaterials(tp, mustg + mg, c, SUMMON_TYPE_NEXUS)
+    tg = tg:Filter(Nexus.ConditionFilter, nil, def, f, c, tp)
+    local sg = Group.CreateGroup()
+    local finish = false
+    local cancel = false
+    sg:Merge(mustg)
+    while #sg < max do
+        local filters={}
+        if #sg > 0 then
+            Nexus.CheckRecursive2(sg:GetFirst(), tp, def, Group.CreateGroup(), sg, mg_tg, mg_tg, c, min, max, g, specialchk, mg, emt, filters)
+        end
+        local cg = mg_tg:Filter(Nexus.CheckRecursive, sg, tp, def, sg, mg_tg, c, min, max, f, specialchk, mg, emt, {table.unpack(filters)})
+        if #cg == 0 then break end
+        finish = #sg >= min and #sg <= max and Nexus.CheckGoal(tp, def, sg, c, min, f, specialchk, filters)
+        cancel = not og and Duel.IsSummonCancelable() and #sg == 0
+        Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_NMATERIAL)
+        local tc = Group.SelectUnselect(cg, sg, tp, finish, cancel, 1, 1)
+        if not tc then break end
+        if #mustg == 0 or not mustg:IsContains(tc) then
+            if not sg:IsContains(tc) then
+                sg:AddCard(tc)
+            else
+                sg:RemoveCard(tc)
+            end
+        end
+    end
+    if #sg > 0 then
+        local filters={}
+        Nexus.CheckRecursive2(sg:GetFirst(), tp, def, Group.CreateGroup(), sg, mg_tg, mg_tg, c, min, max, f, specialchk, mg, emt, filters)
+        sg:KeepAlive()
+        c:SetMaterial(sg)
+        Duel.SendtoGrave(sg, REASON_MATERIAL+REASON_NEXUS)
+        aux.DeleteExtraMaterialGroups(emt)
+        Duel.SpecialSummon(c, SUMMON_TYPE_NEXUS, tp, tp, false, false, POS_FACEUP)
+        c:CompleteProcedure()
+    end
+end
