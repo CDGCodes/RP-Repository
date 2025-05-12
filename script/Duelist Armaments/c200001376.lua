@@ -5,7 +5,7 @@ local s, id = GetID()
 s.Nexus=true
 function s.initial_effect(c)
     c:EnableReviveLimit()
-    Nexus.AddProcedure(c, nil, false, 2, 99)
+    Nexus.AddProcedure(c, nil, true, 2, 99)
     -- Equip from grave
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
@@ -34,7 +34,7 @@ end
 function s.eqtg(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
     local c=e:GetHandler()
     if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.eqfilter(chkc, tp, c) end
-    if chk == 0 then return Duel.GetLocationCount(tp, LOCATION_SZONE)>0 and Duel.IsExistingTarget(s.eqfilter, tp LOCATION_GRAVE, 0, 1, nil, tp, c) end
+    if chk == 0 then return Duel.GetLocationCount(tp, LOCATION_SZONE)>0 and Duel.IsExistingTarget(s.eqfilter, tp, LOCATION_GRAVE, 0, 1, nil, tp, c) end
     Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_EQUIP)
     local g = Duel.SelectTarget(tp, s.eqfilter, tp, LOCATION_GRAVE, 0, 1, 1, nil, tp, c)
     Duel.SetOperationInfo(0, CATEGORY_LEAVE_GRAVE|CATEGORY_EQUIP, g, 1, 0, 0)
