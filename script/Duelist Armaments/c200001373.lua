@@ -5,15 +5,16 @@ function s.initial_effect(c)
 	c:SetUniqueOnField(1, 0, s.armfusfilter, LOCATION_MZONE, c)
 	c:EnableReviveLimit()
 	Xyz.AddProcedure(c, aux.FilterBoolFunctionEx(Card.IsType, TYPE_SPELL), 2, 3, nil, nil, nil, nil, false, s.xyzcheck)
-	c:SetSPSummonOnce(id)
-	--Attach Spell from hand/field
+	--c:SetSPSummonOnce(id)
+    --Equip card on field
 	local e0=Effect.CreateEffect(c)
+	e0:SetCategory(CATEGORY_EQUIP)
 	e0:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e0:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e0:SetCondition(function(e) return e:GetHandler():IsSummonType(SUMMON_TYPE_XYZ) end)
-	e0:SetProperty(EFFECT_FLAG_DELAY)
-	e0:SetTarget(s.ovtgt)
-	e0:SetOperation(s.ovop)
+	e0:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DELAY)
+	e0:SetTarget(s.xeqtgt)
+	e0:SetOperation(s.xeqop)
 	c:RegisterEffect(e0)
 	--Target and destroy, or attach if Spell/Trap
 	local e1=Effect.CreateEffect(c)
@@ -30,20 +31,20 @@ function s.initial_effect(c)
 	e1:SetOperation(s.desop)
 	c:RegisterEffect(e1,false,REGISTER_FLAG_DETACH_XMAT)
 	--Equip card from grave
-	local e2=Effect.CreateEffect(c)
-    e2:SetDescription(aux.Stringid(id,2))
-	e2:SetCategory(CATEGORY_EQUIP)
-	e2:SetType(EFFECT_TYPE_IGNITION)
-	e2:SetCode(EVENT_FREE_CHAIN)
-	e2:SetRange(LOCATION_MZONE)
-	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e2:SetCountLimit(1, {id, 0})
-	e2:SetCondition(s.geqcon)
-	e2:SetCost(s.desaltcost)
-	e2:SetTarget(s.geqtgt)
-	e2:SetOperation(s.geqop)
-	c:RegisterEffect(e2,false,REGISTER_FLAG_DETACH_XMAT)
-	aux.AddEREquipLimit(c, nil, aux.True, function(c, e, tp, tc) c:EquipByEffectAndLimitRegister(e, tp, tc, id, true) end, e2)
+	--local e2=Effect.CreateEffect(c)
+    --e2:SetDescription(aux.Stringid(id,2))
+	--e2:SetCategory(CATEGORY_EQUIP)
+	--e2:SetType(EFFECT_TYPE_IGNITION)
+	--e2:SetCode(EVENT_FREE_CHAIN)
+	--e2:SetRange(LOCATION_MZONE)
+	--e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	--e2:SetCountLimit(1, {id, 0})
+	--e2:SetCondition(s.geqcon)
+	--e2:SetCost(s.desaltcost)
+	--e2:SetTarget(s.geqtgt)
+	--e2:SetOperation(s.geqop)
+	--c:RegisterEffect(e2,false,REGISTER_FLAG_DETACH_XMAT)
+	--aux.AddEREquipLimit(c, nil, aux.True, function(c, e, tp, tc) c:EquipByEffectAndLimitRegister(e, tp, tc, id, true) end, e2)
     --Gains ATK equal to ATK of equipped monsters
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_SINGLE)
@@ -63,6 +64,30 @@ function s.xyzfilter(c,xyz,tp)
 end
 function s.xyzcheck(g,tp,xyz)
 	return g:IsExists(s.xyzfilter,1,nil,xyz,tp)
+end
+
+function s.xeqfilter(c, e, tp)
+	if Duel.GetLocationCount(tp, LOCATION_SZONE)<=0 and c:GetLocation()==LOCATION_MZONE then return false end
+	if c==e:GetHandler() or not c:IsFaceup() then return false end
+	if c:GetEquipTarget() and c:GetEquipTarget()==e:GetHandler() then return false end
+    if c:IsControler(1-tp) and not c:IsAbleToChangeControler() then return false end
+	return (c:CheckEquipTarget(e:GetHandler()) or c:IsType(TYPE_MONSTER)) and c:CheckUniqueOnField(tp)
+end
+function s.xeqtgt(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
+	if chkc then return true end
+	if chk==0 then return Duel.IsExistingTarget(s.xeqfilter, tp, LOCATION_ONFIELD, LOCATION_ONFIELD, 1, nil, e, tp) end
+	local sg=Duel.SelectTarget(tp, s.xeqfilter, tp, LOCATION_ONFIELD, LOCATION_ONFIELD, 1, 1, nil, e, tp)
+	Duel.SetOperationInfo(0, CATEGORY_EQUIP, sg, 1, 0, 0)
+end
+function s.xeqop(e, tp, eg, ep, ev, re, r, rp)
+	local c=e:GetHandler()
+	local tc=Duel.GetFirstTarget()
+	if tc:IsRelateToEffect(e) then
+		if tc:IsType(TYPE_EQUIP) and tc:IsControler(1-tp) then
+			Duel.MoveToField(tc, tp, tp, LOCATION_SZONE, POS_FACEUP, true)
+		end
+		c:EquipByEffectAndLimitRegister(e, tp, tc, id)
+	end
 end
 
 function s.ovtgt(e, tp, eg, ep, ev, re, r, rp, chk)
@@ -92,9 +117,9 @@ end
 function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) and Duel.Destroy(tc,REASON_EFFECT)~=0 and tc:IsLocation(LOCATION_GRAVE) and tc:IsSpellTrap() and not tc:IsImmuneToEffect(e) and Duel.SelectYesNo(tp, aux.Stringid(id, 0)) then
-		Duel.Overlay(c, tc, true)
-	end
+	if tc:IsRelateToEffect(e) then Duel.Destroy(tc,REASON_EFFECT) end --~=0 and tc:IsLocation(LOCATION_GRAVE) and tc:IsSpellTrap() and not tc:IsImmuneToEffect(e) and Duel.SelectYesNo(tp, aux.Stringid(id, 0)) then
+		--Duel.Overlay(c, tc, true)
+	--end
 end
 function s.cfilter(c)
 	return c:IsSpell() and c:IsAbleToGraveAsCost()
