@@ -1,7 +1,7 @@
 --Darkest Diabolos, Monarch of the Lair
 local s,id=GetID()
 function s.initial_effect(c)
-    Synchro.AddProcedure(c, nil, 1, 1, Synchro.NonTuner(nil), 1, 1)
+    Synchro.AddProcedure(c, aux.FilterBoolFunctionEx(Card.IsAttribute,ATTRIBUTE_DARK), 1, 1, aux.FilterSummonCode(50383626),1,1)
     c:EnableReviveLimit()
     --INDESTRUCABLE
     local e1=Effect.CreateEffect(c)
