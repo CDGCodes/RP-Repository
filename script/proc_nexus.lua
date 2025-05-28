@@ -59,11 +59,11 @@ function Nexus.ConditionFilter(c, def, f, sc, tp)
 	return Nexus.GetNexusCount(c, def, sc)>0 and (not f or f(c,sc,SUMMON_TYPE_SPECIAL,tp))
 end
 function Nexus.GetNexusCount(c, def)
-    if def and c:GetDefense()>0 then
-        return c:GetDefense()
+    if def and c:GetBaseDefense()>0 then
+        return c:GetBaseDefense()
     end
-    if (not def) and c:GetAttack()>0 then
-        return c:GetAttack()
+    if (not def) and c:GetBaseAttack()>0 then
+        return c:GetBaseAttack()
     end
     return 0
 end
