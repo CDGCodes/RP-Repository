@@ -41,18 +41,6 @@ function s.initial_effect(c)
     --    Duel.RegisterEffect(ge1,0)
     --end
 
-    --Special summon a DARK attribute monster from the graveyard once per turn during the end phase
-    local e3=Effect.CreateEffect(c)
-    e3:SetDescription(aux.Stringid(id, 0)) -- Adding description
-    e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-    e3:SetCode(EVENT_PHASE+PHASE_END)
-    e3:SetRange(LOCATION_MZONE)
-    e3:SetCountLimit(1)
-    e3:SetCondition(s.epcon)
-    e3:SetTarget(s.sptg2)
-    e3:SetOperation(s.spop2)
-    c:RegisterEffect(e3)
-
     -- Give up your normal draw to search 1 card (ID 2100040002)
     local e6=Effect.CreateEffect(c)
     e6:SetDescription(aux.Stringid(id,3))
@@ -75,7 +63,7 @@ function s.initial_effect(c)
     e7:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
     e7:SetCode(EVENT_SPSUMMON_SUCCESS)
     e7:SetProperty(EFFECT_FLAG_DELAY)
-    e7:SetCountLimit(1,id)
+    e7:SetCountLimit(1,id+1)
     e7:SetTarget(s.eqtg)
     e7:SetOperation(s.eqop)
     c:RegisterEffect(e7)
@@ -136,30 +124,32 @@ function s.spcostfilter(c)
 end
 
 --Condition to check if it's the controller's end phase
-function s.epcon(e,tp,eg,ep,ev,re,r,rp)
-    return tp==Duel.GetTurnPlayer()
-end
-
+--function s.epcon(e,tp,eg,ep,ev,re,r,rp)
+--    return tp==Duel.GetTurnPlayer()
+--end
+--
 --Target function for special summoning DARK attribute monster from the graveyard
-function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk)
-    if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-        and Duel.IsExistingTarget(Card.IsAttribute,tp,LOCATION_GRAVE,0,1,nil,ATTRIBUTE_DARK) end
-    Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE)
-end
-
+--function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk)
+--    if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+--        and Duel.IsExistingTarget(Card.IsAttribute,tp,LOCATION_GRAVE,0,1,nil,ATTRIBUTE_DARK) end
+--    Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE)
+--end
+--
 --Operation function for special summoning DARK attribute monster from the graveyard
-function s.spop2(e,tp,eg,ep,ev,re,r,rp)
-    if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
-    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-    local g=Duel.SelectTarget(tp,Card.IsAttribute,tp,LOCATION_GRAVE,0,1,1,nil,ATTRIBUTE_DARK)
-    if g:GetCount()>0 then
-        Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
-    end
-end
+--function s.spop2(e,tp,eg,ep,ev,re,r,rp)
+--    if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
+--    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+--    local g=Duel.SelectTarget(tp,Card.IsAttribute,tp,LOCATION_GRAVE,0,1,1,nil,ATTRIBUTE_DARK)
+--    if g:GetCount()>0 then
+--        Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+--    end
+--end
 
--- NEW: Extra Deck equip helpers
+--NEW: Extra Deck equip helpers
 function s.eqfilter(c)
-    return c:IsType(TYPE_MONSTER)
+    -- Only DARK monsters from the Extra Deck that have a Level (exclude Link/Xyz) and are Level 8 or lower
+    local lv=c:GetLevel()
+    return c:IsType(TYPE_MONSTER) and c:IsAttribute(ATTRIBUTE_DARK) and lv and lv>0 and lv<=8
 end
 function s.eqtg(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0
