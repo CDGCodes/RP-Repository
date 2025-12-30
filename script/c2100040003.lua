@@ -72,6 +72,19 @@ function s.initial_effect(c)
     e5:SetRange(LOCATION_MZONE)
     e5:SetValue(s.atkval)
     c:RegisterEffect(e5)
+
+    -- Give up your normal draw to search 1 card (ID 2100040002)
+    local e6=Effect.CreateEffect(c)
+    e6:SetDescription(aux.Stringid(id,3))
+    e6:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+    e6:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+    e6:SetCode(EVENT_PREDRAW)
+    e6:SetRange(LOCATION_HAND)
+    e6:SetCondition(s.thcon)
+    e6:SetCost(s.thcost)
+    e6:SetTarget(s.thtg)
+    e6:SetOperation(s.thop)
+    c:RegisterEffect(e6)
 end
 
 function s.checkop(e,tp,eg,ep,ev,re,r,rp)
@@ -187,5 +200,46 @@ function s.stzfilter(c,e,tp)
     if c:IsAttribute(ATTRIBUTE_WIND) then
         if c:IsLocation(LOCATION_MZONE) then return true end
         return c:IsMonsterCard() and c:IsContinuousSpell() and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+    end
+end
+
+-- List the searched card
+s.listed_names={2100040002}
+
+-- Search helpers (searches deck for card ID 2100040002)
+function s.thcon(e,tp,eg,ep,ev,re,r,rp)
+    return Duel.IsTurnPlayer(tp) and Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)>0
+        and Duel.GetDrawCount(tp)>0 and (Duel.GetTurnCount()>1 or Duel.IsDuelType(DUEL_1ST_TURN_DRAW))
+end
+function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return not e:GetHandler():IsPublic() end
+end
+function s.thfilter(c)
+    return c:IsCode(2100040002) and c:IsAbleToHand()
+end
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end
+    Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,0,LOCATION_DECK)
+end
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+    local dt=Duel.GetDrawCount(tp)
+    if dt==0 then return false end
+    _replace_count=1
+    _replace_max=dt
+    -- Give up your normal draw this turn
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+    e1:SetCode(EFFECT_DRAW_COUNT)
+    e1:SetTargetRange(1,0)
+    e1:SetReset(RESET_PHASE|PHASE_DRAW)
+    e1:SetValue(0)
+    Duel.RegisterEffect(e1,tp)
+    if _replace_count>_replace_max then return end
+    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+    local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
+    if #g>0 then
+        Duel.SendtoHand(g,nil,REASON_EFFECT)
+        Duel.ConfirmCards(1-tp,g)
     end
 end
