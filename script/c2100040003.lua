@@ -73,17 +73,20 @@ function s.initial_effect(c)
     e5:SetValue(s.atkval)
     c:RegisterEffect(e5)
 
-    -- Give up your normal draw to search 1 card (ID 2100040002)
+    -- Once per turn, Main Phase (in hand): reveal this card; add 1 "2100040002" from your Deck to your hand, then shuffle 1 card from your hand into your Deck
     local e6=Effect.CreateEffect(c)
     e6:SetDescription(aux.Stringid(id,3))
     e6:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
-    e6:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-    e6:SetCode(EVENT_PREDRAW)
+    e6:SetType(EFFECT_TYPE_IGNITION)
     e6:SetRange(LOCATION_HAND)
-    e6:SetCondition(s.thcon)
-    e6:SetCost(s.thcost)
-    e6:SetTarget(s.thtg)
-    e6:SetOperation(s.thop)
+    e6:SetCountLimit(1,id+1)
+    e6:SetCondition(function(e,tp,eg,ep,ev,re,r,rp)
+        local ph=Duel.GetCurrentPhase()
+        return ph==PHASE_MAIN1 or ph==PHASE_MAIN2
+    end)
+    e6:SetCost(s.revcost)
+    e6:SetTarget(s.revthtg)
+    e6:SetOperation(s.revthop)
     c:RegisterEffect(e6)
 end
 
@@ -111,10 +114,18 @@ function s.spcon(e)
     local c=e:GetHandler()
     if c==nil then return true end
     local tp=c:GetControler()
-    return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 
-        and Duel.IsExistingMatchingCard(s.spcostfilter,tp,LOCATION_MZONE,0,2,nil)
-        and ((Duel.HasFlagEffect(tp,id) and Duel.GetFlagEffectLabel(tp, id)==ATTRIBUTE_WIND) 
-        or (Duel.HasFlagEffect(1-tp, id) and Duel.GetFlagEffectLabel(1-tp, id)==ATTRIBUTE_WIND))
+    -- attribute flag must be set to WIND by the card 2100040002 earlier in the duel
+    if not ((Duel.HasFlagEffect(tp,id) and Duel.GetFlagEffectLabel(tp, id)==ATTRIBUTE_WIND) 
+        or (Duel.HasFlagEffect(1-tp, id) and Duel.GetFlagEffectLabel(1-tp, id)==ATTRIBUTE_WIND)) then
+        return false
+    end
+    if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return false end
+    -- If in hand, no tributes required; if in GY, require 2 WIND monsters on field to send to GY
+    if c:IsLocation(LOCATION_HAND) then
+        return true
+    else
+        return Duel.IsExistingMatchingCard(s.spcostfilter,tp,LOCATION_MZONE,0,2,nil)
+    end
 end
 
 --Special summon operation function
@@ -127,12 +138,15 @@ end
 
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
-    if Duel.IsExistingMatchingCard(s.spcostfilter,tp,LOCATION_MZONE,0,2,nil) then
-        Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-        local g=Duel.SelectMatchingCard(tp,s.spcostfilter,tp,LOCATION_MZONE,0,2,2,nil)
-        if Duel.Destroy(g,REASON_COST)~=2 then return end
-    end
+    -- If activating from GY, send 2 WIND monsters on your field to the GY as cost
     if c:IsRelateToEffect(e) then
+        if c:IsLocation(LOCATION_GRAVE) then
+            if Duel.IsExistingMatchingCard(s.spcostfilter,tp,LOCATION_MZONE,0,2,nil) then
+                Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+                local g=Duel.SelectMatchingCard(tp,s.spcostfilter,tp,LOCATION_MZONE,0,2,2,nil)
+                if Duel.SendtoGrave(g,REASON_COST)~=2 then return end
+            else return end
+        end
         Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
     end
 end
@@ -206,40 +220,29 @@ end
 -- List the searched card
 s.listed_names={2100040002}
 
--- Search helpers (searches deck for card ID 2100040002)
-function s.thcon(e,tp,eg,ep,ev,re,r,rp)
-    return Duel.IsTurnPlayer(tp) and Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)>0
-        and Duel.GetDrawCount(tp)>0 and (Duel.GetTurnCount()>1 or Duel.IsDuelType(DUEL_1ST_TURN_DRAW))
-end
-function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
+-- New in-hand reveal search: reveal this card then add 1 card (ID 2100040002) from Deck to hand, then shuffle 1 card from your hand into your Deck
+function s.revcost(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return not e:GetHandler():IsPublic() end
+    Duel.ConfirmCards(1-tp,e:GetHandler())
 end
-function s.thfilter(c)
+function s.revthfilter(c)
     return c:IsCode(2100040002) and c:IsAbleToHand()
 end
-function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
-    if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end
-    Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,0,LOCATION_DECK)
+function s.revthtg(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return Duel.IsExistingMatchingCard(s.revthfilter,tp,LOCATION_DECK,0,1,nil) end
+    Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 end
-function s.thop(e,tp,eg,ep,ev,re,r,rp)
-    local dt=Duel.GetDrawCount(tp)
-    if dt==0 then return false end
-    _replace_count=1
-    _replace_max=dt
-    -- Give up your normal draw this turn
-    local e1=Effect.CreateEffect(e:GetHandler())
-    e1:SetType(EFFECT_TYPE_FIELD)
-    e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-    e1:SetCode(EFFECT_DRAW_COUNT)
-    e1:SetTargetRange(1,0)
-    e1:SetReset(RESET_PHASE|PHASE_DRAW)
-    e1:SetValue(0)
-    Duel.RegisterEffect(e1,tp)
-    if _replace_count>_replace_max then return end
+function s.revthop(e,tp,eg,ep,ev,re,r,rp)
+    if not Duel.IsExistingMatchingCard(s.revthfilter,tp,LOCATION_DECK,0,1,nil) then return end
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-    local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
+    local g=Duel.SelectMatchingCard(tp,s.revthfilter,tp,LOCATION_DECK,0,1,1,nil)
     if #g>0 then
         Duel.SendtoHand(g,nil,REASON_EFFECT)
         Duel.ConfirmCards(1-tp,g)
+        Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
+        local sg=Duel.SelectMatchingCard(tp,aux.TRUE,tp,LOCATION_HAND,0,1,1,nil)
+        if #sg>0 then
+            Duel.SendtoDeck(sg,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
+        end
     end
 end
