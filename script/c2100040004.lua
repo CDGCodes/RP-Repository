@@ -1,5 +1,6 @@
 --The Corrupted Earth
 local s,id=GetID()
+s.listed_names={2100040002} -- this card lists 2100040002
 function s.initial_effect(c)
     -- Cannot be Normal Summoned/Set
     c:EnableUnsummonable()
@@ -11,11 +12,24 @@ function s.initial_effect(c)
     e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
     e1:SetType(EFFECT_TYPE_IGNITION)
     e1:SetRange(LOCATION_HAND|LOCATION_GRAVE)
-    e1:SetCountLimit(1,id)
+    e1:SetCountLimit(1,id) -- once per turn (special summon)
     e1:SetCondition(s.spcon)
     e1:SetTarget(s.sptg)
     e1:SetOperation(s.spop)
     c:RegisterEffect(e1)
+
+    -- New: Reveal in hand to add card 2100040002 from Deck to hand, then shuffle a card from hand into Deck (Once per turn)
+    local e2=Effect.CreateEffect(c)
+    e2:SetDescription(aux.Stringid(id,3))
+    e2:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH+CATEGORY_TODECK)
+    e2:SetType(EFFECT_TYPE_IGNITION)
+    e2:SetRange(LOCATION_HAND)
+    e2:SetCountLimit(1,id+100) -- separate once per turn for this effect
+    e2:SetCondition(s.srchcon)
+    e2:SetCost(s.srchcost)
+    e2:SetTarget(s.srchtg)
+    e2:SetOperation(s.srchop)
+    c:RegisterEffect(e2)
 
     -- Track activation of "Soul Corruption" and EARTH attribute declaration
     aux.GlobalCheck(s,function()
@@ -45,6 +59,17 @@ function s.initial_effect(c)
     e4:SetOperation(s.posop)
     c:RegisterEffect(e4)
 
+    -- Grant other face-up EARTH monsters the ability to attack while in Defense Position
+    local e7=Effect.CreateEffect(c)
+    e7:SetType(EFFECT_TYPE_FIELD)
+    e7:SetCode(EFFECT_DEFENSE_ATTACK)
+    e7:SetRange(LOCATION_MZONE)
+    e7:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
+    e7:SetCondition(function(e) local c=e:GetHandler() return c:IsFaceup() and c:IsDefensePos() end)
+    e7:SetTarget(s.atktg)
+    e7:SetValue(1)
+    c:RegisterEffect(e7)
+
     -- Inflict piercing damage
     local e5=Effect.CreateEffect(c)
     e5:SetType(EFFECT_TYPE_SINGLE)
@@ -72,15 +97,20 @@ function s.checkop(e,tp,eg,ep,ev,re,r,rp)
     end
 end
 
--- Special Summon condition function
+-- Special Summon condition function (updated)
 function s.spcon(e)
     local c=e:GetHandler()
     if c==nil then return true end
     local tp=c:GetControler()
-    return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 
-        and Duel.IsExistingMatchingCard(s.spcostfilter,tp,LOCATION_MZONE,0,2,nil)
-        and ((Duel.HasFlagEffect(tp,id) and Duel.GetFlagEffectLabel(tp,id)==ATTRIBUTE_EARTH) 
-        or (Duel.HasFlagEffect(1-tp,id) and Duel.GetFlagEffectLabel(1-tp,id)==ATTRIBUTE_EARTH))
+    local flagok = (Duel.HasFlagEffect(tp,id) and Duel.GetFlagEffectLabel(tp,id)==ATTRIBUTE_EARTH)
+        or (Duel.HasFlagEffect(1-tp,id) and Duel.GetFlagEffectLabel(1-tp,id)==ATTRIBUTE_EARTH)
+    if not flagok then return false end
+    if c:IsLocation(LOCATION_HAND) then
+        return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+    elseif c:IsLocation(LOCATION_GRAVE) then
+        return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(s.spcostfilter,tp,LOCATION_MZONE,0,2,nil)
+    end
+    return false
 end
 
 -- Special Summon target function
@@ -91,22 +121,63 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
     Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,tp,0)
 end
 
--- Special Summon operation function
+-- Special Summon operation function (updated)
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
-    if Duel.IsExistingMatchingCard(s.spcostfilter,tp,LOCATION_MZONE,0,2,nil) then
-        Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+    if c:IsLocation(LOCATION_GRAVE) then
+        if not Duel.IsExistingMatchingCard(s.spcostfilter,tp,LOCATION_MZONE,0,2,nil) then return end
+        Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
         local g=Duel.SelectMatchingCard(tp,s.spcostfilter,tp,LOCATION_MZONE,0,2,2,nil)
-        if Duel.Destroy(g,REASON_COST)~=2 then return end
+        if #g~=2 then return end
+        if Duel.SendtoGrave(g,REASON_COST)~=2 then return end
     end
     if c:IsRelateToEffect(e) then
         Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
     end
 end
 
--- Filter for EARTH monsters to destroy as cost
+-- Filter for EARTH monsters to send to GY as cost (for GY summon)
 function s.spcostfilter(c)
-    return c:IsAttribute(ATTRIBUTE_EARTH) and c:IsDestructable() and not c:IsCode(id)
+    return c:IsAttribute(ATTRIBUTE_EARTH) and c:IsAbleToGraveAsCost() and not c:IsCode(id)
+end
+
+-- New: condition for search effect (Main Phase + flag)
+function s.srchcon(e,tp,eg,ep,ev,re,r,rp)
+    local ph=Duel.GetCurrentPhase()
+    if not (ph==PHASE_MAIN1 or ph==PHASE_MAIN2) then return false end
+    return (Duel.HasFlagEffect(tp,id) and Duel.GetFlagEffectLabel(tp,id)==ATTRIBUTE_EARTH)
+        or (Duel.HasFlagEffect(1-tp,id) and Duel.GetFlagEffectLabel(1-tp,id)==ATTRIBUTE_EARTH)
+end
+
+-- New: reveal cost for search effect
+function s.srchcost(e,tp,eg,ep,ev,re,r,rp,chk)
+    local c=e:GetHandler()
+    if chk==0 then return c:IsLocation(LOCATION_HAND) end
+    Duel.ConfirmCards(1-tp,c)
+    Duel.ShuffleHand(tp)
+end
+
+-- New: target for search effect
+function s.srchtg(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return Duel.IsExistingMatchingCard(Card.IsCode,tp,LOCATION_DECK,0,1,nil,2100040002) end
+    Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
+end
+
+-- New: operation for search effect
+function s.srchop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+    local g=Duel.SelectMatchingCard(tp,Card.IsCode,tp,LOCATION_DECK,0,1,1,nil,2100040002)
+    if #g>0 and Duel.SendtoHand(g,nil,REASON_EFFECT)~=0 then
+        Duel.ConfirmCards(1-tp,g)
+        -- Shuffle 1 card from hand into the Deck
+        if Duel.IsExistingMatchingCard(aux.TRUE,tp,LOCATION_HAND,0,1,nil) then
+            Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
+            local sg=Duel.SelectMatchingCard(tp,aux.TRUE,tp,LOCATION_HAND,0,1,1,nil)
+            if #sg>0 then
+                Duel.SendtoDeck(sg,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
+            end
+        end
+    end
 end
 
 -- Target function for flipping a monster
@@ -139,6 +210,11 @@ end
 -- Filter for opponent's face-down Defense Position monsters
 function s.desfilter(c,tp)
     return c:IsFacedown() and c:IsDefensePos() and c:IsDestructable() and c:IsControler(1-tp)
+end
+
+-- New: target function for granting defense-position attack ability
+function s.atktg(e,c)
+    return c~=e:GetHandler() and c:IsFaceup() and c:IsAttribute(ATTRIBUTE_EARTH)
 end
 
 -- Operation function for destroying a monster and gaining Defense Points
