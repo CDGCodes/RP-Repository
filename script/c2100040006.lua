@@ -145,7 +145,7 @@ function s.revthop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 -- Filter for FIRE monsters to protect
-function s.protectfilter(c)
+function s.protectfilter(e,c)
     return c:IsAttribute(ATTRIBUTE_FIRE)
 end
 
