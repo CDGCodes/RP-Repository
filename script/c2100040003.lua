@@ -44,6 +44,15 @@ function s.initial_effect(c)
     e3:SetOperation(s.stzop)
     c:RegisterEffect(e3)
 
+    --ATK reduction effect based on WIND monsters controlled
+    local e3b=Effect.CreateEffect(c)
+    e3b:SetType(EFFECT_TYPE_FIELD)
+    e3b:SetCode(EFFECT_UPDATE_ATTACK)
+    e3b:SetRange(LOCATION_MZONE)
+    e3b:SetTargetRange(0,LOCATION_MZONE)
+    e3b:SetValueFunction(s.atkval)
+    c:RegisterEffect(e3b)
+
     -- Once per turn, Main Phase (in hand): reveal this card; add 1 "2100040002" from your Deck to your hand, then shuffle 1 card from your hand into your Deck
     local e4=Effect.CreateEffect(c)
     e4:SetDescription(aux.Stringid(id,3))
