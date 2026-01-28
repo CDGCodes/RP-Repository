@@ -50,7 +50,7 @@ function s.initial_effect(c)
     e3b:SetCode(EFFECT_UPDATE_ATTACK)
     e3b:SetRange(LOCATION_MZONE)
     e3b:SetTargetRange(0,LOCATION_MZONE)
-    e3b:SetValueFunction(s.atkval)
+    e3b:SetValue(s.atkval)
     c:RegisterEffect(e3b)
 
     -- Once per turn, Main Phase (in hand): reveal this card; add 1 "2100040002" from your Deck to your hand, then shuffle 1 card from your hand into your Deck
