@@ -18,17 +18,20 @@ function s.initial_effect(c)
     e1:SetOperation(s.spop)
     c:RegisterEffect(e1)
 
-    -- New: Reveal in hand to add card 2100040002 from Deck to hand, then shuffle a card from hand into Deck (Once per turn)
+    -- Once per turn, Main Phase (in hand): reveal this card; add 1 "2100040002" from your Deck to your hand, then shuffle 1 card from your hand into your Deck
     local e2=Effect.CreateEffect(c)
     e2:SetDescription(aux.Stringid(id,3))
-    e2:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH+CATEGORY_TODECK)
+    e2:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
     e2:SetType(EFFECT_TYPE_IGNITION)
     e2:SetRange(LOCATION_HAND)
-    e2:SetCountLimit(1,id+100) -- separate once per turn for this effect
-    e2:SetCondition(s.srchcon)
-    e2:SetCost(s.srchcost)
-    e2:SetTarget(s.srchtg)
-    e2:SetOperation(s.srchop)
+    e2:SetCountLimit(1,id+1)
+    e2:SetCondition(function(e,tp,eg,ep,ev,re,r,rp)
+        local ph=Duel.GetCurrentPhase()
+        return ph==PHASE_MAIN1 or ph==PHASE_MAIN2
+    end)
+    e2:SetCost(s.revcost)
+    e2:SetTarget(s.revthtg)
+    e2:SetOperation(s.revthop)
     c:RegisterEffect(e2)
 
     -- Track activation of "Soul Corruption" and EARTH attribute declaration
@@ -141,41 +144,35 @@ function s.spcostfilter(c)
     return c:IsAttribute(ATTRIBUTE_EARTH) and c:IsAbleToGraveAsCost() and not c:IsCode(id)
 end
 
--- New: condition for search effect (Main Phase + flag)
-function s.srchcon(e,tp,eg,ep,ev,re,r,rp)
-    local ph=Duel.GetCurrentPhase()
-    if not (ph==PHASE_MAIN1 or ph==PHASE_MAIN2) then return false end
-    return (Duel.HasFlagEffect(tp,id) and Duel.GetFlagEffectLabel(tp,id)==ATTRIBUTE_EARTH)
-        or (Duel.HasFlagEffect(1-tp,id) and Duel.GetFlagEffectLabel(1-tp,id)==ATTRIBUTE_EARTH)
+-- Reveal cost for search effect
+function s.revcost(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return not e:GetHandler():IsPublic() end
+    Duel.ConfirmCards(1-tp,e:GetHandler())
 end
 
--- New: reveal cost for search effect
-function s.srchcost(e,tp,eg,ep,ev,re,r,rp,chk)
-    local c=e:GetHandler()
-    if chk==0 then return c:IsLocation(LOCATION_HAND) end
-    Duel.ConfirmCards(1-tp,c)
-    Duel.ShuffleHand(tp)
+-- Filter for search effect
+function s.revthfilter(c)
+    return c:IsCode(2100040002) and c:IsAbleToHand()
 end
 
--- New: target for search effect
-function s.srchtg(e,tp,eg,ep,ev,re,r,rp,chk)
-    if chk==0 then return Duel.IsExistingMatchingCard(Card.IsCode,tp,LOCATION_DECK,0,1,nil,2100040002) end
+-- Target for search effect
+function s.revthtg(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return Duel.IsExistingMatchingCard(s.revthfilter,tp,LOCATION_DECK,0,1,nil) end
     Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 end
 
--- New: operation for search effect
-function s.srchop(e,tp,eg,ep,ev,re,r,rp)
+-- Operation for search effect
+function s.revthop(e,tp,eg,ep,ev,re,r,rp)
+    if not Duel.IsExistingMatchingCard(s.revthfilter,tp,LOCATION_DECK,0,1,nil) then return end
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-    local g=Duel.SelectMatchingCard(tp,Card.IsCode,tp,LOCATION_DECK,0,1,1,nil,2100040002)
-    if #g>0 and Duel.SendtoHand(g,nil,REASON_EFFECT)~=0 then
+    local g=Duel.SelectMatchingCard(tp,s.revthfilter,tp,LOCATION_DECK,0,1,1,nil)
+    if #g>0 then
+        Duel.SendtoHand(g,nil,REASON_EFFECT)
         Duel.ConfirmCards(1-tp,g)
-        -- Shuffle 1 card from hand into the Deck
-        if Duel.IsExistingMatchingCard(aux.TRUE,tp,LOCATION_HAND,0,1,nil) then
-            Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-            local sg=Duel.SelectMatchingCard(tp,aux.TRUE,tp,LOCATION_HAND,0,1,1,nil)
-            if #sg>0 then
-                Duel.SendtoDeck(sg,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
-            end
+        Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
+        local sg=Duel.SelectMatchingCard(tp,aux.TRUE,tp,LOCATION_HAND,0,1,1,nil)
+        if #sg>0 then
+            Duel.SendtoDeck(sg,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
         end
     end
 end
@@ -212,7 +209,7 @@ function s.desfilter(c,tp)
     return c:IsFacedown() and c:IsDefensePos() and c:IsDestructable() and c:IsControler(1-tp)
 end
 
--- New: target function for granting defense-position attack ability
+-- Target function for granting defense-position attack ability
 function s.atktg(e,c)
     return c~=e:GetHandler() and c:IsFaceup() and c:IsAttribute(ATTRIBUTE_EARTH)
 end
