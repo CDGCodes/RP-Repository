@@ -16,14 +16,6 @@ function s.initial_effect(c)
     e1:SetOperation(s.spop)
     c:RegisterEffect(e1)
     
-    --Cannot be special summoned by other ways
-    --local e2=Effect.CreateEffect(c)
-    --e2:SetType(EFFECT_TYPE_SINGLE)
-    --e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-    --e2:SetCode(EFFECT_SPSUMMON_CONDITION)
-    --e2:SetValue(aux.FALSE)
-    --c:RegisterEffect(e2)
-
     --Track activation of the card with ID 3000000002 and WIND attribute choice
     aux.GlobalCheck(s,function()
         local ge1=Effect.CreateEffect(c)
@@ -41,53 +33,32 @@ function s.initial_effect(c)
     --    Duel.RegisterEffect(ge1,0)
     --end
 
-    --Special summon a WIND attribute monster from the graveyard once per turn during the end phase
+    --Quick effect: Move a WIND monster to the spell and trap zone or vice versa
     local e3=Effect.CreateEffect(c)
-    e3:SetDescription(aux.Stringid(id, 0)) -- Adding description
-    e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-    e3:SetCode(EVENT_PHASE+PHASE_END)
+    e3:SetDescription(aux.Stringid(id, 1))
+    e3:SetType(EFFECT_TYPE_QUICK_O)
+    e3:SetCode(EVENT_FREE_CHAIN)
     e3:SetRange(LOCATION_MZONE)
     e3:SetCountLimit(1)
-    e3:SetCondition(s.epcon)
-    e3:SetTarget(s.sptg2)
-    e3:SetOperation(s.spop2)
+    e3:SetTarget(s.stztg)
+    e3:SetOperation(s.stzop)
     c:RegisterEffect(e3)
 
-    --Quick effect: Move a WIND monster to the spell and trap zone or vice versa
-    local e4=Effect.CreateEffect(c)
-    e4:SetDescription(aux.Stringid(id, 1)) -- Adding description
-    e4:SetType(EFFECT_TYPE_QUICK_O)
-    e4:SetCode(EVENT_FREE_CHAIN)
-    e4:SetRange(LOCATION_MZONE)
-    e4:SetCountLimit(1)
-    e4:SetTarget(s.stztg)
-    e4:SetOperation(s.stzop)
-    c:RegisterEffect(e4)
-
-    --Gain 500 ATK for each monster set as a Continuous Spell
-    local e5=Effect.CreateEffect(c)
-    e5:SetType(EFFECT_TYPE_SINGLE)
-    e5:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-    e5:SetCode(EFFECT_UPDATE_ATTACK)
-    e5:SetRange(LOCATION_MZONE)
-    e5:SetValue(s.atkval)
-    c:RegisterEffect(e5)
-
     -- Once per turn, Main Phase (in hand): reveal this card; add 1 "2100040002" from your Deck to your hand, then shuffle 1 card from your hand into your Deck
-    local e6=Effect.CreateEffect(c)
-    e6:SetDescription(aux.Stringid(id,3))
-    e6:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
-    e6:SetType(EFFECT_TYPE_IGNITION)
-    e6:SetRange(LOCATION_HAND)
-    e6:SetCountLimit(1,id+1)
-    e6:SetCondition(function(e,tp,eg,ep,ev,re,r,rp)
+    local e4=Effect.CreateEffect(c)
+    e4:SetDescription(aux.Stringid(id,3))
+    e4:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+    e4:SetType(EFFECT_TYPE_IGNITION)
+    e4:SetRange(LOCATION_HAND)
+    e4:SetCountLimit(1,id+1)
+    e4:SetCondition(function(e,tp,eg,ep,ev,re,r,rp)
         local ph=Duel.GetCurrentPhase()
         return ph==PHASE_MAIN1 or ph==PHASE_MAIN2
     end)
-    e6:SetCost(s.revcost)
-    e6:SetTarget(s.revthtg)
-    e6:SetOperation(s.revthop)
-    c:RegisterEffect(e6)
+    e4:SetCost(s.revcost)
+    e4:SetTarget(s.revthtg)
+    e4:SetOperation(s.revthop)
+    c:RegisterEffect(e4)
 end
 
 function s.checkop(e,tp,eg,ep,ev,re,r,rp)
@@ -97,11 +68,11 @@ function s.checkop(e,tp,eg,ep,ev,re,r,rp)
     end
 end
 
---Calculate the ATK boost based on the number of monsters set as Continuous Spells
+--Calculate the ATK reduction for opponent's monsters based on WIND monsters you control
 function s.atkval(e,c)
-    local tp=c:GetControler()
-    local g=Duel.GetMatchingGroup(s.ctfilter,tp,LOCATION_SZONE,0,nil)
-    return g:GetCount() * 500
+    local tp=e:GetHandler():GetControler()
+    local g=Duel.GetMatchingGroup(aux.FaceupFilter(Card.IsAttribute,ATTRIBUTE_WIND),tp,LOCATION_MZONE,0,nil)
+    return -g:GetCount() * 300
 end
 
 --Filter for monsters set as Continuous Spells
