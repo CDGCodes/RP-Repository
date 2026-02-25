@@ -79,12 +79,26 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) then
 		Duel.SpecialSummon(c,1,tp,tp,false,false,POS_FACEUP)
+		-- After Special Summon, add 1 "Emerald Light" Spell/Trap from GY to hand
+		if Duel.IsExistingMatchingCard(s.stfilter,tp,LOCATION_GRAVE,0,1,nil) then
+			if Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+				local g=Duel.SelectMatchingCard(tp,s.stfilter,tp,LOCATION_GRAVE,0,1,1,nil)
+				if #g>0 then
+					Duel.SendtoHand(g,nil,REASON_EFFECT)
+					Duel.ConfirmCards(1-tp,g)
+				end
+			end
+		end
 	end
-	
+end
+
+-- Filter for "Emerald Light" Spell/Trap
+function s.stfilter(c)
+	return c:IsSetCard(0x4003) and (c:IsType(TYPE_SPELL) or c:IsType(TYPE_TRAP)) and c:IsAbleToHand()
 end
 
 -- Quick Effect condition: only during either player's Main Phase
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
     return Duel.GetCurrentPhase()==PHASE_MAIN1 or Duel.GetCurrentPhase()==PHASE_MAIN2
 end
-
